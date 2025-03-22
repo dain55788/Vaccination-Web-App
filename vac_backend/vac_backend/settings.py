@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-i1^pvnfh2^&g=ub3$esgo6@n%j47ye3a)-)(6@yx1k8**p_f^u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True  # set the DEBUG to False when used in production.
 
 ALLOWED_HOSTS = []
 
@@ -75,8 +75,11 @@ WSGI_APPLICATION = 'vac_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'vaccinationdb',
+        'USER': 'root',
+        'PASSWORD': '123456',
+        'HOST': '' # mặc định localhost
     }
 }
 
@@ -121,3 +124,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import cloudinary
+from cloudinary import uploader
+from cloudinary.utils import cloudinary_url
+
+# Configuration
+cloudinary.config(
+    cloud_name = "dxxwcby8l",
+    api_key = "448651448423589",
+    api_secret = "ftGud0r1TTqp0CGp5tjwNmkAm-A", # Click 'View API Keys' above to copy your API secret
+    secure=True
+)
