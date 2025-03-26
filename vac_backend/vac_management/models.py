@@ -15,11 +15,16 @@ class BaseModel(models.Model):
 
 
 class BaseUser(AbstractUser):
-    date_of_birth = models.DateField()
+    GENDER_CHOICES = (
+        ('male', 'Male'),
+        ('female', 'Female'),
+    )
+
+    date_of_birth = models.DateField(null=True)
     avatar = CloudinaryField(null=True)  # models.ImageField(upload_to='users/%Y/%m', null=True)
     phone_number = models.CharField(max_length=25)
     address = models.CharField(max_length=255, null=True)
-    gender = models.BooleanField()
+    gender = models.BooleanField(choices=GENDER_CHOICES, null=True)
 
     def __str__(self):
         return self.username
@@ -64,7 +69,7 @@ class Doctor(BaseUser):
 
 
 class VaccineCategory(BaseModel):
-    category_name = models.CharField(max_length=100)
+    category_name = models.CharField(max_length=100,  unique=True)
 
     class Meta:
         ordering = ['-id']
@@ -77,6 +82,7 @@ class Vaccine(BaseModel):
     category = models.ForeignKey(VaccineCategory, on_delete=models.PROTECT)
     vaccine_name = models.CharField(max_length=100)
     dose_quantity = models.IntegerField()
+    image = CloudinaryField(null=True)
     instruction = models.TextField()
     unit_price = models.FloatField()
 
@@ -131,6 +137,7 @@ class Campaign(BaseModel):
     start_date = models.DateField()
     end_date = models.DateField()
     description = models.TextField(max_length=255)
+    image = CloudinaryField(null=True)
     target_population = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='planned')
 

@@ -143,11 +143,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 import cloudinary
 from cloudinary import uploader
 from cloudinary.utils import cloudinary_url
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Configuration
 cloudinary.config(
-    cloud_name = "dxxwcby8l",
-    api_key = "448651448423589",
-    api_secret = "ftGud0r1TTqp0CGp5tjwNmkAm-A", # Click 'View API Keys' above to copy your API secret
+    cloud_name="dxxwcby8l",
+    api_key=f"{os.getenv('CLOUDINARY_API_KEY')}",
+    api_secret=f"{os.getenv('CLOUDINARY_API_SECRET')}",  # Click 'View API Keys' above to copy your API secret
     secure=True
 )

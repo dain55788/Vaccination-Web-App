@@ -18,13 +18,13 @@ class VaccineCategorySerializer(serializers.ModelSerializer):
 class VaccineSerializer(BaseSerializer):
     class Meta:
         model = Vaccine
-        fields = ['id', 'category', 'vaccine_name', 'number_of_dose_required', 'description', 'manufacturer']
+        fields = ['id', 'category_id', 'vaccine_name', 'dose_quantity', 'image', 'instruction', 'unit_price']
 
 
 class AppointmentSerializer(BaseSerializer):
     class Meta:
         model = Appointment
-        fields = ['id', 'citizen', 'vaccine', 'staff', 'dose_number', 'scheduled_date', 'status', 'notes']
+        fields = ['id', 'citizen_id', 'vaccine', 'staff_id', 'scheduled_date', 'location', 'notes']
 
 
 class AppointmentVaccineSerializer(BaseSerializer):
@@ -39,9 +39,10 @@ class CampaignSerializer(BaseSerializer):
         fields = '__all__'
 
 
-class CitizenSerializer(serializers.ModelSerializer):
+class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Citizen
+        abstract = True
+        model = BaseUser
         fields = ['first_name', 'last_name', 'username', 'password', 'avatar']
         extra_kwargs = {
             'password': {
@@ -68,3 +69,33 @@ class CitizenSerializer(serializers.ModelSerializer):
         d = super().to_representation(instance)
         d['avatar'] = instance.avatar.url if instance.avatar else ''
         return d
+
+
+class CampaignCitizenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignCitizen
+        fields = '__all__'
+
+
+class CampaignVaccineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignVaccine
+        fields = '__all__'
+
+
+class CitizenSerializer(BaseUserSerializer):
+    class Meta:
+        model = Citizen
+        fields = BaseUserSerializer.Meta.fields + ['health_note']
+
+
+class StaffSerializer(BaseUserSerializer):
+    class Meta:
+        model = Staff
+        fields = BaseUserSerializer.Meta.fields + ['shift', 'hire_date']
+
+
+class DoctorSerializer(BaseUserSerializer):
+    class Meta:
+        model = Doctor
+        fields = BaseUserSerializer.Meta.fields + ['speciality', 'years_of_experience', 'medical_license']

@@ -32,4 +32,7 @@ admin_site.register(Vaccine)
 admin_site.register(VaccineCategory)
 admin_site.register(Appointment)
 admin_site.register(Campaign)
+admin_site.register(Doctor)
+admin_site.register(Staff)
+admin_site.register(Citizen)
 

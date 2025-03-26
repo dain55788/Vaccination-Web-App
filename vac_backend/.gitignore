@@ -1,4 +1,5 @@
 /venv
 Note.txt
 
-/vac_management/test.py
+vac_management/test.py
+.env
