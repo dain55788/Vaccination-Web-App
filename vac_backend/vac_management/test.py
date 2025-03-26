@@ -1,0 +1,4 @@
+import vac_management
+from vac_management.apps import VaccinationManagementConfig
+
+print(VaccinationManagementConfig.__module__)

@@ -1,14 +1,14 @@
 install_all:
-	python -m pip install -r requirements.txt
+	pip install -r requirements.txt
 
 runserver:
-	python manage.py runserver
+	manage.py runserver
 
 migrate:
-	python manage.py migrate
+	python3 manage.py migrate
 
 makemigrations:
-	python manage.py makemigrations vac_management
+	python3 manage.py makemigrations vac_management
 
 superuser:
-	python manage.py createsuperuser
+	python3 manage.py createsuperuser

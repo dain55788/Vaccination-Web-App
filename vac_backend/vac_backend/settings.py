@@ -37,6 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'vac_management.apps.VaccinationManagementConfig',
+    # 'ckeditor',
+    # 'ckeditor_uploader',
+    'rest_framework',
+    'drf_yasg',
+    'oauth2_provider'
 ]
 
 MIDDLEWARE = [
@@ -48,6 +54,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('oauth2_provider.contrib.rest_framework.OAuth2Authentication',)
+}
+
+OAUTH2_PROVIDER = { 'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore' }
 
 ROOT_URLCONF = 'vac_backend.urls'
 
@@ -69,20 +81,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vac_backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'vaccinationdb',
+        'NAME': 'vaccination_management',
         'USER': 'root',
         'PASSWORD': '123456',
         'HOST': '' # mặc định localhost
     }
 }
 
+import pymysql
+pymysql.install_as_MySQLdb()
+
+AUTH_USER_MODEL = 'vac_management.BaseUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
