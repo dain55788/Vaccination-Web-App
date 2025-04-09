@@ -89,7 +89,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'vaccination_management',
         'USER': 'root',
-        'PASSWORD': '123456',
+        # 'PASSWORD': '123456',
+        'PASSWORD': 'P@ssw0rd',
         'HOST': '' # mặc định localhost
     }
 }
@@ -150,7 +151,7 @@ load_dotenv()
 
 # Configuration
 cloudinary.config(
-    cloud_name="dxxwcby8l",
+    cloud_name="da6hbd0o7",
     api_key=f"{os.getenv('CLOUDINARY_API_KEY')}",
     api_secret=f"{os.getenv('CLOUDINARY_API_SECRET')}",  # Click 'View API Keys' above to copy your API secret
     secure=True

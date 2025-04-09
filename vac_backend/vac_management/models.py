@@ -24,7 +24,7 @@ class BaseUser(AbstractUser):
     avatar = CloudinaryField(null=True)  # models.ImageField(upload_to='users/%Y/%m', null=True)
     phone_number = models.CharField(max_length=25)
     address = models.CharField(max_length=255, null=True)
-    gender = models.BooleanField(choices=GENDER_CHOICES, null=True)
+    gender = models.CharField(max_length=10,choices=GENDER_CHOICES, null=True)
 
     def __str__(self):
         return self.username
