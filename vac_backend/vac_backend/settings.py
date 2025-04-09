@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'vac_management.apps.VaccinationManagementConfig',
-    # 'ckeditor',
-    # 'ckeditor_uploader',
+    'ckeditor',
+    'ckeditor_uploader',
     'rest_framework',
     'drf_yasg',
     'oauth2_provider'
@@ -89,8 +89,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'vaccination_management',
         'USER': 'root',
-        # 'PASSWORD': '123456',
-        'PASSWORD': 'P@ssw0rd',
+        'PASSWORD': '123456',
+        # 'PASSWORD': 'P@ssw0rd',
         'HOST': '' # mặc định localhost
     }
 }
@@ -151,8 +151,14 @@ load_dotenv()
 
 # Configuration
 cloudinary.config(
-    cloud_name="da6hbd0o7",
+    cloud_name="dtrmjyjli",
     api_key=f"{os.getenv('CLOUDINARY_API_KEY')}",
     api_secret=f"{os.getenv('CLOUDINARY_API_SECRET')}",  # Click 'View API Keys' above to copy your API secret
     secure=True
 )
+
+# CKEditor configuration
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

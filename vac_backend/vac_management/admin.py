@@ -11,6 +11,10 @@ from vac_management.models import *
 class MyAdminSite(admin.AdminSite):
     site_header = 'Vaccination Management Online'
 
+    def has_permission(self, request):
+
+        return request.user.is_active and request.user.is_staff or request.user.is_superuser
+    
     def get_urls(self):
         return [
             path('vaccine-stats/', self.stats_view)

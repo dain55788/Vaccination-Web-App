@@ -3,6 +3,11 @@
 from django.db import migrations, models
 
 
+def noop(apps, schema_editor):
+    # No operation, just skip this migration
+    pass
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -10,9 +15,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='baseuser',
-            name='gender',
-            field=models.CharField(choices=[('male', 'Male'), ('female', 'Female')], max_length=10, null=True),
-        ),
+        migrations.RunPython(noop, reverse_code=migrations.RunPython.noop),
     ]

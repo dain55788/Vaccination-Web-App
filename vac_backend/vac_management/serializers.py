@@ -68,7 +68,9 @@ class StaffSerializer(BaseUserSerializer):
 class DoctorSerializer(BaseUserSerializer):
     class Meta:
         model = Doctor
-        fields = BaseUserSerializer.Meta.fields + ['specialty', 'years_of_experience', 'medical_license']
+        return_lists = BaseUserSerializer.Meta.fields + ['specialty', 'years_of_experience', 'medical_license']
+        return_lists.remove('password')
+        fields = return_lists
 
 
 class VaccineSerializer(BaseSerializer):
