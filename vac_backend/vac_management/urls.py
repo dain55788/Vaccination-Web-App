@@ -4,11 +4,13 @@ from rest_framework.routers import DefaultRouter
 
 
 router = DefaultRouter()
-# router.register('categories', views.VaccineCategory, basename='category')
-# router.register('courses', views.CourseViewSet, basename='course')
-# router.register('lessons', views.LessonViewSet, basename='lesson')
+router.register('categories', views.VaccineCategoryViewSet, basename='category')
+router.register('vaccines', views.VaccineViewSet, basename='vaccine')
+router.register('campaigns', views.CampaignViewSet, basename='campaign')
+router.register('appointments', views.AppointmentViewSet, basename='appointment')
 router.register('citizen', views.CitizenViewSet, basename='citizen')
-# router.register('comments', views.CommentViewSet, basename='comment')
+router.register('staffs', views.StaffViewSet, basename='staff')
+router.register('doctors', views.DoctorViewSet, basename='doctor')
 
 
 urlpatterns = [

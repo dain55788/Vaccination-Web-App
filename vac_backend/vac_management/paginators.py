@@ -7,3 +7,7 @@ class VaccinePaginator(pagination.PageNumberPagination):
 
 class AppointmentPaginator(pagination.PageNumberPagination):
     page_size = 3
+
+
+class CampaignPaginator(pagination.PageNumberPagination):
+    page_size = 3

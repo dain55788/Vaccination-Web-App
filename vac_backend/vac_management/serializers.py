@@ -12,31 +12,7 @@ class BaseSerializer(serializers.ModelSerializer):
 class VaccineCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = VaccineCategory
-        fields = ['id', 'name']
-
-
-class VaccineSerializer(BaseSerializer):
-    class Meta:
-        model = Vaccine
-        fields = ['id', 'category_id', 'vaccine_name', 'dose_quantity', 'image', 'instruction', 'unit_price']
-
-
-class AppointmentSerializer(BaseSerializer):
-    class Meta:
-        model = Appointment
-        fields = ['id', 'citizen_id', 'vaccine', 'staff_id', 'scheduled_date', 'location', 'notes']
-
-
-class AppointmentVaccineSerializer(BaseSerializer):
-    class Meta:
-        model = AppointmentVaccine
-        fields = '__all__'
-
-
-class CampaignSerializer(BaseSerializer):
-    class Meta:
-        model = Campaign
-        fields = '__all__'
+        fields = ['id', 'category_name']
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -71,18 +47,6 @@ class BaseUserSerializer(serializers.ModelSerializer):
         return d
 
 
-class CampaignCitizenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CampaignCitizen
-        fields = '__all__'
-
-
-class CampaignVaccineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CampaignVaccine
-        fields = '__all__'
-
-
 class CitizenSerializer(BaseUserSerializer):
     class Meta:
         model = Citizen
@@ -98,4 +62,57 @@ class StaffSerializer(BaseUserSerializer):
 class DoctorSerializer(BaseUserSerializer):
     class Meta:
         model = Doctor
-        fields = BaseUserSerializer.Meta.fields + ['speciality', 'years_of_experience', 'medical_license']
+        fields = BaseUserSerializer.Meta.fields + ['specialty', 'years_of_experience', 'medical_license']
+
+
+class VaccineSerializer(BaseSerializer):
+    category = VaccineCategorySerializer(read_only=True)
+    category_id = serializers.IntegerField(write_only=True)
+    
+    class Meta:
+        model = Vaccine
+        fields = ['id', 'category', 'category_id', 'vaccine_name', 'dose_quantity', 'image', 'instruction', 'unit_price']
+
+
+class AppointmentSerializer(BaseSerializer):
+    citizen_info = CitizenSerializer(source='citizen', read_only=True)
+    staff_info = StaffSerializer(source='staff', read_only=True)
+    
+    class Meta:
+        model = Appointment
+        fields = ['id', 'citizen', 'citizen_info', 'staff', 'staff_info', 'scheduled_date', 'location', 'notes']
+        extra_kwargs = {
+            'citizen': {'write_only': True},
+            'staff': {'write_only': True}
+        }
+
+
+class AppointmentVaccineSerializer(BaseSerializer):
+    vaccine_info = VaccineSerializer(source='vaccine', read_only=True)
+    doctor_info = DoctorSerializer(source='doctor', read_only=True)
+    
+    class Meta:
+        model = AppointmentVaccine
+        fields = ['id', 'appointment', 'vaccine', 'vaccine_info', 'doctor', 'doctor_info', 'dose_quantity_used', 'status', 'notes', 'cost']
+        extra_kwargs = {
+            'vaccine': {'write_only': True},
+            'doctor': {'write_only': True}
+        }
+
+
+class CampaignSerializer(BaseSerializer):
+    class Meta:
+        model = Campaign
+        fields = '__all__'
+
+
+class CampaignCitizenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignCitizen
+        fields = '__all__'
+
+
+class CampaignVaccineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignVaccine
+        fields = '__all__'

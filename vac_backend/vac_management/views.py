@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import viewsets, generics, parsers, permissions, status
 from vac_management.models import *
 from vac_management import serializers, perms, paginators
+from django.db.models import Count, Sum, Q
+from django.db.models.functions import TruncMonth, TruncQuarter, TruncYear
 
 
 class VaccineCategoryViewSet(viewsets.ViewSet, generics.ListAPIView):
@@ -29,54 +31,89 @@ class VaccineViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         return query
 
+    @action(methods=['get'], url_path='by-name/(?P<vaccine_name>[^/.]+)', detail=False)
+    def get_by_name(self, request, vaccine_name=None):
+        """
+        Retrieve a vaccine by its name
+        """
+        try:
+            vaccine = Vaccine.objects.get(vaccine_name__iexact=vaccine_name, active=True)
+            return Response(serializers.VaccineSerializer(vaccine).data)
+        except Vaccine.DoesNotExist:
+            return Response({"detail": "Vaccine not found."}, status=status.HTTP_404_NOT_FOUND)
+            
+    @action(methods=['get'], detail=True)
+    def details(self, request, pk=None):
+        """
+        Retrieve details for a specific vaccine
+        """
+        try:
+            vaccine = self.get_object()
+            return Response(serializers.VaccineSerializer(vaccine).data)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-class CampaignViewSet(viewsets.ViewSet, generics.GenericAPIView, generics.UpdateAPIView):
+
+class CampaignViewSet(viewsets.ModelViewSet):
     queryset = Campaign.objects.filter(active=True)
     serializer_class = serializers.CampaignSerializer
+    pagination_class = paginators.CampaignPaginator
+
+    def get_queryset(self):
+        query = self.queryset
+
+        q = self.request.query_params.get('q')
+        if q:
+            query = query.filter(subject__icontains=q)
+
+        cate_id = self.request.query_params.get('category_id')
+        if cate_id:
+            query = query.filter(category_id=cate_id)
+
+        return query
 
 
-class CampaignVaccineViewSet(viewsets.ViewSet, generics.GenericAPIView, generics.UpdateAPIView):
+class CampaignVaccineViewSet(viewsets.ModelViewSet):
     queryset = CampaignVaccine.objects.filter(active=True)
     serializer_class = serializers.CampaignVaccineSerializer
 
-    def get_permissions(self):
-        if self.action.__eq__('get_vaccines'):
-            if self.request.method.__eq__('POST'):
-                return [permissions.IsAuthenticated()]
 
-        return [permissions.AllowAny()]
-
-    # SỬA
-    @action(methods=['get', 'post'], url_path='vaccines', detail=True)
-    def get_vaccines(self, request, pk):
-        if request.method.__eq__('POST'):
-            t = serializers.VaccineSerializer(data={
-                'content': request.data.get('content'),
-                'user': request.user.pk,
-                'lesson': pk
-            })
-            t.is_valid(raise_exception=True)
-            c = t.save()
-            return Response(serializers.VaccineSerializer(c).data, status=status.HTTP_201_CREATED)
-        else:
-            comments = self.get_object().comment_set.select_related('user').filter(active=True)
-            p = paginators.VaccinePaginator()
-            page = p.paginate_queryset(comments, self.request)
-            if page is not None:
-                serializer = serializers.VaccineSerializer(page, many=True)
-                return p.get_paginated_response(serializer.data)
-            else:
-                return Response(serializers.VaccineSerializer(comments, many=True).data)
-
-
-class CampaignCitizenViewSet(viewsets.ViewSet, generics.GenericAPIView, generics.UpdateAPIView):
+class CampaignCitizenViewSet(viewsets.ModelViewSet):
     queryset = CampaignCitizen.objects.filter(active=True)
     serializer_class = serializers.CampaignCitizenSerializer
+
+    # THỐNG KÊ SỐ LƯỢNG NGƯỜI ĐÃ TIÊM THEO CHIẾN DỊCH
+    @action(methods=['get'], url_path='stats-by-campaign', detail=False)
+    def stats_by_campaign(self, request):
+        stats = (CampaignCitizen.objects
+                 .values('campaign__campaign_name')
+                 .annotate(total_vaccinated=Count('citizen', distinct=True))
+                 .order_by('campaign__campaign_name'))
+        return Response(stats)
+
+    # THỐNG KÊ SỐ LƯỢNG NGƯỜI ĐÃ TIÊM THEO THÁNG/ QUÝ/ NĂM
+    @action(methods=['get'], url_path='stats-by-time', detail=False)
+    def stats_by_time(self, request):
+        period = request.query_params.get('period', 'month')  # month, quarter, year
+        if period == 'month':
+            truncate_func = TruncMonth
+        elif period == 'quarter':
+            truncate_func = TruncQuarter
+        else:
+            truncate_func = TruncYear
+
+        stats = (CampaignCitizen.objects
+                 .annotate(period=truncate_func('injection_date'))
+                 .values('period')
+                 .annotate(total_vaccinated=Count('citizen', distinct=True))
+                 .order_by('period'))
+        return Response(stats)
 
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.filter(active=True)
     serializer_class = serializers.AppointmentSerializer
+    pagination_class = paginators.AppointmentPaginator
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -90,8 +127,125 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         staff_id = self.request.query_params.get('staff_id')
         if staff_id:
             queryset = queryset.filter(staff_id=staff_id)
+            
+        # Filter by date
+        date = self.request.query_params.get('date')
+        if date:
+            queryset = queryset.filter(scheduled_date=date)
+            
+        # Filter by location
+        location = self.request.query_params.get('location')
+        if location:
+            queryset = queryset.filter(location__icontains=location)
 
         return queryset
+        
+    @action(methods=['get'], detail=True)
+    def details(self, request, pk=None):
+        """
+        Retrieve complete details for a specific appointment including vaccines
+        """
+        try:
+            appointment = self.get_object()
+            appointment_data = serializers.AppointmentSerializer(appointment).data
+            
+            # Get the related appointment vaccines
+            vaccines = AppointmentVaccine.objects.filter(appointment=appointment, active=True)
+            vaccines_data = serializers.AppointmentVaccineSerializer(vaccines, many=True).data
+            
+            # Combine the data
+            result = {
+                'appointment': appointment_data,
+                'vaccines': vaccines_data
+            }
+            
+            return Response(result)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
+            
+    @action(methods=['get'], url_path='by-citizen', detail=False)
+    def get_by_citizen(self, request):
+        """
+        Retrieve all appointments for a specific citizen
+        """
+        try:
+            citizen_id = request.query_params.get('citizen_id')
+            if not citizen_id:
+                return Response({"detail": "Citizen ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            appointments = Appointment.objects.filter(citizen_id=citizen_id, active=True)
+            return Response(serializers.AppointmentSerializer(appointments, many=True).data)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    # THỐNG KÊ TỈ LỆ HOÀN THÀNH LỊCH TIÊM
+    @action(methods=['get'], url_path='completion-rate', detail=False)
+    def completion_rate(self, request):
+        total_scheduled = AppointmentVaccine.objects.filter(status='scheduled').count()
+        total_completed = AppointmentVaccine.objects.filter(status='completed').count()
+        total_cancelled = AppointmentVaccine.objects.filter(status='cancelled').count()
+
+        total_appointments = total_scheduled + total_completed + total_cancelled
+        if total_appointments > 0:
+            completion_rate = (total_completed / total_appointments * 100)
+        else:
+            completion_rate = 0
+
+        result = {
+            'total_scheduled': total_scheduled,
+            'total_completed': total_completed,
+            'total_cancelled': total_cancelled,
+            'completion_rate_percent': round(completion_rate, 2)
+        }
+        return Response(result)
+
+
+# VIEWSET THỐNG KÊ CÁC LOẠI VACXIN ĐƯỢC SỬ DỤNG PHỔ BIẾN THEO THÁNG QUÝ NĂM
+class VaccineUsageViewSet(viewsets.ViewSet, generics.GenericAPIView):
+    # TỪ 2 BẢNG CampaignVaccine VÀ AppointmentVaccine
+    @action(methods=['get'], url_path='vaccine-types-by-time', detail=False)
+    def vaccine_types_by_time(self, request):
+        period = request.query_params.get('period', 'month')  # month, quarter, year
+        if period == 'month':
+            truncate_func = TruncMonth
+        elif period == 'quarter':
+            truncate_func = TruncQuarter
+        else:
+            truncate_func = TruncYear
+
+        # AppointmentVaccine
+        appointment_vaccines = (AppointmentVaccine.objects
+                                .filter(status='completed')
+                                .annotate(period=truncate_func('appointment__scheduled_date'))
+                                .values('period', 'vaccine__vaccine_name')
+                                .distinct())
+
+        # CampaignVaccine
+        campaign_vaccines = (CampaignVaccine.objects
+                             .annotate(period=truncate_func('campaign__start_date'))
+                             .values('period', 'vaccine__vaccine_name')
+                             .distinct())
+
+        combined_vaccines = {}
+        for vaccine in appointment_vaccines:
+            period = vaccine['period'].isoformat()
+            combined_vaccines.setdefault(period, set()).add(vaccine['vaccine__vaccine_name'])
+
+        for vaccine in campaign_vaccines:
+            period = vaccine['period'].isoformat()
+            combined_vaccines.setdefault(period, set()).add(vaccine['vaccine__vaccine_name'])
+
+        result = [
+            {
+                'period': period,
+                'vaccine_types': list(vaccines)
+            }
+            for period, vaccines in combined_vaccines.items()
+        ]
+
+        # Sắp xếp theo period
+        result = sorted(result, key=lambda x: x['period'])
+        return Response(result)
 
 
 class AppointmentVaccineViewSet(viewsets.ModelViewSet):
@@ -113,27 +267,17 @@ class AppointmentVaccineViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    # SỬA
-    @action(methods=['get', 'post'], url_path='vaccines', detail=True)
-    def get_vaccines(self, request, pk):
-        if request.method.__eq__('POST'):
-            t = serializers.VaccineSerializer(data={
-                'content': request.data.get('content'),
-                'user': request.user.pk,
-                'lesson': pk
-            })
-            t.is_valid(raise_exception=True)
-            c = t.save()
-            return Response(serializers.VaccineSerializer(c).data, status=status.HTTP_201_CREATED)
-        else:
-            comments = self.get_object().comment_set.select_related('user').filter(active=True)
-            p = paginators.VaccinePaginator()
-            page = p.paginate_queryset(comments, self.request)
-            if page is not None:
-                serializer = serializers.VaccineSerializer(page, many=True)
-                return p.get_paginated_response(serializer.data)
-            else:
-                return Response(serializers.VaccineSerializer(comments, many=True).data)
+    @action(methods=['get'], detail=True)
+    def vaccine_details(self, request, pk=None):
+        """
+        Get details about the vaccine used in this appointment
+        """
+        try:
+            appointment_vaccine = self.get_object()
+            vaccine = appointment_vaccine.vaccine
+            return Response(serializers.VaccineSerializer(vaccine).data)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CitizenViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIView):
@@ -190,6 +334,3 @@ class DoctorViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], url_path='current-user', detail=False, permission_classes=[permissions.IsAuthenticated])
     def get_current_user(self, request):
         return Response(serializers.CitizenSerializer(request.user).data)
-
-
-
