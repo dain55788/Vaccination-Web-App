@@ -24,7 +24,8 @@ class BaseUser(AbstractUser):
     avatar = CloudinaryField(null=True)  # models.ImageField(upload_to='users/%Y/%m', null=True)
     phone_number = models.CharField(max_length=25)
     address = models.CharField(max_length=255, null=True)
-    gender = models.BooleanField(choices=GENDER_CHOICES, null=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True)
+    is_superuser = False
 
     def __str__(self):
         return self.username
@@ -131,6 +132,7 @@ class Campaign(BaseModel):
         ('planned', 'Planned'),
         ('ongoing', 'Ongoing'),
         ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
     )
 
     campaign_name = models.CharField(max_length=100)

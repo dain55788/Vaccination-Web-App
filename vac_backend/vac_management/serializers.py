@@ -5,7 +5,6 @@ from vac_management.models import *
 class BaseSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         d = super().to_representation(instance)
-        d['image'] = instance.image.url
         return d
 
 
@@ -50,13 +49,20 @@ class BaseUserSerializer(serializers.ModelSerializer):
 class CitizenSerializer(BaseUserSerializer):
     class Meta:
         model = Citizen
-        fields = BaseUserSerializer.Meta.fields + ['health_note']
+        return_lists = BaseUserSerializer.Meta.fields + ['health_note']
+        return_lists.remove('password')
+        return_lists.remove('username')
+        fields = return_lists
 
 
 class StaffSerializer(BaseUserSerializer):
     class Meta:
         model = Staff
-        fields = BaseUserSerializer.Meta.fields + ['shift', 'hire_date']
+        return_lists = BaseUserSerializer.Meta.fields + ['shift', 'hire_date']
+        return_lists.remove('password')
+        return_lists.remove('hire_date')
+        return_lists.remove('username')
+        fields = return_lists
 
 
 class DoctorSerializer(BaseUserSerializer):
