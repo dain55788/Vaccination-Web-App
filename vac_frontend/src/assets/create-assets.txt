@@ -1,0 +1,11 @@
+We need to create the following image assets for our app:
+
+1. vaccination.png - A main image for the landing page showing a vaccination scenario
+2. vaccine-icon.png - An icon representing a vaccine for listing available vaccines
+
+Since we can't directly create image files here, you should add appropriate image files to the src/assets directory. 
+
+For now, you might encounter errors related to missing images. You can either:
+1. Add your own image files to the src/assets directory
+2. Temporarily comment out the Image components until you add the images
+3. Use placeholder services like https://via.placeholder.com/ with the Image component 
