@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.shortcuts import render
+from oauthlib.uri_validate import query
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, generics, parsers, permissions, status
@@ -23,7 +26,11 @@ class VaccineViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         q = self.request.query_params.get('q')
         if q:
-            query = query.filter(subject__icontains=q)
+            query = query.filter(vaccine_name__icontains=q)
+
+        id = self.request.query_params.get('id')
+        if id:
+            query = query.filter(id=id)
 
         cate_id = self.request.query_params.get('category_id')
         if cate_id:
@@ -198,6 +205,32 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             'completion_rate_percent': round(completion_rate, 2)
         }
         return Response(result)
+
+
+    # Thống kê số lượng NGƯỜI đã tiêm theo ngày (status = completed)
+    @action(methods = ['get'], url_path='people-completed', detail=False)
+    def people_completed(self,request):
+        # queryset = super().get_queryset()
+
+        p = Appointment.objects.filter(active=True)
+        data = Appointment.objects.filter(active=True)
+
+        date_year = self.request.query_params.get('year')
+        if date_year:
+            data = data.filter(scheduled_date__year=date_year)
+            p = p.filter(scheduled_date__year=date_year)
+
+        date = self.request.query_params.get('date')
+        if date:
+            data = data.filter(scheduled_date = date)
+            p = p.filter(scheduled_date = date)
+
+        p = p.values('citizen__id').distinct().count()
+        serializer = serializers.AppointmentSerializer(data, many=True)
+        return Response({
+            'people': p,
+            'people_completed': serializer.data
+        })
 
 
 # VIEWSET THỐNG KÊ CÁC LOẠI VACXIN ĐƯỢC SỬ DỤNG PHỔ BIẾN THEO THÁNG QUÝ NĂM
