@@ -5,3 +5,7 @@ vac_management/test.py
 .env
 
 .idea/
+
+airflow/logs
+
+..logs/

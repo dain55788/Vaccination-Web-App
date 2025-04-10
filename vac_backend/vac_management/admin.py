@@ -6,6 +6,7 @@ from django.db.models import Count
 from django.template.response import TemplateResponse
 from django.urls import path
 from vac_management.models import *
+from django.contrib.auth.admin import UserAdmin
 
 
 class MyAdminSite(admin.AdminSite):
@@ -31,6 +32,25 @@ class MyAdminSite(admin.AdminSite):
 admin_site = MyAdminSite(name='admin')
 
 
+class BaseUserAdmin(UserAdmin):
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    fieldsets = UserAdmin.fieldsets + (
+        ('Additional Info', {'fields': ('date_of_birth', 'avatar', 'phone_number', 'address', 'gender')}),
+    )
+
+
+class DoctorAdmin(BaseUserAdmin):
+    fieldsets = BaseUserAdmin.fieldsets + (
+        ('Doctor Details', {'fields': ('specialty', 'years_of_experience', 'medical_license')}),
+    )
+
+
+class StaffAdmin(BaseUserAdmin):
+    fieldsets = BaseUserAdmin.fieldsets + (
+        ('Staff Details', {'fields': ('shift', 'hire_date')}),
+    )
+
+
 # ADD MORE VIEWS INTO THE ADMIN SITE VIEW
 admin_site.register(Vaccine)
 admin_site.register(VaccineCategory)
@@ -39,4 +59,5 @@ admin_site.register(Campaign)
 admin_site.register(Doctor)
 admin_site.register(Staff)
 admin_site.register(Citizen)
+admin_site.register(BaseUser, BaseUserAdmin)
 
