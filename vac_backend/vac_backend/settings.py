@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-i1^pvnfh2^&g=ub3$esgo6@n%j47ye3a)-)(6@yx1k8**p_f^u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # set the DEBUG to False when used in production.
+DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,18 +42,23 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'rest_framework',
     'drf_yasg',
-    'oauth2_provider'
+    'oauth2_provider',
+    # 'corsheaders',
+    # 'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('oauth2_provider.contrib.rest_framework.OAuth2Authentication',)

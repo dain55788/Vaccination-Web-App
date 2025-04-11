@@ -48,7 +48,7 @@ class VaccineViewSet(viewsets.ViewSet, generics.ListAPIView):
             return Response(serializers.VaccineSerializer(vaccine).data)
         except Vaccine.DoesNotExist:
             return Response({"detail": "Vaccine not found."}, status=status.HTTP_404_NOT_FOUND)
-            
+
     @action(methods=['get'], detail=True)
     def details(self, request, pk=None):
         """
@@ -134,19 +134,19 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         staff_id = self.request.query_params.get('staff_id')
         if staff_id:
             queryset = queryset.filter(staff_id=staff_id)
-            
+
         # Filter by date
         date = self.request.query_params.get('date')
         if date:
             queryset = queryset.filter(scheduled_date=date)
-            
+
         # Filter by location
         location = self.request.query_params.get('location')
         if location:
             queryset = queryset.filter(location__icontains=location)
 
         return queryset
-        
+
     @action(methods=['get'], detail=True)
     def details(self, request, pk=None):
         """
@@ -155,21 +155,21 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         try:
             appointment = self.get_object()
             appointment_data = serializers.AppointmentSerializer(appointment).data
-            
+
             # Get the related appointment vaccines
             vaccines = AppointmentVaccine.objects.filter(appointment=appointment, active=True)
             vaccines_data = serializers.AppointmentVaccineSerializer(vaccines, many=True).data
-            
+
             # Combine the data
             result = {
                 'appointment': appointment_data,
                 'vaccines': vaccines_data
             }
-            
+
             return Response(result)
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
-            
+
     @action(methods=['get'], url_path='by-citizen', detail=False)
     def get_by_citizen(self, request):
         """
@@ -179,7 +179,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             citizen_id = request.query_params.get('citizen_id')
             if not citizen_id:
                 return Response({"detail": "Citizen ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-                
+
             appointments = Appointment.objects.filter(citizen_id=citizen_id, active=True)
             return Response(serializers.AppointmentSerializer(appointments, many=True).data)
         except Exception as e:
@@ -206,10 +206,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         }
         return Response(result)
 
-
     # Thống kê số lượng NGƯỜI đã tiêm theo ngày (status = completed)
-    @action(methods = ['get'], url_path='people-completed', detail=False)
-    def people_completed(self,request):
+    @action(methods=['get'], url_path='people-completed', detail=False)
+    def people_completed(self, request):
         # queryset = super().get_queryset()
 
         p = Appointment.objects.filter(active=True)
@@ -222,8 +221,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
         date = self.request.query_params.get('date')
         if date:
-            data = data.filter(scheduled_date = date)
-            p = p.filter(scheduled_date = date)
+            data = data.filter(scheduled_date=date)
+            p = p.filter(scheduled_date=date)
 
         p = p.values('citizen__id').distinct().count()
         serializer = serializers.AppointmentSerializer(data, many=True)

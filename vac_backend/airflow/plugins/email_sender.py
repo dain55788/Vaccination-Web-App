@@ -10,6 +10,7 @@ load_dotenv()
 api_key = os.getenv("SENDGRID_API_KEY")
 APPOINTMENTS_FILE = os.getenv("APPOINTMENTS_FILE_PATH")
 
+
 def email(app, to_mail):
     try:
         # ssl._create_default_https_context = ssl._create_unverified_context
@@ -52,7 +53,7 @@ def send_emails():
         if not valid_appointments:
             print("No appointments found to send emails for")
             return
-            
+        patient_email = None
         for app in valid_appointments:
             try:
                 patient_email = app.get("email")
