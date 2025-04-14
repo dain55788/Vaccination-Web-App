@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -11,6 +11,15 @@ import {
   Alert
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import Animated, { 
+  useAnimatedStyle, 
+  useSharedValue, 
+  withSpring, 
+  withSequence,
+  withDelay,
+  withTiming,
+  Easing
+} from 'react-native-reanimated';
 
 const AppointmentScreen = ({ navigation }) => {
   const [fullName, setFullName] = useState('');
@@ -21,6 +30,38 @@ const AppointmentScreen = ({ navigation }) => {
   const [location, setLocation] = useState('');
   const [vaccineType, setVaccineType] = useState('');
   const [notes, setNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Animation values
+  const formOpacity = useSharedValue(0);
+  const formTranslateY = useSharedValue(50);
+  const submitButtonScale = useSharedValue(1);
+  const successOpacity = useSharedValue(0);
+
+  useEffect(() => {
+    // Start animations when component mounts
+    formOpacity.value = withTiming(1, { duration: 800 });
+    formTranslateY.value = withSpring(0, { damping: 15 });
+  }, []);
+
+  const formAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: formOpacity.value,
+      transform: [{ translateY: formTranslateY.value }],
+    };
+  });
+
+  const submitButtonAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: submitButtonScale.value }],
+    };
+  });
+
+  const successAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: successOpacity.value,
+    };
+  });
 
   const locations = [
     "Main Hospital - Downtown",
@@ -46,24 +87,41 @@ const AppointmentScreen = ({ navigation }) => {
     "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM"
   ];
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate fields
     if (!fullName || !email || !phone || !date || !time || !location || !vaccineType) {
-      Alert.alert("Missing Information", "Please fill in all required fields");
+      Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
 
-    // In a real app, you would submit this data to your backend
-    Alert.alert(
-      "Appointment Scheduled",
-      `Thank you, ${fullName}. Your appointment for ${vaccineType} vaccination has been scheduled for ${date} at ${time}.`,
-      [
-        { 
-          text: "OK", 
-          onPress: () => navigation.navigate('Home') 
-        }
-      ]
+    setIsSubmitting(true);
+
+    // Animate button press
+    submitButtonScale.value = withSequence(
+      withSpring(0.95),
+      withSpring(1)
     );
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Show success animation
+      successOpacity.value = withSequence(
+        withTiming(1, { duration: 500 }),
+        withDelay(2000, withTiming(0, { duration: 500 }))
+      );
+
+      // Navigate back after success
+      setTimeout(() => {
+        navigation.goBack();
+      }, 3000);
+
+    } catch (error) {
+      Alert.alert('Error', 'Failed to create appointment. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -83,7 +141,7 @@ const AppointmentScreen = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.content}>
+        <Animated.View style={[styles.formContainer, formAnimatedStyle]}>
           <Text style={styles.sectionTitle}>Personal Information</Text>
           
           <View style={styles.formGroup}>
@@ -270,10 +328,22 @@ const AppointmentScreen = ({ navigation }) => {
             />
           </View>
           
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Schedule Appointment</Text>
-          </TouchableOpacity>
-        </View>
+          <Animated.View style={submitButtonAnimatedStyle}>
+            <TouchableOpacity
+              style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+              onPress={handleSubmit}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.submitButtonText}>
+                {isSubmitting ? 'Scheduling...' : 'Schedule Appointment'}
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View style={[styles.successMessage, successAnimatedStyle]}>
+            <Text style={styles.successText}>Appointment Scheduled Successfully!</Text>
+          </Animated.View>
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -314,15 +384,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
   },
-  content: {
-    backgroundColor: 'white',
-    borderRadius: 10,
+  formContainer: {
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   sectionTitle: {
     fontSize: 18,
@@ -408,14 +471,32 @@ const styles = StyleSheet.create({
   submitButton: {
     backgroundColor: '#2a6df4',
     paddingVertical: 15,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#a0c0f8',
   },
   submitButtonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  successMessage: {
+    position: 'absolute',
+    top: 20,
+    left: 0,
+    right: 0,
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  successText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

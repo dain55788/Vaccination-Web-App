@@ -47,101 +47,81 @@ const LoginScreen = ({ navigation }) => {
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          user_identifier: userIdentifier, // Backend will check if this is email or username
+          user_identifier: userIdentifier,
           password: password,
         }),
       });
-      
-      // In case of network error, check response status
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Login error response:', errorData);
-        setError(errorData.detail || `Error: ${response.status}`);
-        setIsLoading(false);
-        return;
-      }
-      
+
       const data = await response.json();
-      console.log('Login successful:', data);
       
-      // Store auth token securely (would use AsyncStorage or SecureStore in a real app)
-      // For demo purposes, we'll just navigate to the home screen
-      setIsLoading(false);
-      navigation.replace('Home');
+      if (response.ok) {
+        // Login successful
+        navigation.replace('Home');
+      } else {
+        // Login failed
+        setError(data.message || 'Login failed. Please try again.');
+      }
     } catch (error) {
       console.error('Login error:', error);
-      setError('Network error. Please try again later.');
+      setError('Network error. Please check your connection.');
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="dark" />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardAvoidingView}
-        >
-          <View style={styles.content}>
-            {/* Header */}
-            <View style={styles.header}>
-              <Text style={styles.title}>Sign In</Text>
-              <Text style={styles.subtitle}>Welcome back to VaxServe</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>Welcome To VaxServe</Text>
+            <Text style={styles.subtitle}>Sign in to continue</Text>
+
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Username or Email"
+                value={userIdentifier}
+                onChangeText={setUserIdentifier}
+                autoCapitalize="none"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
             </View>
 
-            {/* Form */}
-            <View style={styles.form}>
-              {error ? <Text style={styles.errorText}>{error}</Text> : null}
-              
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Username or Email</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your username or email"
-                  value={userIdentifier}
-                  onChangeText={setUserIdentifier}
-                  autoCapitalize="none"
-                />
-              </View>
-              
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Password</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                />
-              </View>
-              
-              <TouchableOpacity onPress={() => {}}>
-                <Text style={styles.forgotPassword}>Forgot Password?</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.loginButton, isLoading && styles.loginButtonDisabled]} 
-                onPress={handleLogin}
-                disabled={isLoading}
-              >
-                <Text style={styles.loginButtonText}>
-                  {isLoading ? 'Signing in...' : 'Sign In'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            
-            {/* Footer */}
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.signupText}>Sign Up</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.button, isLoading && styles.buttonDisabled]}
+              onPress={handleLogin}
+              disabled={isLoading}
+            >
+              <Text style={styles.buttonText}>
+                {isLoading ? 'Signing in...' : 'Sign In'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.registerLink}
+              onPress={() => navigation.navigate('Register')}
+            >
+              <Text style={styles.registerText}>
+                Don't have an account? <Text style={styles.registerTextBold}>Sign Up</Text>
+              </Text>
+            </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -150,80 +130,64 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  content: {
+  formContainer: {
     flex: 1,
     padding: 20,
     justifyContent: 'center',
   },
-  header: {
-    marginBottom: 30,
-  },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#2a6df4',
-    marginBottom: 5,
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#555',
-  },
-  form: {
+    color: '#666',
     marginBottom: 30,
+    textAlign: 'center',
   },
   errorText: {
     color: 'red',
-    marginBottom: 10,
+    marginBottom: 15,
+    textAlign: 'center',
   },
   inputContainer: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 5,
-    fontWeight: '500',
+    marginBottom: 20,
   },
   input: {
     backgroundColor: 'white',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 8,
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
     borderWidth: 1,
     borderColor: '#ddd',
   },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    color: '#2a6df4',
-    marginBottom: 20,
-  },
-  loginButton: {
+  button: {
     backgroundColor: '#2a6df4',
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',
   },
-  loginButtonDisabled: {
+  buttonDisabled: {
     backgroundColor: '#a0c0f8',
   },
-  loginButtonText: {
+  buttonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  registerLink: {
+    marginTop: 20,
+    alignItems: 'center',
   },
-  footerText: {
+  registerText: {
     color: '#555',
   },
-  signupText: {
-    color: '#2a6df4',
+  registerTextBold: {
     fontWeight: 'bold',
+    color: '#2a6df4',
   },
 });
 

@@ -16,14 +16,26 @@ const LandingScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.navLink}>
             <Text style={styles.navLinkText}>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navLink}>
+          <TouchableOpacity 
+            style={styles.navLink}
+            onPress={() => navigation.navigate('Services')}
+          >
             <Text style={styles.navLinkText}>Services</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navLink}>
+          <TouchableOpacity 
+            style={styles.navLink}
+            onPress={() => navigation.navigate('About')}
+          >
             <Text style={styles.navLinkText}>About</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navLink}>
+          <TouchableOpacity 
+            style={styles.navLink}
+            onPress={() => navigation.navigate('Contact')}
+          >
             <Text style={styles.navLinkText}>Contact</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navLink}>
+            <Text style={styles.navLinkText}>Upcoming Campaigns</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navLink}
@@ -36,6 +48,18 @@ const LandingScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('Profile')}
           >
             <Text style={styles.navLinkText}>Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.navLink, styles.authButton]}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={[styles.navLinkText, styles.authButtonText]}>Sign In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.navLink, styles.authButton, styles.registerButton]}
+            onPress={() => navigation.navigate('Register')}
+          >
+            <Text style={[styles.navLinkText, styles.authButtonText]}>Create Account</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity 
@@ -64,32 +88,53 @@ const LandingScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuItemText}>Home</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                navigation.navigate('Services');
+              }}
+            >
               <Text style={styles.menuItemText}>Services</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                navigation.navigate('About');
+              }}
+            >
               <Text style={styles.menuItemText}>About</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                navigation.navigate('Contact');
+              }}
+            >
               <Text style={styles.menuItemText}>Contact</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.menuItem}
-              onPress={() => {
-                setMenuVisible(false);
-                navigation.navigate('Appointment');
-              }}
-            >
-              <Text style={styles.menuItemText}>Make Appointment</Text>
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuItemText}>Upcoming Campaigns</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Profile');
+                navigation.navigate('Login');
               }}
             >
-              <Text style={styles.menuItemText}>Profile</Text>
+              <Text style={styles.menuItemText}>Sign In</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                navigation.navigate('Register');
+              }}
+            >
+              <Text style={styles.menuItemText}>Create Account</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -344,7 +389,7 @@ const LandingScreen = ({ navigation }) => {
           </View>
           
           <View style={styles.footerBottom}>
-            <Text style={styles.footerText}>© 2023 KẻNghiệnVaccination. All rights reserved.</Text>
+            <Text style={styles.footerText}>© 2023 KẻNghiệnVaccine. All rights reserved.</Text>
             <View style={styles.socialLinks}>
               <TouchableOpacity style={styles.socialButton}>
                 <Text style={styles.socialIcon}>f</Text>
@@ -829,6 +874,19 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  authButton: {
+    backgroundColor: '#007AFF',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    marginLeft: 10,
+  },
+  registerButton: {
+    backgroundColor: '#34C759',
+  },
+  authButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });
 
