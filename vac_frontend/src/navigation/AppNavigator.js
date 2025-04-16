@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, View } from 'react-native';
 
 // Import screens
 import LandingScreen from '../screens/LandingScreen';
@@ -16,10 +18,38 @@ import ServicesScreen from '../screens/ServicesScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [userToken, setUserToken] = useState(null);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const bootstrapAsync = async () => {
+      try {
+        // Get token from storage
+        const token = await AsyncStorage.getItem('userToken');
+        setUserToken(token);
+      } catch (e) {
+        console.error('Failed to load token', e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    bootstrapAsync();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#2a6df4" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName="Landing"
+        initialRouteName={userToken ? "Home" : "Landing"}
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: '#f8f9fa' }

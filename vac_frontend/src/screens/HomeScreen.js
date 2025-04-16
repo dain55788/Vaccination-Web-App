@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -8,11 +8,43 @@ import {
   ScrollView
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logoutUser } from '../utils/api';
 
 const HomeScreen = ({ navigation }) => {
-  const handleLogout = () => {
-    // In a real app, you would handle token removal, etc.
-    navigation.replace('Landing');
+  const [userData, setUserData] = useState(null);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    // Load user data when component mounts
+    const loadUserData = async () => {
+      try {
+        const storedUserData = await AsyncStorage.getItem('userData');
+        const storedUsername = await AsyncStorage.getItem('username');
+        
+        if (storedUserData) {
+          setUserData(JSON.parse(storedUserData));
+        }
+        
+        if (storedUsername) {
+          setUsername(storedUsername);
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
+    };
+    
+    loadUserData();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      // Use the API utility for logout
+      await logoutUser();
+      navigation.replace('Landing');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   return (
@@ -26,7 +58,7 @@ const HomeScreen = ({ navigation }) => {
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeTitle}>Welcome to VaxServe</Text>
+          <Text style={styles.welcomeTitle}>Welcome {username ? username : 'to VaxServe'}</Text>
           <Text style={styles.welcomeSubtitle}>Your vaccination management portal</Text>
         </View>
 
