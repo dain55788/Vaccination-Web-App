@@ -1,86 +1,131 @@
-import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  SafeAreaView, 
-  KeyboardAvoidingView, 
+import React, { useContext, useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  SafeAreaView,
+  KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  Alert
+  Alert,
+  ScrollView
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser } from '../utils/api';
 
+import { authApis } from '../utils/api';
+import Constants from 'expo-constants';
+import { Button, HelperText, TextInput } from 'react-native-paper';
+const { CLIENT_ID, CLIENT_SECRET } = Constants.expoConfig.extra;
+import { MyDispatchContext } from "../utils/MyContexts";
+
 const LoginScreen = ({ navigation }) => {
-  const [userIdentifier, setUserIdentifier] = useState('');
-  const [password, setPassword] = useState('');
+  const [user, setUser] = useState({});
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [serverStatus, setServerStatus] = useState(null);
+  const dispatch = useContext(MyDispatchContext);
+
+  const info = [{
+    label: 'Tên đăng nhập',
+    icon: "text",
+    secureTextEntry: false,
+    field: "username"
+  }, {
+    label: 'Mật khẩu',
+    icon: "eye",
+    secureTextEntry: true,
+    field: "password"
+  }];
+
+  const setState = (value, field) => {
+    setUser({ ...user, [field]: value });
+
+  }
+  const validate = () => {
+    if (!user?.username || !user?.password) {
+      setMsg("Vui lòng nhập tên đăng nhập và mật khẩu!");
+      return false;
+    }
+
+    setMsg(null);
+
+    return true;
+  }
 
   const handleLogin = async () => {
     // Reset error
-    setError('');
-    setServerStatus(null);
-    
-    // Basic validation
-    if (!userIdentifier || !password) {
-      setError('Please enter both username/email and password');
-      return;
-    }
-    
+    setMsg('');
+    // setServerStatus(null);
     setIsLoading(true);
-    
-    try {
-      console.log('Attempting login with credentials...');
-      // Use the API utility for login
-      const result = await loginUser(userIdentifier, password);
-      
-      console.log('Login result:', result);
-      
-      if (result.ok) {
-        console.log('Login successful, navigating to Home');
-        // Login successful - navigation is handled after storing auth data
-        navigation.replace('Home');
-      } else {
-        // Login failed
-        const errorMessage = result.data?.error || 
-                          (result.data?.non_field_errors ? result.data.non_field_errors.join(', ') : null) ||
-                          `Login failed (${result.status}). Please try again.`;
-        console.log('Setting error message:', errorMessage);
-        setError(errorMessage);
+    if (validate() === true) {
+      try {
+        setLoading(true);
+        let res = await Apis.post(endpoints['login'], {
+          ...user,
+          "client_id": CLIENT_ID,
+          "client_secret": CLIENT_SECRET,
+          'grant_type': 'password'
+        });
+
+        console.info(res.data.access_token)
+        await AsyncStorage.setItem("token", res.data.access_token);
+
+        let u = await authApis(res.data.access_token).get(loginUser);
+        console.info(u.data);
+
+        dispatch({
+          "type": "login",
+          "payload": u.data
+        })
+        // console.log('Attempting login with credentials...');
+        // // Use the API utility for login
+        // const result = await loginUser(userIdentifier, password);
+
+        // console.log('Login result:', result);
+
+        // if (result.ok) {
+        //   console.log('Login successful, navigating to Home');
+        //   // Login successful - navigation is handled after storing auth data
+        //   navigation.replace('Home');
+        // } else {
+        //   // Login failed
+        //   const errorMessage = result.data?.error ||
+        //     (result.data?.non_field_errors ? result.data.non_field_errors.join(', ') : null) ||
+        //     `Login failed (${result.status}). Please try again.`;
+        //   console.log('Setting error message:', errorMessage);
+        //   setError(errorMessage);
+        // }
+      } catch (error) {
+        console.error('Login error details:', error);
+        setMsg(error.message || 'Network error. Please check your connection.');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Login error details:', error);
-      setError(error.message || 'Network error. Please check your connection.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const testApiConnection = async () => {
     try {
       setServerStatus('Testing connection...');
-      
+
       // Simple fetch to test if the server is reachable
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
-      const response = await fetch(Platform.OS === 'android' 
-                                  ? 'http://127.0.0.1:8000' 
-                                  : 'http://127.0.0.1:8000', {
+
+      const response = await fetch(Platform.OS === 'android'
+        ? 'http://127.0.0.1:8000'
+        : 'http://127.0.0.1:8000', {
         signal: controller.signal
       }).catch(e => {
         throw e;
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       setServerStatus(`✅ Server reachable (status: ${response.status})`);
     } catch (error) {
       console.log('Connection test error:', error);
@@ -91,69 +136,83 @@ const LoginScreen = ({ navigation }) => {
       }
     }
   };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.formContainer}>
-            <Text style={styles.title}>Welcome To VaxServe</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
+    <View>
+      <ScrollView>
+        <HelperText type="error" visible={error}>
+          {error}
+        </HelperText>
 
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            {serverStatus ? <Text style={styles.serverStatus}>{serverStatus}</Text> : null}
-
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Username or Email"
-                value={userIdentifier}
-                onChangeText={setUserIdentifier}
-                autoCapitalize="none"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]}
-              onPress={handleLogin}
-              disabled={isLoading}
-            >
-              <Text style={styles.buttonText}>
-                {isLoading ? 'Signing in...' : 'Sign In'}
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={styles.testButton}
-              onPress={testApiConnection}
-            >
-              <Text style={styles.testButtonText}>Test Server Connection</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.registerLink}
-              onPress={() => navigation.navigate('Register')}
-            >
-              <Text style={styles.registerText}>
-                Don't have an account? <Text style={styles.registerTextBold}>Sign Up</Text>
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        {info.map(i => <TextInput value={user[i.field]}
+          onChangeText={t => setState(t, i.field)} style={styles.formContainer} key={i.field} label={i.label}
+          secureTextEntry={i.secureTextEntry} right={<TextInput.Icon icon={i.icon} />} />)}
+              {/* Nút này chưa hoạt động */}
+        <Button disabled={isLoading} loading={isLoading} onPress={handleLogin} mode="contained">Đăng nhập</Button>
+      </ScrollView>
+    </View>
   );
+  // return (
+  //   <SafeAreaView style={styles.container}>
+  //     <StatusBar style="dark" />
+  //     <KeyboardAvoidingView
+  //       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  //       style={styles.container}
+  //     >
+  //       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+  //         <View style={styles.formContainer}>
+  //           <Text style={styles.title}>Welcome To VaxServe</Text>
+  //           <Text style={styles.subtitle}>Sign in to continue</Text>
+
+  //           {error ? <Text style={styles.errorText}>{error}</Text> : null}
+  //           {serverStatus ? <Text style={styles.serverStatus}>{serverStatus}</Text> : null}
+
+  //           <View style={styles.inputContainer}>
+  //             <TextInput
+  //               style={styles.input}
+  //               placeholder="Username or Email"
+  //               value={userIdentifier}
+  //               onChangeText={setUserIdentifier}
+  //               autoCapitalize="none"
+  //             />
+  //             <TextInput
+  //               style={styles.input}
+  //               placeholder="Password"
+  //               value={password}
+  //               onChangeText={setPassword}
+  //               secureTextEntry
+  //             />
+  //           </View>
+
+  //           <TouchableOpacity
+  //             style={[styles.button, isLoading && styles.buttonDisabled]}
+  //             onPress={handleLogin}
+  //             disabled={isLoading}
+  //           >
+  //             <Text style={styles.buttonText}>
+  //               {isLoading ? 'Signing in...' : 'Sign In'}
+  //             </Text>
+  //           </TouchableOpacity>
+
+  //           <TouchableOpacity
+  //             style={styles.testButton}
+  //             onPress={testApiConnection}
+  //           >
+  //             <Text style={styles.testButtonText}>Test Server Connection</Text>
+  //           </TouchableOpacity>
+
+  //           <TouchableOpacity
+  //             style={styles.registerLink}
+  //             onPress={() => navigation.navigate('Register')}
+  //           >
+  //             <Text style={styles.registerText}>
+  //               Don't have an account? <Text style={styles.registerTextBold}>Sign Up</Text>
+  //             </Text>
+  //           </TouchableOpacity>
+  //         </View>
+  //       </TouchableWithoutFeedback>
+  //     </KeyboardAvoidingView>
+  //   </SafeAreaView>
+  // );
 };
 
 const styles = StyleSheet.create({

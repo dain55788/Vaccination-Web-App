@@ -97,8 +97,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'vaccination_management',
         'USER': 'root',
-        'PASSWORD': '123456',
-        # 'PASSWORD': 'P@ssw0rd',
+        # 'PASSWORD': '123456',
+        'PASSWORD': 'P@ssw0rd',
         'HOST': '' # mặc định localhost
     }
 }
@@ -170,3 +170,6 @@ CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_IMAGE_BACKEND = "pillow"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CLIENT_ID = f"{os.getenv('CLIENT_ID')}"
+CLIENT_SECRET = f"{os.getenv('CLIENT_SECRET')}"
