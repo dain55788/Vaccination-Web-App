@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from vac_management.models import *
+from django.contrib.auth import authenticate
 
 
 class BaseSerializer(serializers.ModelSerializer):
@@ -14,6 +15,45 @@ class VaccineCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'category_name']
 
 
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=255, write_only=True)
+
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(max_length=255, write_only=True)
+    
+    class Meta:
+        model = Citizen
+        fields = ['first_name', 'last_name', 'username', 'password', 'confirm_password', 
+                  'date_of_birth', 'phone_number', 'address', 'gender', 'health_note']
+        extra_kwargs = {
+            'password': {
+                'write_only': True
+            },
+            'date_of_birth': {'required': False},
+            'phone_number': {'required': False},
+            'address': {'required': False},
+            'gender': {'required': False},
+            'health_note': {'required': False}
+        }
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        confirm_password = attrs.pop('confirm_password', '')
+
+        if password != confirm_password:
+            raise serializers.ValidationError({'confirm_password': 'Passwords do not match'})
+        
+        return attrs
+
+    def create(self, validated_data):
+        user = Citizen(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+
 class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         abstract = True
@@ -26,18 +66,24 @@ class BaseUserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        data = validated_data.copy()
-        u = Citizen(**data)
-        u.set_password(u.password)
-        u.save()
-
-        return u
+        password = validated_data.pop('password')
+        model_class = self.Meta.model
+        user = model_class(**validated_data)
+        
+        user.set_password(password)
+        user.save()
+        
+        return user
 
     def update(self, instance, validated_data):
         if 'password' in validated_data:
-            instance.set_password(validated_data['password'])
-            instance.save()
-
+            password = validated_data.pop('password')
+            instance.set_password(password)
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+            
+        instance.save()
         return instance
 
     def to_representation(self, instance):
@@ -52,6 +98,10 @@ class CitizenSerializer(BaseUserSerializer):
         return_lists = BaseUserSerializer.Meta.fields + ['health_note']
         return_lists.remove('password')
         return_lists.remove('username')
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'username': {'read_only': True}
+        }
         fields = return_lists
 
 
@@ -62,6 +112,10 @@ class StaffSerializer(BaseUserSerializer):
         return_lists.remove('password')
         return_lists.remove('hire_date')
         return_lists.remove('username')
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'username': {'read_only': True}
+        }
         fields = return_lists
 
 
@@ -70,6 +124,10 @@ class DoctorSerializer(BaseUserSerializer):
         model = Doctor
         return_lists = BaseUserSerializer.Meta.fields + ['specialty', 'years_of_experience', 'medical_license']
         return_lists.remove('password')
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'username': {'read_only': True}
+        }
         fields = return_lists
 
 
