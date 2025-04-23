@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Apis, { loginUser, authApis } from "../utils/Apis";
+import Apis, { loginUser, authApis, endpoints } from "../utils/Apis";
 import commonStyles, { COLORS, SPACING, FONT_SIZE, SHADOW, BORDER_RADIUS } from '../styles/MyStyles';
 
 import Constants from 'expo-constants';
@@ -60,36 +60,29 @@ const LoginScreen = ({ navigation }) => {
     setError(message);
   }
 
-  const setLoading = (state) => {
-    setIsLoading(state);
-  }
-
   const handleLogin = async () => {
     setMsg('');
-    setIsLoading(true);
+
+
     if (validate() === true) {
       try {
-        setLoading(true);
+        setIsLoading(true);
         let res = await Apis.post(endpoints['login'], {
           ...user,
-          "client_id": CLIENT_ID,
-          "client_secret": CLIENT_SECRET,
+          "client_id": "Je29bz1Ewro4XUQkTPunuEB9qjIgD0Z90VWZxf34",
+          "client_secret": '56vLL47QDw1YXz03iwHSsiRo9yt7EcdRmEwE78ROi1lIjXoLTB60YQnPgu3ecKczSFGBc2bebaJo7a2sEzi33x1yc6LueOnRBHOzEpzHRpHN2pdAIxrbtQn2ZwFqSJR2',
           'grant_type': 'password'
         });
-
-        console.info(res.data.access_token)
-        await AsyncStorage.setItem("token", res.data.access_token);
-
-        let u = await authApis(res.data.access_token).get(loginUser);
-        console.info(u.data);
-
+        
+        await AsyncStorage.setItem('token', res.data.access_token);
+        let u = await authApis(res.data.access_token).get(endpoints['current-user']);
         dispatch({
           "type": "login",
           "payload": u.data
         })
       } catch (error) {
         console.error('Login error details:', error);
-        setMsg(error.message || 'Network error. Please check your connection.');
+        // setMsg(error.message || 'Network error. Please check your connection.');
       } finally {
         setIsLoading(false);
       }

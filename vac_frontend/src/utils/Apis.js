@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import { Platform } from 'react-native';
 
 let API_BASE_URL = 'http://127.0.0.1:8000/';
@@ -178,3 +179,13 @@ export const authApis = (token) => {
     }
   })
 }
+
+export const endpoints = {
+  'login': 'o/token/',
+  'register': 'users/',
+  'current-user': 'users/current-user/'
+};
+
+export default axios.create({
+  baseURL: API_BASE_URL
+})
