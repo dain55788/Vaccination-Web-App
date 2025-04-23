@@ -8,16 +8,17 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../styles/MyStyles';
+import { useNavigation } from "@react-navigation/native";
 
-const ServicesScreen = ({ navigation }) => {
+const ServicesScreen = () => {
+  const nav = useNavigation();
   return (
     <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
-      
       <View style={commonStyles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity tại sao hot reload trong project của tôi không hoạt động
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
+          onPress={() => nav.goBack()}
         >
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
@@ -26,7 +27,6 @@ const ServicesScreen = ({ navigation }) => {
       </View>
 
       <ScrollView style={commonStyles.padding}>
-        {/* Introduction */}
         <View style={commonStyles.card}>
           <Text style={styles.sectionTitle}>Comprehensive Vaccination Services</Text>
           <Text style={commonStyles.text}>
@@ -35,7 +35,6 @@ const ServicesScreen = ({ navigation }) => {
           </Text>
         </View>
 
-        {/* Vaccination Types */}
         <View style={commonStyles.card}>
           <Text style={styles.sectionTitle}>Available Vaccines</Text>
           
@@ -203,19 +202,17 @@ const ServicesScreen = ({ navigation }) => {
         {/* Schedule Button */}
         <TouchableOpacity 
           style={commonStyles.button}
-          onPress={() => navigation.navigate('Appointment')}
+          onPress={() => nav.navigate('Appointment')}
         >
           <Text style={commonStyles.buttonText}>Schedule Vaccination</Text>
         </TouchableOpacity>
 
-        {/* Space at the bottom for better scrolling */}
         <View style={{ height: 30 }} />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-// Additional styles specific to ServicesScreen
 const styles = {
   backButton: {
     marginRight: SPACING.medium,
@@ -225,7 +222,7 @@ const styles = {
     color: COLORS.primary,
   },
   emptySpace: {
-    width: 40, // To balance the header
+    width: 40,
   },
   sectionTitle: {
     fontSize: FONT_SIZE.large,
@@ -306,4 +303,4 @@ const styles = {
   }
 };
 
-export default ServicesScreen; 
+export default ServicesScreen;

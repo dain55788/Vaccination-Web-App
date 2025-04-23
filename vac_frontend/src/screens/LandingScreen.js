@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
+import { useNavigation } from "@react-navigation/native";
 
-const LandingScreen = ({ navigation }) => {
+const LandingScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
+  const nav = useNavigation();
 
   return (
     <SafeAreaView style={commonStyles.safeArea}>
@@ -13,24 +15,28 @@ const LandingScreen = ({ navigation }) => {
       <View style={styles.navbar}>
         <Text style={styles.navLogo}>VaxServe</Text>
         <View style={styles.navLinksContainer}>
-          <TouchableOpacity style={styles.navLink}>
-            <Text style={styles.navLinkText}>Home</Text>
+          
+          <TouchableOpacity
+            style={styles.navLink}
+            onPress={() => nav.navigate('Home')}
+          >
+          <Text style={styles.navLinkText}>Home</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navLink}
-            onPress={() => navigation.navigate('Services')}
+            onPress={() => nav.navigate('Services')}
           >
             <Text style={styles.navLinkText}>Services</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navLink}
-            onPress={() => navigation.navigate('About')}
+            onPress={() => nav.navigate('About')}
           >
             <Text style={styles.navLinkText}>About</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navLink}
-            onPress={() => navigation.navigate('Contact')}
+            onPress={() => nav.navigate('Contact')}
           >
             <Text style={styles.navLinkText}>Contact</Text>
           </TouchableOpacity>
@@ -39,25 +45,25 @@ const LandingScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navLink}
-            onPress={() => navigation.navigate('Appointment')}
+            onPress={() => nav.navigate('Appointment')}
           >
             <Text style={styles.navLinkText}>Make Appointment</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navLink}
-            onPress={() => navigation.navigate('Profile')}
+            onPress={() => nav.navigate('Profile')}
           >
             <Text style={styles.navLinkText}>Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.navLink, styles.authButton]}
-            onPress={() => navigation.navigate('Login')}
+            onPress={() => nav.navigate('Login')}
           >
             <Text style={[styles.navLinkText, styles.authButtonText]}>Sign In</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             style={[styles.navLink, styles.authButton, styles.registerButton]}
-            onPress={() => navigation.navigate('Register')}
+            onPress={() => nav.navigate('Register')}
           >
             <Text style={[styles.navLinkText, styles.authButtonText]}>Create Account</Text>
           </TouchableOpacity>
@@ -91,7 +97,7 @@ const LandingScreen = ({ navigation }) => {
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Services');
+                nav.navigate('Services');
               }}
             >
               <Text style={styles.menuItemText}>Services</Text>
@@ -100,7 +106,7 @@ const LandingScreen = ({ navigation }) => {
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('About');
+                nav.navigate('About');
               }}
             >
               <Text style={styles.menuItemText}>About</Text>
@@ -109,7 +115,7 @@ const LandingScreen = ({ navigation }) => {
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Contact');
+                nav.navigate('Contact');
               }}
             >
               <Text style={styles.menuItemText}>Contact</Text>
@@ -121,7 +127,7 @@ const LandingScreen = ({ navigation }) => {
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Login');
+                nav.navigate('Login');
               }}
             >
               <Text style={styles.menuItemText}>Sign In</Text>
@@ -130,7 +136,7 @@ const LandingScreen = ({ navigation }) => {
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
-                navigation.navigate('Register');
+                nav.navigate('Register');
               }}
             >
               <Text style={styles.menuItemText}>Create Account</Text>
@@ -201,7 +207,7 @@ const LandingScreen = ({ navigation }) => {
           
           <TouchableOpacity 
             style={commonStyles.button}
-            onPress={() => navigation.navigate('Services')}
+            onPress={() => nav.navigate('Services')}
           >
             <Text style={commonStyles.buttonText}>View All Services</Text>
           </TouchableOpacity>
@@ -215,15 +221,15 @@ const LandingScreen = ({ navigation }) => {
           <View style={styles.ctaButtons}>
             <TouchableOpacity 
               style={commonStyles.button}
-              onPress={() => navigation.navigate('Appointment')}
+              onPress={() => nav.navigate('Appointment')}
             >
               <Text style={commonStyles.buttonText}>Schedule Now</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[commonStyles.button, commonStyles.buttonOutline, styles.ctaSecondaryButton]}
-              onPress={() => navigation.navigate('Contact')}
+              onPress={() => nav.navigate('Contact')}
             >
-              <Text style={commonStyles.buttonOutlineText}>Contact Us</Text>
+              <Text style={commonStyles.buttonText}>Contact Us</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -569,4 +575,4 @@ const styles = {
   }
 };
 
-export default LandingScreen; 
+export default LandingScreen;

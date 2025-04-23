@@ -14,7 +14,6 @@ import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 
 const ProfileScreen = ({ navigation }) => {
-  // Mock user data - in a real app, this would come from an API or local storage
   const [userData, setUserData] = useState({
     name: 'John Doe',
     email: 'john.doe@example.com',
@@ -24,7 +23,6 @@ const ProfileScreen = ({ navigation }) => {
     emergencyContact: 'Jane Doe - (555) 987-6543'
   });
 
-  // Vaccination history
   const vaccinationHistory = [
     {
       id: '1',
@@ -49,7 +47,6 @@ const ProfileScreen = ({ navigation }) => {
     }
   ];
 
-  // Upcoming appointments
   const upcomingAppointments = [
     {
       id: '1',
@@ -60,7 +57,6 @@ const ProfileScreen = ({ navigation }) => {
     }
   ];
 
-  // Settings
   const [settings, setSettings] = useState({
     notifications: true,
     emailUpdates: true,
@@ -154,7 +150,6 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Upcoming Appointments Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
           
@@ -193,7 +188,6 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Settings Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
           
@@ -240,12 +234,10 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
         
-        {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
         
-        {/* Footer space */}
         <View style={styles.footer} />
       </ScrollView>
     </SafeAreaView>

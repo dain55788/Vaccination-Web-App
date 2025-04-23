@@ -10,13 +10,14 @@ import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logoutUser } from '../utils/Apis';
 import commonStyles, { COLORS, SPACING } from '../styles/MyStyles';
+import { useNavigation } from "@react-navigation/native";
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = () => {
   const [userData, setUserData] = useState(null);
   const [username, setUsername] = useState('');
-
+  const nav = useNavigation();
+  
   useEffect(() => {
-    // Load user data when component mounts
     const loadUserData = async () => {
       try {
         const storedUserData = await AsyncStorage.getItem('userData');
@@ -39,9 +40,8 @@ const HomeScreen = ({ navigation }) => {
 
   const handleLogout = async () => {
     try {
-      // Use the API utility for logout
       await logoutUser();
-      navigation.replace('Landing');
+      nav.replace('Landing');
     } catch (error) {
       console.error('Error during logout:', error);
     }
@@ -125,7 +125,6 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-// Additional styles specific to HomeScreen
 const styles = {
   logoutButton: {
     padding: 5,

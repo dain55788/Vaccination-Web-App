@@ -6,7 +6,6 @@ import {
   ScrollView, 
   SafeAreaView,
   TextInput,
-  Platform,
   Alert
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -17,11 +16,11 @@ import Animated, {
   withSequence,
   withDelay,
   withTiming,
-  Easing
 } from 'react-native-reanimated';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../styles/MyStyles';
+import { useNavigation } from "@react-navigation/native";
 
-const AppointmentScreen = ({ navigation }) => {
+const AppointmentScreen = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -36,7 +35,8 @@ const AppointmentScreen = ({ navigation }) => {
   const formTranslateY = useSharedValue(50);
   const submitButtonScale = useSharedValue(1);
   const successOpacity = useSharedValue(0);
-
+  const nav = useNavigation();
+  
   useEffect(() => {
     formOpacity.value = withTiming(1, { duration: 800 });
     formTranslateY.value = withSpring(0, { damping: 15 });
@@ -86,7 +86,6 @@ const AppointmentScreen = ({ navigation }) => {
   ];
 
   const handleSubmit = async () => {
-    // Validate fields
     if (!fullName || !email || !phone || !date || !time || !location || !vaccineType) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
@@ -94,25 +93,21 @@ const AppointmentScreen = ({ navigation }) => {
 
     setIsSubmitting(true);
 
-    // Animate button press
     submitButtonScale.value = withSequence(
       withSpring(0.95),
       withSpring(1)
     );
 
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Show success animation
       successOpacity.value = withSequence(
         withTiming(1, { duration: 500 }),
         withDelay(2000, withTiming(0, { duration: 500 }))
       );
 
-      // Navigate back after success
       setTimeout(() => {
-        navigation.goBack();
+        nav.goBack();
       }, 3000);
 
     } catch (error) {
@@ -126,11 +121,10 @@ const AppointmentScreen = ({ navigation }) => {
     <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
       
-      {/* Header */}
       <View style={commonStyles.header}>
         <TouchableOpacity 
           style={styles.backButton} 
-          onPress={() => navigation.goBack()}
+          onPress={() => nav.goBack()}
         >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
@@ -183,7 +177,6 @@ const AppointmentScreen = ({ navigation }) => {
               value={date}
               onChangeText={setDate}
               placeholder="MM/DD/YYYY"
-              // In a full app, use a proper date picker component
             />
           </View>
           
@@ -328,7 +321,6 @@ const AppointmentScreen = ({ navigation }) => {
   );
 };
 
-// Additional styles specific to AppointmentScreen
 const styles = {
   backButton: {
     paddingHorizontal: SPACING.small,
@@ -339,7 +331,7 @@ const styles = {
     color: COLORS.primary,
   },
   placeholder: {
-    width: 70, // Balance the header
+    width: 70,
   },
   formContainer: {
     paddingHorizontal: SPACING.small,
@@ -431,4 +423,4 @@ const styles = {
   }
 };
 
-export default AppointmentScreen; 
+export default AppointmentScreen;
