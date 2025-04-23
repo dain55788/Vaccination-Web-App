@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  StyleSheet, 
   Text, 
   View, 
   ScrollView, 
@@ -14,6 +13,7 @@ import {
   Keyboard
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, SHADOW } from '../styles/MyStyles';
 
 const ContactScreen = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -47,28 +47,28 @@ const ContactScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
       
-      {/* Header */}
-      <View style={styles.header}>
+      <View style={commonStyles.header}>
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Contact Us</Text>
+        <Text style={commonStyles.headerTitle}>Contact Us</Text>
+        <View style={styles.emptySpace} />
       </View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
+        style={commonStyles.container}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView style={styles.content}>
+          <ScrollView style={commonStyles.padding}>
             {/* Contact Information */}
-            <View style={styles.section}>
+            <View style={commonStyles.card}>
               <Text style={styles.sectionTitle}>Get in Touch</Text>
               <View style={styles.contactItem}>
                 <Text style={styles.contactLabel}>Email:</Text>
@@ -85,23 +85,23 @@ const ContactScreen = ({ navigation }) => {
             </View>
 
             {/* Contact Form */}
-            <View style={styles.section}>
+            <View style={commonStyles.card}>
               <Text style={styles.sectionTitle}>Send us a Message</Text>
               
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Name *</Text>
+              <View style={commonStyles.formContainer}>
+                <Text style={commonStyles.label}>Name *</Text>
                 <TextInput
-                  style={styles.input}
+                  style={commonStyles.input}
                   value={name}
                   onChangeText={setName}
                   placeholder="Enter your name"
                 />
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Email *</Text>
+              <View style={commonStyles.formContainer}>
+                <Text style={commonStyles.label}>Email *</Text>
                 <TextInput
-                  style={styles.input}
+                  style={commonStyles.input}
                   value={email}
                   onChangeText={setEmail}
                   placeholder="Enter your email"
@@ -110,20 +110,20 @@ const ContactScreen = ({ navigation }) => {
                 />
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Subject *</Text>
+              <View style={commonStyles.formContainer}>
+                <Text style={commonStyles.label}>Subject *</Text>
                 <TextInput
-                  style={styles.input}
+                  style={commonStyles.input}
                   value={subject}
                   onChangeText={setSubject}
                   placeholder="Enter subject"
                 />
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Message *</Text>
+              <View style={commonStyles.formContainer}>
+                <Text style={commonStyles.label}>Message *</Text>
                 <TextInput
-                  style={[styles.input, styles.messageInput]}
+                  style={[commonStyles.input, styles.messageInput]}
                   value={message}
                   onChangeText={setMessage}
                   placeholder="Enter your message"
@@ -134,18 +134,18 @@ const ContactScreen = ({ navigation }) => {
               </View>
 
               <TouchableOpacity
-                style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+                style={[commonStyles.button, isSubmitting && commonStyles.buttonDisabled]}
                 onPress={handleSubmit}
                 disabled={isSubmitting}
               >
-                <Text style={styles.submitButtonText}>
+                <Text style={commonStyles.buttonText}>
                   {isSubmitting ? 'Sending...' : 'Send Message'}
                 </Text>
               </TouchableOpacity>
             </View>
 
             {/* Business Hours */}
-            <View style={styles.section}>
+            <View style={commonStyles.card}>
               <Text style={styles.sectionTitle}>Business Hours</Text>
               <View style={styles.hoursItem}>
                 <Text style={styles.hoursDay}>Monday - Friday:</Text>
@@ -167,115 +167,59 @@ const ContactScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
+// Additional styles specific to ContactScreen
+const styles = {
   backButton: {
-    marginRight: 15,
+    marginRight: SPACING.medium,
   },
   backButtonText: {
-    fontSize: 24,
-    color: '#2a6df4',
+    fontSize: FONT_SIZE.huge,
+    color: COLORS.primary,
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  section: {
-    marginBottom: 30,
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  emptySpace: {
+    width: 40, // To balance the header since we have a back button on the left
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
-    color: '#2a6df4',
-    marginBottom: 15,
+    color: COLORS.primary,
+    marginBottom: SPACING.medium,
   },
   contactItem: {
-    marginBottom: 15,
+    marginBottom: SPACING.medium,
   },
   contactLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 5,
+    fontSize: FONT_SIZE.medium,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+    marginBottom: SPACING.tiny,
   },
   contactText: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-  },
-  inputGroup: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 5,
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.secondary,
+    lineHeight: 22,
   },
   messageInput: {
-    height: 120,
-    textAlignVertical: 'top',
-  },
-  submitButton: {
-    backgroundColor: '#2a6df4',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#a0c0f8',
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+    minHeight: 100,
+    paddingTop: SPACING.small,
   },
   hoursItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: SPACING.small,
+    paddingBottom: SPACING.small,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.lightGray,
   },
   hoursDay: {
-    fontSize: 14,
-    color: '#333',
+    fontSize: FONT_SIZE.medium,
     fontWeight: '500',
+    color: COLORS.text.primary,
   },
   hoursTime: {
-    fontSize: 14,
-    color: '#666',
-  },
-});
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.secondary,
+  }
+};
 
 export default ContactScreen; 

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  StyleSheet, 
   Text, 
   View, 
   TouchableOpacity, 
@@ -12,6 +11,7 @@ import {
   Alert
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 
 const ProfileScreen = ({ navigation }) => {
   // Mock user data - in a real app, this would come from an API or local storage
@@ -76,35 +76,31 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const handleEditProfile = () => {
-    // In a real app, navigate to edit profile screen
     Alert.alert('Edit Profile', 'This would navigate to an edit profile screen');
   };
 
   const handleLogout = () => {
-    // In a real app, clear auth tokens, etc.
     navigation.navigate('Landing');
   };
   
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
       
-      {/* Header */}
-      <View style={styles.header}>
+      <View style={[commonStyles.header, styles.header]}>
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={commonStyles.headerTitle}>Profile</Text>
         <TouchableOpacity onPress={handleEditProfile}>
           <Text style={styles.editButton}>Edit</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Profile Section */}
+      <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
             <View style={styles.profileImagePlaceholder}>
@@ -134,28 +130,27 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Vaccination History Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Vaccination History</Text>
           
           {vaccinationHistory.map((record) => (
-            <View key={record.id} style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>{record.type}</Text>
+            <View key={record.id} style={commonStyles.card}>
+              <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+                <Text style={commonStyles.cardTitle}>{record.type}</Text>
                 <Text style={styles.cardDate}>{record.date}</Text>
               </View>
               <View style={styles.cardBody}>
-                <Text style={styles.cardText}>Location: {record.location}</Text>
-                <Text style={styles.cardText}>Dose: {record.dose}</Text>
+                <Text style={commonStyles.text}>Location: {record.location}</Text>
+                <Text style={commonStyles.text}>Dose: {record.dose}</Text>
               </View>
-              <TouchableOpacity style={styles.viewDetailsButton}>
-                <Text style={styles.viewDetailsText}>View Details</Text>
+              <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.viewDetailsButton]}>
+                <Text style={commonStyles.buttonOutlineText}>View Details</Text>
               </TouchableOpacity>
             </View>
           ))}
 
-          <TouchableOpacity style={styles.addRecordButton}>
-            <Text style={styles.addRecordText}>+ Add External Vaccination Record</Text>
+          <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.addRecordButton]}>
+            <Text style={commonStyles.buttonOutlineText}>+ Add External Vaccination Record</Text>
           </TouchableOpacity>
         </View>
 
@@ -165,21 +160,21 @@ const ProfileScreen = ({ navigation }) => {
           
           {upcomingAppointments.length > 0 ? (
             upcomingAppointments.map((appointment) => (
-              <View key={appointment.id} style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <Text style={styles.cardTitle}>{appointment.type}</Text>
+              <View key={appointment.id} style={commonStyles.card}>
+                <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+                  <Text style={commonStyles.cardTitle}>{appointment.type}</Text>
                   <Text style={styles.cardDate}>{appointment.date}</Text>
                 </View>
                 <View style={styles.cardBody}>
-                  <Text style={styles.cardText}>Time: {appointment.time}</Text>
-                  <Text style={styles.cardText}>Location: {appointment.location}</Text>
+                  <Text style={commonStyles.text}>Time: {appointment.time}</Text>
+                  <Text style={commonStyles.text}>Location: {appointment.location}</Text>
                 </View>
                 <View style={styles.appointmentActions}>
-                  <TouchableOpacity style={styles.rescheduleButton}>
-                    <Text style={styles.rescheduleText}>Reschedule</Text>
+                  <TouchableOpacity style={[commonStyles.button, styles.rescheduleButton]}>
+                    <Text style={commonStyles.buttonText}>Reschedule</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.cancelButton}>
-                    <Text style={styles.cancelText}>Cancel</Text>
+                  <TouchableOpacity style={[commonStyles.button, styles.cancelButton]}>
+                    <Text style={commonStyles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -191,10 +186,10 @@ const ProfileScreen = ({ navigation }) => {
           )}
 
           <TouchableOpacity 
-            style={styles.scheduleButton}
+            style={commonStyles.button}
             onPress={() => navigation.navigate('Appointment')}
           >
-            <Text style={styles.scheduleButtonText}>Schedule New Appointment</Text>
+            <Text style={commonStyles.buttonText}>Schedule New Appointment</Text>
           </TouchableOpacity>
         </View>
 
@@ -202,274 +197,196 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
           
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Push Notifications</Text>
-            <Switch 
-              value={settings.notifications}
-              onValueChange={() => handleToggleSetting('notifications')}
-              trackColor={{ false: "#767577", true: "#2a6df4" }}
-              thumbColor={"#f4f3f4"}
-            />
-          </View>
-          
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Email Updates</Text>
-            <Switch 
-              value={settings.emailUpdates}
-              onValueChange={() => handleToggleSetting('emailUpdates')}
-              trackColor={{ false: "#767577", true: "#2a6df4" }}
-              thumbColor={"#f4f3f4"}
-            />
-          </View>
-          
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Text Reminders</Text>
-            <Switch 
-              value={settings.textReminders}
-              onValueChange={() => handleToggleSetting('textReminders')}
-              trackColor={{ false: "#767577", true: "#2a6df4" }}
-              thumbColor={"#f4f3f4"}
-            />
-          </View>
-          
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Dark Mode</Text>
-            <Switch 
-              value={settings.darkMode}
-              onValueChange={() => handleToggleSetting('darkMode')}
-              trackColor={{ false: "#767577", true: "#2a6df4" }}
-              thumbColor={"#f4f3f4"}
-            />
+          <View style={commonStyles.card}>
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Push Notifications</Text>
+              <Switch
+                value={settings.notifications}
+                onValueChange={() => handleToggleSetting('notifications')}
+                trackColor={{ false: COLORS.lightGray, true: COLORS.primary }}
+                thumbColor={COLORS.white}
+              />
+            </View>
+            
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Email Updates</Text>
+              <Switch
+                value={settings.emailUpdates}
+                onValueChange={() => handleToggleSetting('emailUpdates')}
+                trackColor={{ false: COLORS.lightGray, true: COLORS.primary }}
+                thumbColor={COLORS.white}
+              />
+            </View>
+            
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Text Reminders</Text>
+              <Switch
+                value={settings.textReminders}
+                onValueChange={() => handleToggleSetting('textReminders')}
+                trackColor={{ false: COLORS.lightGray, true: COLORS.primary }}
+                thumbColor={COLORS.white}
+              />
+            </View>
+            
+            <View style={styles.settingRow}>
+              <Text style={styles.settingLabel}>Dark Mode</Text>
+              <Switch
+                value={settings.darkMode}
+                onValueChange={() => handleToggleSetting('darkMode')}
+                trackColor={{ false: COLORS.lightGray, true: COLORS.primary }}
+                thumbColor={COLORS.white}
+              />
+            </View>
           </View>
         </View>
-
+        
         {/* Logout Button */}
-        <TouchableOpacity 
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
-          <Text style={styles.logoutButtonText}>Logout</Text>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
+        
+        {/* Footer space */}
+        <View style={styles.footer} />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
+// Additional styles specific to ProfileScreen
+const styles = {
   header: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
   backButton: {
-    padding: 5,
+    padding: SPACING.small,
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#2a6df4',
-    fontWeight: 'bold',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.primary,
+    fontSize: FONT_SIZE.medium,
   },
   editButton: {
-    fontSize: 16,
-    color: '#2a6df4',
-    fontWeight: 'bold',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
+    color: COLORS.primary,
+    fontSize: FONT_SIZE.medium,
+    fontWeight: '500',
   },
   profileSection: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    paddingVertical: 25,
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
     alignItems: 'center',
+    marginBottom: SPACING.large,
   },
   profileImageContainer: {
-    marginBottom: 20,
+    marginBottom: SPACING.medium,
   },
   profileImagePlaceholder: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#2a6df4',
+    backgroundColor: COLORS.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   profileInitials: {
-    fontSize: 36,
+    fontSize: FONT_SIZE.enormous,
     fontWeight: 'bold',
-    color: 'white',
+    color: COLORS.primary,
   },
   profileName: {
-    fontSize: 24,
+    fontSize: FONT_SIZE.huge,
     fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#333',
+    color: COLORS.text.primary,
+    marginBottom: SPACING.medium,
   },
   infoRow: {
     flexDirection: 'row',
+    marginBottom: SPACING.small,
     width: '100%',
-    marginBottom: 15,
+    paddingHorizontal: SPACING.medium,
   },
   infoLabel: {
-    fontSize: 16,
+    fontSize: FONT_SIZE.medium,
     fontWeight: 'bold',
-    color: '#555',
-    width: '35%',
+    color: COLORS.text.secondary,
+    width: 140,
   },
   infoValue: {
-    fontSize: 16,
-    color: '#333',
-    width: '65%',
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.primary,
+    flex: 1,
   },
   section: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    marginBottom: SPACING.large,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#333',
-  },
-  card: {
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 8,
-    marginBottom: 15,
-    padding: 15,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2a6df4',
+    color: COLORS.text.primary,
+    marginBottom: SPACING.medium,
   },
   cardDate: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.secondary,
   },
   cardBody: {
-    marginBottom: 10,
-  },
-  cardText: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 5,
+    marginVertical: SPACING.small,
   },
   viewDetailsButton: {
     alignSelf: 'flex-start',
-  },
-  viewDetailsText: {
-    fontSize: 14,
-    color: '#2a6df4',
-    fontWeight: '500',
+    marginTop: SPACING.small,
   },
   addRecordButton: {
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  addRecordText: {
-    fontSize: 16,
-    color: '#2a6df4',
-    fontWeight: '500',
+    marginTop: SPACING.medium,
   },
   appointmentActions: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 10,
+    justifyContent: 'space-between',
+    marginTop: SPACING.medium,
   },
   rescheduleButton: {
-    marginRight: 15,
+    flex: 1,
+    marginRight: SPACING.small,
   },
-  rescheduleText: {
-    fontSize: 14,
-    color: '#2a6df4',
-    fontWeight: '500',
-  },
-  cancelButton: {},
-  cancelText: {
-    fontSize: 14,
-    color: '#ff3b30',
-    fontWeight: '500',
+  cancelButton: {
+    flex: 1,
+    marginLeft: SPACING.small,
+    backgroundColor: COLORS.danger,
   },
   emptyState: {
-    padding: 20,
+    padding: SPACING.large,
+    backgroundColor: COLORS.background.primary,
+    borderRadius: BORDER_RADIUS.medium,
     alignItems: 'center',
+    ...SHADOW.light,
   },
   emptyStateText: {
-    fontSize: 16,
-    color: '#888',
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.secondary,
   },
-  scheduleButton: {
-    backgroundColor: '#2a6df4',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  scheduleButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  settingItem: {
+  settingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: SPACING.small,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: COLORS.lightGray,
   },
   settingLabel: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.primary,
   },
   logoutButton: {
-    backgroundColor: '#ff3b30',
-    paddingVertical: 15,
-    borderRadius: 8,
+    backgroundColor: COLORS.danger,
+    paddingVertical: SPACING.medium,
+    borderRadius: BORDER_RADIUS.small,
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 30,
+    marginBottom: SPACING.large,
   },
-  logoutButtonText: {
-    color: 'white',
+  logoutText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZE.medium,
     fontWeight: 'bold',
-    fontSize: 16,
   },
-});
+  footer: {
+    height: 20,
+  },
+};
 
 export default ProfileScreen; 

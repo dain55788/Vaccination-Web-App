@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { 
-  StyleSheet, 
   Text, 
   View, 
   TextInput, 
@@ -11,10 +10,13 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
-  Alert
+  Alert,
+  ImageBackground
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const RegisterScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState('');
@@ -116,282 +118,351 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="dark" />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardAvoidingView}
-        >
+    <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
+      <StatusBar style="light" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardAvoidingView}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <View style={styles.content}>
-              {/* Header */}
-              <View style={styles.header}>
-                <Text style={styles.title}>Create Account</Text>
-                <Text style={styles.subtitle}>Join VaxServe for easy vaccination management</Text>
+            <LinearGradient
+              colors={[COLORS.primary, '#1a4dc7']} 
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.header}
+            >
+              <View style={styles.headerContent}>
+                <Text style={styles.headerTitle}>Create Account</Text>
+                <Text style={styles.headerSubtitle}>Join VaxServe for easy vaccination management</Text>
               </View>
+            </LinearGradient>
 
-              {/* Form */}
-              <View style={styles.form}>
-                {error ? <Text style={styles.errorText}>{error}</Text> : null}
-                
-                <View style={styles.row}>
-                  <View style={[styles.inputContainer, styles.halfWidth]}>
-                    <Text style={styles.label}>First Name *</Text>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="First name"
-                      value={firstName}
-                      onChangeText={setFirstName}
-                    />
-                  </View>
-                  
-                  <View style={[styles.inputContainer, styles.halfWidth]}>
-                    <Text style={styles.label}>Last Name *</Text>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Last name"
-                      value={lastName}
-                      onChangeText={setLastName}
-                    />
-                  </View>
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Username</Text>
+            <View style={styles.formCard}>
+              {error ? <Text style={[commonStyles.errorText, styles.errorText]}>{error}</Text> : null}
+              
+              <View style={commonStyles.row}>
+                <View style={[styles.inputContainer, styles.halfWidth]}>
+                  <Text style={styles.label}>First Name *</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Choose a username (optional)"
-                    value={username}
-                    onChangeText={setUsername}
-                    autoCapitalize="none"
+                    placeholder="First name"
+                    value={firstName}
+                    onChangeText={setFirstName}
+                    placeholderTextColor={COLORS.text.muted}
                   />
                 </View>
                 
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Email *</Text>
+                <View style={[styles.inputContainer, styles.halfWidth]}>
+                  <Text style={styles.label}>Last Name *</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter your email"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
+                    placeholder="Last name"
+                    value={lastName}
+                    onChangeText={setLastName}
+                    placeholderTextColor={COLORS.text.muted}
                   />
                 </View>
-                
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Phone Number *</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your phone number"
-                    value={phoneNumber}
-                    onChangeText={setPhoneNumber}
-                    keyboardType="phone-pad"
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Gender *</Text>
-                  <View style={styles.radioContainer}>
-                    <TouchableOpacity 
-                      style={[styles.radioButton, gender === 'Male' && styles.radioButtonSelected]} 
-                      onPress={() => setGender('Male')}
-                    >
-                      <Text style={styles.radioText}>Male</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[styles.radioButton, gender === 'Female' && styles.radioButtonSelected]} 
-                      onPress={() => setGender('Female')}
-                    >
-                      <Text style={styles.radioText}>Female</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Date of Birth *</Text>
-                  <TouchableOpacity 
-                    style={styles.datePickerButton} 
-                    onPress={() => setShowDatePicker(true)}
-                  >
-                    <Text>{formatDate(dateOfBirth)}</Text>
-                  </TouchableOpacity>
-                  {showDatePicker && (
-                    <DateTimePicker
-                      value={dateOfBirth}
-                      mode="date"
-                      display="default"
-                      onChange={handleDateChange}
-                      maximumDate={new Date()}
-                    />
-                  )}
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Address (Optional)</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter your address"
-                    value={address}
-                    onChangeText={setAddress}
-                    multiline
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Password *</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Create a password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                  />
-                </View>
-                
-                <View style={styles.inputContainer}>
-                  <Text style={styles.label}>Confirm Password *</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Confirm your password"
-                    value={confirmPassword}
-                    onChangeText={setConfirmPassword}
-                    secureTextEntry
-                  />
-                </View>
-                
-                <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-                  <Text style={styles.registerButtonText}>Create Account</Text>
-                </TouchableOpacity>
               </View>
               
-              {/* Footer */}
-              <View style={styles.footer}>
-                <Text style={styles.footerText}>Already have an account? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                  <Text style={styles.loginText}>Sign In</Text>
-                </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Username</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Choose a username (optional)"
+                  value={username}
+                  onChangeText={setUsername}
+                  autoCapitalize="none"
+                  placeholderTextColor={COLORS.text.muted}
+                />
               </View>
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your email"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholderTextColor={COLORS.text.muted}
+                />
+              </View>
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Phone Number *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your phone number"
+                  value={phoneNumber}
+                  onChangeText={setPhoneNumber}
+                  keyboardType="phone-pad"
+                  placeholderTextColor={COLORS.text.muted}
+                />
+              </View>
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Gender *</Text>
+                <View style={styles.radioContainer}>
+                  <TouchableOpacity 
+                    style={[styles.radioButton, gender === 'Male' && styles.radioButtonSelected]} 
+                    onPress={() => setGender('Male')}
+                  >
+                    <View style={gender === 'Male' ? styles.radioInnerSelected : styles.radioInner} />
+                    <Text style={styles.radioLabel}>Male</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[styles.radioButton, gender === 'Female' && styles.radioButtonSelected]} 
+                    onPress={() => setGender('Female')}
+                  >
+                    <View style={gender === 'Female' ? styles.radioInnerSelected : styles.radioInner} />
+                    <Text style={styles.radioLabel}>Female</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[styles.radioButton, gender === 'Other' && styles.radioButtonSelected]} 
+                    onPress={() => setGender('Other')}
+                  >
+                    <View style={gender === 'Other' ? styles.radioInnerSelected : styles.radioInner} />
+                    <Text style={styles.radioLabel}>Other</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Date of Birth *</Text>
+                <TouchableOpacity 
+                  style={styles.dateButton}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Text style={styles.dateButtonText}>{formatDate(dateOfBirth)}</Text>
+                </TouchableOpacity>
+                
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={dateOfBirth}
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChange}
+                    maximumDate={new Date()}
+                  />
+                )}
+              </View>
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Address (Optional)</Text>
+                <TextInput
+                  style={[styles.input, styles.multilineInput]}
+                  placeholder="Enter your address"
+                  value={address}
+                  onChangeText={setAddress}
+                  multiline
+                  numberOfLines={3}
+                  placeholderTextColor={COLORS.text.muted}
+                />
+              </View>
+              
+              <View style={styles.divider} />
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Password *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Create a password"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                  placeholderTextColor={COLORS.text.muted}
+                />
+              </View>
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Confirm Password *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                  placeholderTextColor={COLORS.text.muted}
+                />
+              </View>
+              
+              <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                <Text style={styles.registerButtonText}>Create Account</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.loginLink}
+                onPress={() => navigation.navigate('Login')}
+              >
+                <Text style={styles.loginText}>
+                  Already have an account? <Text style={styles.loginTextBold}>Sign In</Text>
+                </Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: COLORS.background.secondary,
   },
   keyboardAvoidingView: {
     flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingVertical: 20,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
   },
   header: {
-    marginBottom: 30,
+    paddingVertical: SPACING.large,
+    paddingHorizontal: SPACING.medium,
+    marginBottom: -SPACING.large,
   },
-  title: {
-    fontSize: 32,
+  headerContent: {
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: FONT_SIZE.huge,
     fontWeight: 'bold',
-    color: '#2a6df4',
-    marginBottom: 5,
+    color: COLORS.white,
+    marginBottom: SPACING.small,
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#555',
+  headerSubtitle: {
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.white,
+    opacity: 0.9,
+    textAlign: 'center',
   },
-  form: {
-    marginBottom: 30,
+  formCard: {
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: BORDER_RADIUS.large,
+    borderTopRightRadius: BORDER_RADIUS.large,
+    margin: SPACING.medium,
+    marginTop: SPACING.extraLarge,
+    padding: SPACING.large,
+    ...SHADOW.medium,
   },
   errorText: {
-    color: 'red',
-    marginBottom: 10,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  halfWidth: {
-    width: '48%',
+    textAlign: 'center',
+    marginBottom: SPACING.medium,
+    fontSize: FONT_SIZE.medium,
   },
   inputContainer: {
-    marginBottom: 15,
+    marginBottom: SPACING.medium,
+  },
+  halfWidth: {
+    flex: 1,
+    marginRight: SPACING.small,
   },
   label: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 5,
+    fontSize: FONT_SIZE.regular,
+    color: COLORS.text.primary,
     fontWeight: '500',
+    marginBottom: SPACING.small,
   },
   input: {
-    backgroundColor: 'white',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: COLORS.background.primary,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.small,
+    padding: SPACING.medium,
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.primary,
   },
-  datePickerButton: {
-    backgroundColor: 'white',
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
+  multilineInput: {
+    height: 80,
+    textAlignVertical: 'top',
   },
   radioContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
+    marginTop: SPACING.small,
   },
   radioButton: {
-    backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.small,
+    paddingHorizontal: SPACING.medium,
     borderWidth: 1,
-    borderColor: '#ddd',
-    marginRight: 10,
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.small,
+    ...SHADOW.light,
   },
   radioButtonSelected: {
-    backgroundColor: '#e6effd',
-    borderColor: '#2a6df4',
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.lightGray,
   },
-  radioText: {
-    color: '#333',
+  radioInner: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+    marginRight: SPACING.small,
+  },
+  radioInnerSelected: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: COLORS.primary,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    marginRight: SPACING.small,
+  },
+  radioLabel: {
+    fontSize: FONT_SIZE.regular,
+    color: COLORS.text.primary,
+  },
+  dateButton: {
+    backgroundColor: COLORS.background.primary,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.small,
+    padding: SPACING.medium,
+  },
+  dateButtonText: {
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.primary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.lightGray,
+    marginVertical: SPACING.medium,
   },
   registerButton: {
-    backgroundColor: '#2a6df4',
-    paddingVertical: 15,
-    borderRadius: 10,
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.small,
+    padding: SPACING.medium,
     alignItems: 'center',
-    marginTop: 10,
+    justifyContent: 'center',
+    marginVertical: SPACING.medium,
+    ...SHADOW.medium,
   },
   registerButtonText: {
-    color: 'white',
-    fontSize: 16,
+    color: COLORS.white,
+    fontSize: FONT_SIZE.medium,
     fontWeight: 'bold',
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  footerText: {
-    color: '#555',
+  loginLink: {
+    marginTop: SPACING.medium,
+    alignItems: 'center',
   },
   loginText: {
-    color: '#2a6df4',
-    fontWeight: 'bold',
+    color: COLORS.text.secondary,
+    fontSize: FONT_SIZE.medium,
   },
-});
+  loginTextBold: {
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+};
 
 export default RegisterScreen; 

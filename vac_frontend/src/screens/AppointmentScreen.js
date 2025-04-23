@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  StyleSheet, 
   Text, 
   View, 
   TouchableOpacity, 
@@ -20,6 +19,7 @@ import Animated, {
   withTiming,
   Easing
 } from 'react-native-reanimated';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../styles/MyStyles';
 
 const AppointmentScreen = ({ navigation }) => {
   const [fullName, setFullName] = useState('');
@@ -32,14 +32,12 @@ const AppointmentScreen = ({ navigation }) => {
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Animation values
   const formOpacity = useSharedValue(0);
   const formTranslateY = useSharedValue(50);
   const submitButtonScale = useSharedValue(1);
   const successOpacity = useSharedValue(0);
 
   useEffect(() => {
-    // Start animations when component mounts
     formOpacity.value = withTiming(1, { duration: 800 });
     formTranslateY.value = withSpring(0, { damping: 15 });
   }, []);
@@ -125,39 +123,39 @@ const AppointmentScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
       
       {/* Header */}
-      <View style={styles.header}>
+      <View style={commonStyles.header}>
         <TouchableOpacity 
           style={styles.backButton} 
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Schedule Appointment</Text>
+        <Text style={commonStyles.headerTitle}>Schedule Appointment</Text>
         <View style={styles.placeholder}></View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
         <Animated.View style={[styles.formContainer, formAnimatedStyle]}>
           <Text style={styles.sectionTitle}>Personal Information</Text>
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Full Name *</Text>
+          <View style={commonStyles.formContainer}>
+            <Text style={commonStyles.label}>Full Name *</Text>
             <TextInput
-              style={styles.input}
+              style={commonStyles.input}
               value={fullName}
               onChangeText={setFullName}
               placeholder="Enter your full name"
             />
           </View>
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Email *</Text>
+          <View style={commonStyles.formContainer}>
+            <Text style={commonStyles.label}>Email *</Text>
             <TextInput
-              style={styles.input}
+              style={commonStyles.input}
               value={email}
               onChangeText={setEmail}
               placeholder="Enter your email address"
@@ -165,10 +163,10 @@ const AppointmentScreen = ({ navigation }) => {
             />
           </View>
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Phone Number *</Text>
+          <View style={commonStyles.formContainer}>
+            <Text style={commonStyles.label}>Phone Number *</Text>
             <TextInput
-              style={styles.input}
+              style={commonStyles.input}
               value={phone}
               onChangeText={setPhone}
               placeholder="Enter your phone number"
@@ -178,10 +176,10 @@ const AppointmentScreen = ({ navigation }) => {
           
           <Text style={styles.sectionTitle}>Appointment Details</Text>
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Date *</Text>
+          <View style={commonStyles.formContainer}>
+            <Text style={commonStyles.label}>Date *</Text>
             <TextInput
-              style={styles.input}
+              style={commonStyles.input}
               value={date}
               onChangeText={setDate}
               placeholder="MM/DD/YYYY"
@@ -189,8 +187,8 @@ const AppointmentScreen = ({ navigation }) => {
             />
           </View>
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Preferred Time *</Text>
+          <View style={commonStyles.formContainer}>
+            <Text style={commonStyles.label}>Preferred Time *</Text>
             <View style={styles.optionsContainer}>
               {timeSlots.slice(0, 4).map((slot, index) => (
                 <TouchableOpacity
@@ -213,26 +211,7 @@ const AppointmentScreen = ({ navigation }) => {
             <View style={styles.optionsContainer}>
               {timeSlots.slice(4, 8).map((slot, index) => (
                 <TouchableOpacity
-                  key={index + 4}
-                  style={[
-                    styles.optionButton,
-                    time === slot && styles.selectedOption
-                  ]}
-                  onPress={() => setTime(slot)}
-                >
-                  <Text style={[
-                    styles.optionText,
-                    time === slot && styles.selectedOptionText
-                  ]}>
-                    {slot}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <View style={styles.optionsContainer}>
-              {timeSlots.slice(8).map((slot, index) => (
-                <TouchableOpacity
-                  key={index + 8}
+                  key={index}
                   style={[
                     styles.optionButton,
                     time === slot && styles.selectedOption
@@ -250,8 +229,8 @@ const AppointmentScreen = ({ navigation }) => {
             </View>
           </View>
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Location *</Text>
+          <View style={commonStyles.formContainer}>
+            <Text style={commonStyles.label}>Location *</Text>
             <View style={styles.optionsContainer}>
               {locations.slice(0, 3).map((loc, index) => (
                 <TouchableOpacity
@@ -274,7 +253,7 @@ const AppointmentScreen = ({ navigation }) => {
             <View style={styles.optionsContainer}>
               {locations.slice(3).map((loc, index) => (
                 <TouchableOpacity
-                  key={index + 3}
+                  key={index}
                   style={[
                     styles.locationButton,
                     location === loc && styles.selectedOption
@@ -292,37 +271,37 @@ const AppointmentScreen = ({ navigation }) => {
             </View>
           </View>
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Vaccine Type *</Text>
-            <View style={styles.vaccineContainer}>
-              {vaccineTypes.map((type, index) => (
+          <View style={commonStyles.formContainer}>
+            <Text style={commonStyles.label}>Vaccine Type *</Text>
+            <View style={styles.vaccineOptionsContainer}>
+              {vaccineTypes.map((vaccine, index) => (
                 <TouchableOpacity
                   key={index}
                   style={[
                     styles.vaccineButton,
-                    vaccineType === type && styles.selectedOption
+                    vaccineType === vaccine && styles.selectedOption
                   ]}
-                  onPress={() => setVaccineType(type)}
+                  onPress={() => setVaccineType(vaccine)}
                 >
                   <Text style={[
                     styles.vaccineText,
-                    vaccineType === type && styles.selectedOptionText
+                    vaccineType === vaccine && styles.selectedOptionText
                   ]}>
-                    {type}
+                    {vaccine}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
           
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Additional Notes</Text>
+          <View style={commonStyles.formContainer}>
+            <Text style={commonStyles.label}>Special Notes (Optional)</Text>
             <TextInput
-              style={[styles.input, styles.textArea]}
+              style={[commonStyles.input, styles.notesInput]}
               value={notes}
               onChangeText={setNotes}
-              placeholder="Any health concerns or special requests"
-              multiline
+              placeholder="Any additional information we should know"
+              multiline={true}
               numberOfLines={4}
               textAlignVertical="top"
             />
@@ -330,18 +309,18 @@ const AppointmentScreen = ({ navigation }) => {
           
           <Animated.View style={submitButtonAnimatedStyle}>
             <TouchableOpacity
-              style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
+              style={[commonStyles.button, isSubmitting && commonStyles.buttonDisabled]}
               onPress={handleSubmit}
               disabled={isSubmitting}
             >
-              <Text style={styles.submitButtonText}>
+              <Text style={commonStyles.buttonText}>
                 {isSubmitting ? 'Scheduling...' : 'Schedule Appointment'}
               </Text>
             </TouchableOpacity>
           </Animated.View>
-
+          
           <Animated.View style={[styles.successMessage, successAnimatedStyle]}>
-            <Text style={styles.successText}>Appointment Scheduled Successfully!</Text>
+            <Text style={styles.successText}>Appointment scheduled successfully!</Text>
           </Animated.View>
         </Animated.View>
       </ScrollView>
@@ -349,155 +328,107 @@ const AppointmentScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
+// Additional styles specific to AppointmentScreen
+const styles = {
   backButton: {
-    padding: 5,
+    paddingHorizontal: SPACING.small,
   },
   backButtonText: {
-    fontSize: 16,
-    color: '#2a6df4',
-    fontWeight: 'bold',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: FONT_SIZE.medium,
+    fontWeight: '500',
+    color: COLORS.primary,
   },
   placeholder: {
-    width: 50,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
+    width: 70, // Balance the header
   },
   formContainer: {
-    padding: 20,
+    paddingHorizontal: SPACING.small,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
-    marginBottom: 15,
-    marginTop: 10,
-    color: '#333',
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
-    color: '#444',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  textArea: {
-    height: 100,
+    color: COLORS.primary,
+    marginTop: SPACING.medium,
+    marginBottom: SPACING.medium,
+    paddingHorizontal: SPACING.small,
   },
   optionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 5,
-    marginBottom: 10,
+    marginBottom: SPACING.small,
   },
   optionButton: {
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 5,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  optionText: {
-    color: '#555',
-    fontSize: 14,
+    paddingVertical: SPACING.small,
+    paddingHorizontal: SPACING.medium,
+    backgroundColor: COLORS.background.primary,
+    borderRadius: BORDER_RADIUS.small,
+    marginRight: SPACING.small,
+    marginBottom: SPACING.small,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   selectedOption: {
-    backgroundColor: '#2a6df4',
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  optionText: {
+    fontSize: FONT_SIZE.small,
+    color: COLORS.text.primary,
   },
   selectedOptionText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: COLORS.white,
+    fontWeight: '500',
   },
   locationButton: {
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    marginRight: 8,
-    marginBottom: 8,
+    paddingVertical: SPACING.small,
+    paddingHorizontal: SPACING.medium,
+    backgroundColor: COLORS.background.primary,
+    borderRadius: BORDER_RADIUS.small,
+    marginRight: SPACING.small,
+    marginBottom: SPACING.small,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     flex: 1,
   },
   locationText: {
-    color: '#555',
-    fontSize: 14,
+    fontSize: FONT_SIZE.tiny,
+    color: COLORS.text.primary,
     textAlign: 'center',
   },
-  vaccineContainer: {
-    marginTop: 5,
+  vaccineOptionsContainer: {
+    flexDirection: 'column',
   },
   vaccineButton: {
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-    marginBottom: 8,
+    paddingVertical: SPACING.small,
+    paddingHorizontal: SPACING.medium,
+    backgroundColor: COLORS.background.primary,
+    borderRadius: BORDER_RADIUS.small,
+    marginBottom: SPACING.small,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   vaccineText: {
-    color: '#555',
-    fontSize: 14,
+    fontSize: FONT_SIZE.small,
+    color: COLORS.text.primary,
   },
-  submitButton: {
-    backgroundColor: '#2a6df4',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#a0c0f8',
-  },
-  submitButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
+  notesInput: {
+    minHeight: 100,
+    textAlignVertical: 'top',
+    paddingTop: SPACING.small,
   },
   successMessage: {
-    position: 'absolute',
-    top: 20,
-    left: 0,
-    right: 0,
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: COLORS.success,
+    paddingVertical: SPACING.medium,
+    borderRadius: BORDER_RADIUS.small,
     alignItems: 'center',
+    marginTop: SPACING.medium,
+    marginHorizontal: SPACING.small,
   },
   successText: {
-    color: 'white',
-    fontSize: 16,
+    color: COLORS.white,
     fontWeight: 'bold',
-  },
-});
+    fontSize: FONT_SIZE.medium,
+  }
+};
 
 export default AppointmentScreen; 

@@ -1,42 +1,42 @@
 import React from 'react';
 import { 
-  StyleSheet, 
   Text, 
   View, 
   ScrollView, 
   SafeAreaView,
-  TouchableOpacity,
-  Image
+  TouchableOpacity
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import commonStyles, { COLORS, SPACING, FONT_SIZE } from '../styles/MyStyles';
 
 const AboutScreen = ({ navigation }) => {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
       
       {/* Header */}
-      <View style={styles.header}>
+      <View style={commonStyles.header}>
         <TouchableOpacity 
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>About VaxServe</Text>
+        <Text style={commonStyles.headerTitle}>About VaxServe</Text>
+        <View style={styles.emptySpace} />
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={commonStyles.padding}>
         {/* Mission Statement */}
-        <View style={styles.section}>
+        <View style={commonStyles.card}>
           <Text style={styles.sectionTitle}>Our Mission</Text>
-          <Text style={styles.sectionText}>
+          <Text style={commonStyles.text}>
             VaxServe is dedicated to making vaccination services accessible, efficient, and user-friendly for everyone. We believe in protecting public health through easy access to essential vaccinations and professional healthcare services.
           </Text>
         </View>
 
         {/* What We Do */}
-        <View style={styles.section}>
+        <View style={commonStyles.card}>
           <Text style={styles.sectionTitle}>What We Do</Text>
           <View style={styles.featureItem}>
             <Text style={styles.featureTitle}>• Easy Appointment Scheduling</Text>
@@ -57,7 +57,7 @@ const AboutScreen = ({ navigation }) => {
         </View>
 
         {/* Our Values */}
-        <View style={styles.section}>
+        <View style={commonStyles.card}>
           <Text style={styles.sectionTitle}>Our Values</Text>
           <View style={styles.valueItem}>
             <Text style={styles.valueTitle}>Accessibility</Text>
@@ -74,9 +74,9 @@ const AboutScreen = ({ navigation }) => {
         </View>
 
         {/* Team */}
-        <View style={styles.section}>
+        <View style={commonStyles.card}>
           <Text style={styles.sectionTitle}>Our Team</Text>
-          <Text style={styles.sectionText}>
+          <Text style={commonStyles.text}>
             VaxServe is powered by a dedicated team of healthcare professionals, technologists, and administrators working together to provide the best vaccination services to our community.
           </Text>
         </View>
@@ -85,85 +85,52 @@ const AboutScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
+// Additional styles specific to AboutScreen
+const styles = {
   backButton: {
-    marginRight: 15,
+    marginRight: SPACING.medium,
   },
   backButtonText: {
-    fontSize: 24,
-    color: '#2a6df4',
+    fontSize: FONT_SIZE.huge,
+    color: COLORS.primary,
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  section: {
-    marginBottom: 30,
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  emptySpace: {
+    width: 40, // To balance the header since we have a back button on the left
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
-    color: '#2a6df4',
-    marginBottom: 15,
-  },
-  sectionText: {
-    fontSize: 16,
-    color: '#444',
-    lineHeight: 24,
+    color: COLORS.primary,
+    marginBottom: SPACING.regular,
   },
   featureItem: {
-    marginBottom: 15,
+    marginBottom: SPACING.regular,
   },
   featureTitle: {
-    fontSize: 16,
+    fontSize: FONT_SIZE.medium,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 5,
+    color: COLORS.text.primary,
+    marginBottom: SPACING.tiny,
   },
   featureText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: FONT_SIZE.regular,
+    color: COLORS.text.secondary,
     lineHeight: 20,
   },
   valueItem: {
-    marginBottom: 15,
+    marginBottom: SPACING.regular,
   },
   valueTitle: {
-    fontSize: 16,
+    fontSize: FONT_SIZE.medium,
     fontWeight: '600',
-    color: '#2a6df4',
-    marginBottom: 5,
+    color: COLORS.primary,
+    marginBottom: SPACING.tiny,
   },
   valueText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: FONT_SIZE.regular,
+    color: COLORS.text.secondary,
     lineHeight: 20,
-  },
-});
+  }
+};
 
 export default AboutScreen; 

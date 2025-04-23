@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Pressable } from 'react-native';
+import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 
 const LandingScreen = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
       
-      {/* Navigation Bar */}
       <View style={styles.navbar}>
         <Text style={styles.navLogo}>VaxServe</Text>
         <View style={styles.navLinksContainer}>
@@ -70,7 +70,6 @@ const LandingScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Mobile Menu Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -140,24 +139,21 @@ const LandingScreen = ({ navigation }) => {
         </View>
       </Modal>
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header */}
+      <ScrollView>
         <View style={styles.header}>
           <Text style={styles.title}>VaxServe</Text>
           <Text style={styles.subtitle}>Fast, Safe, Reliable Vaccination</Text>
         </View>
 
-        {/* Main Image Placeholder */}
         <View style={styles.imageContainer}>
           <View style={styles.imagePlaceholder}>
             <Text style={styles.placeholderText}>Vaccination Image</Text>
           </View>
         </View>
 
-        {/* Overview Section */}
         <View style={styles.overviewContainer}>
           <Text style={styles.sectionTitle}>What is VaxServe?</Text>
-          <Text style={styles.overviewText}>
+          <Text style={commonStyles.text}>
             VaxServe is a comprehensive vaccination service platform designed to make healthcare accessible to everyone.
             We provide vaccination services, appointment scheduling, and digital health records to ensure you stay protected
             against preventable diseases. Our team of healthcare professionals is dedicated to ensuring your safety and comfort
@@ -180,714 +176,397 @@ const LandingScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Features */}
         <View style={styles.featuresContainer}>
           <Text style={styles.sectionTitle}>Our Services</Text>
           
           <View style={styles.feature}>
             <Text style={styles.featureTitle}>✓ Easy Scheduling</Text>
-            <Text style={styles.featureText}>Book your vaccination appointment with just a few taps</Text>
+            <Text style={commonStyles.text}>Book your vaccination appointment with just a few taps</Text>
           </View>
           
           <View style={styles.feature}>
             <Text style={styles.featureTitle}>✓ Multiple Vaccines</Text>
-            <Text style={styles.featureText}>COVID-19, Flu, HPV, and many other essential vaccines</Text>
+            <Text style={commonStyles.text}>COVID-19, Flu, HPV, and many other essential vaccines</Text>
           </View>
           
           <View style={styles.feature}>
             <Text style={styles.featureTitle}>✓ Digital Records</Text>
-            <Text style={styles.featureText}>Access your vaccination history anytime, anywhere</Text>
+            <Text style={commonStyles.text}>Access your vaccination history anytime, anywhere</Text>
           </View>
           
           <View style={styles.feature}>
-            <Text style={styles.featureTitle}>✓ Reminders</Text>
-            <Text style={styles.featureText}>Never miss your next dose with automated notifications</Text>
-          </View>
-        </View>
-
-        {/* Recent News Section */}
-        <View style={styles.newsContainer}>
-          <Text style={styles.sectionTitle}>Recent News</Text>
-          
-          <View style={styles.newsItem}>
-            <View style={styles.newsDate}>
-              <Text style={styles.newsDateText}>JUN 15</Text>
-            </View>
-            <View style={styles.newsContent}>
-              <Text style={styles.newsTitle}>New COVID-19 Booster Available</Text>
-              <Text style={styles.newsExcerpt}>
-                The latest COVID-19 booster targeting new variants is now available at all VaxServe locations.
-              </Text>
-              <TouchableOpacity>
-                <Text style={styles.newsReadMore}>Read more →</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.featureTitle}>✓ Expert Care</Text>
+            <Text style={commonStyles.text}>Administered by certified healthcare professionals</Text>
           </View>
           
-          <View style={styles.newsItem}>
-            <View style={styles.newsDate}>
-              <Text style={styles.newsDateText}>MAY 22</Text>
-            </View>
-            <View style={styles.newsContent}>
-              <Text style={styles.newsTitle}>Flu Season Preparation Guide</Text>
-              <Text style={styles.newsExcerpt}>
-                Learn how to prepare for the upcoming flu season and why early vaccination is crucial.
-              </Text>
-              <TouchableOpacity>
-                <Text style={styles.newsReadMore}>Read more →</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          
-          <View style={styles.newsItem}>
-            <View style={styles.newsDate}>
-              <Text style={styles.newsDateText}>APR 10</Text>
-            </View>
-            <View style={styles.newsContent}>
-              <Text style={styles.newsTitle}>VaxServe Expands to 10 New Cities</Text>
-              <Text style={styles.newsExcerpt}>
-                We're excited to announce our expansion to 10 new cities nationwide to serve more communities.
-              </Text>
-              <TouchableOpacity>
-                <Text style={styles.newsReadMore}>Read more →</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* Our Campaign Section */}
-        <View style={styles.campaignContainer}>
-          <Text style={styles.sectionTitle}>Our Campaign</Text>
-          
-          <View style={styles.campaignCard}>
-            <View style={styles.campaignImagePlaceholder}>
-              <Text style={styles.placeholderText}>Campaign Image</Text>
-            </View>
-            <Text style={styles.campaignTitle}>Vaccines For All Initiative</Text>
-            <Text style={styles.campaignDescription}>
-              Our "Vaccines For All" initiative aims to ensure that every person, regardless of location or socioeconomic status, 
-              has access to essential vaccinations. Through partnerships with local health departments and community organizations, 
-              we're working to eliminate barriers to vaccination services.
-            </Text>
-            <View style={styles.campaignStats}>
-              <View style={styles.campaignStatItem}>
-                <Text style={styles.campaignStatNumber}>75K+</Text>
-                <Text style={styles.campaignStatLabel}>People Vaccinated</Text>
-              </View>
-              <View style={styles.campaignStatItem}>
-                <Text style={styles.campaignStatNumber}>120+</Text>
-                <Text style={styles.campaignStatLabel}>Communities Served</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.campaignButton}>
-              <Text style={styles.campaignButtonText}>Learn More</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.campaignCard}>
-            <View style={styles.campaignImagePlaceholder}>
-              <Text style={styles.placeholderText}>Campaign Image</Text>
-            </View>
-            <Text style={styles.campaignTitle}>Education & Awareness Program</Text>
-            <Text style={styles.campaignDescription}>
-              Our education and awareness program focuses on providing accurate information about vaccines, 
-              addressing common concerns, and promoting the importance of immunization for public health. 
-              Through workshops, online resources, and community events, we're building vaccine confidence.
-            </Text>
-            <TouchableOpacity style={styles.campaignButton}>
-              <Text style={styles.campaignButtonText}>Join Our Efforts</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Customer Reviews */}
-        <View style={styles.reviewsContainer}>
-          <Text style={styles.sectionTitle}>What Our Customers Say</Text>
-          
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.reviewsScrollContainer}
+          <TouchableOpacity 
+            style={commonStyles.button}
+            onPress={() => navigation.navigate('Services')}
           >
-            <View style={styles.reviewCard}>
-              <View style={styles.reviewHeader}>
-                <Text style={styles.reviewStars}>★★★★★</Text>
-                <Text style={styles.reviewerName}>Sarah J.</Text>
-              </View>
-              <Text style={styles.reviewText}>
-                "The entire process was simple and efficient. The staff was friendly and professional, 
-                making my vaccination experience completely stress-free."
-              </Text>
-            </View>
-            
-            <View style={styles.reviewCard}>
-              <View style={styles.reviewHeader}>
-                <Text style={styles.reviewStars}>★★★★★</Text>
-                <Text style={styles.reviewerName}>Michael T.</Text>
-              </View>
-              <Text style={styles.reviewText}>
-                "I love that I can manage all my family's vaccinations in one app. The reminder 
-                system has been a lifesaver for keeping up with my kids' immunization schedules."
-              </Text>
-            </View>
-            
-            <View style={styles.reviewCard}>
-              <View style={styles.reviewHeader}>
-                <Text style={styles.reviewStars}>★★★★☆</Text>
-                <Text style={styles.reviewerName}>Lisa R.</Text>
-              </View>
-              <Text style={styles.reviewText}>
-                "Quick appointment booking and minimal wait times. The digital vaccination 
-                records make it easy to share information with my doctor."
-              </Text>
-            </View>
-          </ScrollView>
+            <Text style={commonStyles.buttonText}>View All Services</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* CTA Buttons */}
         <View style={styles.ctaContainer}>
-          <TouchableOpacity 
-            style={styles.primaryButton}
-            onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={styles.primaryButtonText}>Sign In</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.secondaryButton}
-            onPress={() => navigation.navigate('Register')}
-          >
-            <Text style={styles.secondaryButtonText}>Create Account</Text>
-          </TouchableOpacity>
+          <Text style={styles.ctaTitle}>Ready to Get Vaccinated?</Text>
+          <Text style={styles.ctaText}>
+            Protect yourself and your loved ones from preventable diseases. Schedule your vaccination appointment today!
+          </Text>
+          <View style={styles.ctaButtons}>
+            <TouchableOpacity 
+              style={commonStyles.button}
+              onPress={() => navigation.navigate('Appointment')}
+            >
+              <Text style={commonStyles.buttonText}>Schedule Now</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[commonStyles.button, commonStyles.buttonOutline, styles.ctaSecondaryButton]}
+              onPress={() => navigation.navigate('Contact')}
+            >
+              <Text style={commonStyles.buttonOutlineText}>Contact Us</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <View style={styles.footerColumns}>
-            <View style={styles.footerColumn}>
-              <Text style={styles.footerColumnTitle}>Company</Text>
-              <TouchableOpacity><Text style={styles.footerLink}>About Us</Text></TouchableOpacity>
-              <TouchableOpacity><Text style={styles.footerLink}>Our Team</Text></TouchableOpacity>
-              <TouchableOpacity><Text style={styles.footerLink}>Careers</Text></TouchableOpacity>
-              <TouchableOpacity><Text style={styles.footerLink}>News</Text></TouchableOpacity>
+        <View style={styles.campaignsContainer}>
+          <Text style={styles.sectionTitle}>Upcoming Vaccination Campaigns</Text>
+          
+          <View style={commonStyles.card}>
+            <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+              <Text style={styles.campaignTitle}>Flu Season Preparation</Text>
+              <Text style={styles.campaignDate}>Oct 15 - Nov 30</Text>
             </View>
-            
-            <View style={styles.footerColumn}>
-              <Text style={styles.footerColumnTitle}>Resources</Text>
-              <TouchableOpacity><Text style={styles.footerLink}>Blog</Text></TouchableOpacity>
-              <TouchableOpacity><Text style={styles.footerLink}>Vaccine Info</Text></TouchableOpacity>
-              <TouchableOpacity><Text style={styles.footerLink}>FAQ</Text></TouchableOpacity>
-              <TouchableOpacity><Text style={styles.footerLink}>Contact Support</Text></TouchableOpacity>
-            </View>
-            
-            <View style={styles.footerColumn}>
-              <Text style={styles.footerColumnTitle}>Legal</Text>
-              <TouchableOpacity><Text style={styles.footerLink}>Privacy Policy</Text></TouchableOpacity>
-              <TouchableOpacity><Text style={styles.footerLink}>Terms of Service</Text></TouchableOpacity>
-              <TouchableOpacity><Text style={styles.footerLink}>Cookie Policy</Text></TouchableOpacity>
-            </View>
+            <Text style={commonStyles.text}>
+              Get your annual flu shot before the winter season. Special discounts for families and seniors.
+            </Text>
+            <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.campaignButton]}>
+              <Text style={commonStyles.buttonOutlineText}>Learn More</Text>
+            </TouchableOpacity>
           </View>
           
-          <View style={styles.footerBottom}>
-            <Text style={styles.footerText}>© 2023 KẻNghiệnVaccine. All rights reserved.</Text>
-            <View style={styles.socialLinks}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialIcon}>f</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialIcon}>t</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialIcon}>in</Text>
-              </TouchableOpacity>
+          <View style={commonStyles.card}>
+            <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+              <Text style={styles.campaignTitle}>Back-to-School Immunizations</Text>
+              <Text style={styles.campaignDate}>Aug 1 - Sep 15</Text>
             </View>
+            <Text style={commonStyles.text}>
+              Ensure your children have all required immunizations before the school year starts.
+            </Text>
+            <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.campaignButton]}>
+              <Text style={commonStyles.buttonOutlineText}>Learn More</Text>
+            </TouchableOpacity>
           </View>
+        </View>
+
+        <View style={styles.testimonialsContainer}>
+          <Text style={styles.sectionTitle}>What Our Patients Say</Text>
+          
+          <View style={commonStyles.card}>
+            <Text style={commonStyles.text}>
+              "The staff was friendly and professional. I was in and out in less than 20 minutes. Highly recommended!"
+            </Text>
+            <Text style={styles.testimonialAuthor}>- Sarah J.</Text>
+          </View>
+          
+          <View style={commonStyles.card}>
+            <Text style={commonStyles.text}>
+              "As someone with a fear of needles, I appreciated how patient and understanding the nurse was during my vaccination."
+            </Text>
+            <Text style={styles.testimonialAuthor}>- Michael T.</Text>
+          </View>
+        </View>
+
+        <View style={styles.footer}>
+          <View style={styles.footerSection}>
+            <Text style={styles.footerHeading}>About VaxServe</Text>
+            <TouchableOpacity style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>Our Mission</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>Team</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>Careers</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.footerSection}>
+            <Text style={styles.footerHeading}>Support</Text>
+            <TouchableOpacity style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>FAQs</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>Privacy Policy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>Terms of Service</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.footerSection}>
+            <Text style={styles.footerHeading}>Contact</Text>
+            <Text style={styles.footerText}>contact@vaxserve.com</Text>
+            <Text style={styles.footerText}>(555) 123-4567</Text>
+            <Text style={styles.footerText}>123 Health Ave, Medical District</Text>
+          </View>
+        </View>
+        
+        <View style={styles.copyright}>
+          <Text style={styles.copyrightText}>© 2023 VaxServe. All rights reserved.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
+const styles = {
   navbar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    backgroundColor: COLORS.background.primary,
+    paddingHorizontal: SPACING.medium,
+    paddingVertical: SPACING.regular,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: COLORS.border,
   },
   navLogo: {
-    fontSize: 20,
+    fontSize: FONT_SIZE.extraLarge,
     fontWeight: 'bold',
-    color: '#2a6df4',
+    color: COLORS.primary,
   },
   navLinksContainer: {
-    flexDirection: 'row',
-    display: 'none', // Hidden on small screens
-    '@media (min-width: 768px)': {
-      display: 'flex',
-    },
+    display: 'none', // Hidden on mobile
   },
   navLink: {
-    marginHorizontal: 10,
+    paddingHorizontal: SPACING.medium,
+    paddingVertical: SPACING.small,
   },
   navLinkText: {
-    color: '#444',
+    color: COLORS.text.primary,
+    fontSize: FONT_SIZE.regular,
+  },
+  authButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.small,
+  },
+  authButtonText: {
+    color: COLORS.white,
     fontWeight: '500',
   },
-  navAuthLink: {
-    backgroundColor: '#2a6df4',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-  },
-  navAuthLinkText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  navRegisterLink: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#2a6df4',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-  },
-  navRegisterLinkText: {
-    color: '#2a6df4',
-    fontWeight: 'bold',
+  registerButton: {
+    backgroundColor: COLORS.secondary,
   },
   menuButton: {
-    padding: 5,
+    padding: SPACING.small,
   },
   menuButtonText: {
-    fontSize: 24,
-    color: '#2a6df4',
+    fontSize: FONT_SIZE.huge,
+    color: COLORS.primary,
   },
   menuModalContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
   },
   menuModal: {
-    backgroundColor: 'white',
-    paddingVertical: 20,
-    paddingHorizontal: 30,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: COLORS.background.primary,
+    borderTopLeftRadius: BORDER_RADIUS.medium,
+    borderTopRightRadius: BORDER_RADIUS.medium,
+    padding: SPACING.medium,
+    ...SHADOW.dark,
   },
   menuHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: SPACING.medium,
   },
   menuTitle: {
-    fontSize: 18,
+    fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
-    color: '#2a6df4',
+    color: COLORS.text.primary,
   },
   closeButton: {
-    fontSize: 20,
-    color: '#555',
+    fontSize: FONT_SIZE.extraLarge,
+    color: COLORS.text.secondary,
   },
   menuItem: {
-    paddingVertical: 15,
+    paddingVertical: SPACING.medium,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: COLORS.lightGray,
   },
   menuItemText: {
-    fontSize: 16,
-    color: '#444',
-  },
-  menuAuthButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  menuLoginButton: {
-    backgroundColor: '#2a6df4',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 5,
-  },
-  menuRegisterButton: {
-    backgroundColor: 'white',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2a6df4',
-    flex: 1,
-    marginLeft: 5,
-  },
-  menuLoginButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  menuRegisterButtonText: {
-    color: '#2a6df4',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 20,
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.primary,
   },
   header: {
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 10,
+    paddingVertical: SPACING.huge,
+    backgroundColor: COLORS.primary,
   },
   title: {
-    fontSize: 32,
+    fontSize: FONT_SIZE.enormous,
     fontWeight: 'bold',
-    color: '#2a6df4',
+    color: COLORS.white,
+    marginBottom: SPACING.small,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#555',
-    marginTop: 5,
-  },
-  imageContainer: {
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  imagePlaceholder: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#e1e4e8',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    color: '#666',
-    fontSize: 16,
+    fontSize: FONT_SIZE.large,
+    color: COLORS.white,
     fontWeight: '500',
   },
-  overviewContainer: {
-    marginBottom: 30,
+  imageContainer: {
+    paddingHorizontal: SPACING.medium,
+    marginVertical: SPACING.large,
   },
-  overviewText: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: '#555',
-    marginBottom: 20,
+  imagePlaceholder: {
+    height: 200,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: BORDER_RADIUS.medium,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...SHADOW.medium,
+  },
+  placeholderText: {
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.secondary,
+  },
+  overviewContainer: {
+    padding: SPACING.medium,
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZE.large,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+    marginBottom: SPACING.medium,
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    marginTop: SPACING.large,
   },
   statItem: {
-    alignItems: 'center',
     flex: 1,
+    alignItems: 'center',
+    padding: SPACING.medium,
+    backgroundColor: COLORS.background.primary,
+    borderRadius: BORDER_RADIUS.small,
+    marginHorizontal: SPACING.tiny,
+    ...SHADOW.light,
   },
   statNumber: {
-    fontSize: 20,
+    fontSize: FONT_SIZE.huge,
     fontWeight: 'bold',
-    color: '#2a6df4',
+    color: COLORS.primary,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 5,
+    fontSize: FONT_SIZE.small,
+    color: COLORS.text.secondary,
+    marginTop: SPACING.tiny,
   },
   featuresContainer: {
-    marginVertical: 20,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#333',
+    padding: SPACING.medium,
+    backgroundColor: COLORS.background.secondary,
   },
   feature: {
-    marginBottom: 15,
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    marginBottom: SPACING.medium,
   },
   featureTitle: {
-    fontSize: 18,
+    fontSize: FONT_SIZE.medium,
     fontWeight: 'bold',
-    color: '#2a6df4',
-    marginBottom: 5,
-  },
-  featureText: {
-    fontSize: 14,
-    color: '#555',
-  },
-  newsContainer: {
-    marginVertical: 20,
-  },
-  newsItem: {
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  newsDate: {
-    width: 60,
-    backgroundColor: '#2a6df4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-  },
-  newsDateText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  newsContent: {
-    flex: 1,
-    padding: 15,
-  },
-  newsTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  newsExcerpt: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 5,
-  },
-  newsReadMore: {
-    color: '#2a6df4',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  reviewsContainer: {
-    marginVertical: 20,
-  },
-  reviewsScrollContainer: {
-    paddingBottom: 10,
-    paddingRight: 20,
-  },
-  reviewCard: {
-    width: 280,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginRight: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  reviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  reviewStars: {
-    color: '#FFD700',
-    fontSize: 16,
-  },
-  reviewerName: {
-    fontWeight: 'bold',
-    color: '#444',
-  },
-  reviewText: {
-    fontSize: 14,
-    color: '#555',
-    lineHeight: 20,
+    color: COLORS.primary,
+    marginBottom: SPACING.tiny,
   },
   ctaContainer: {
-    marginVertical: 20,
+    padding: SPACING.large,
+    backgroundColor: COLORS.primary,
+    marginVertical: SPACING.large,
   },
-  primaryButton: {
-    backgroundColor: '#2a6df4',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  primaryButtonText: {
-    color: 'white',
-    fontSize: 16,
+  ctaTitle: {
+    fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
+    color: COLORS.white,
+    marginBottom: SPACING.small,
   },
-  secondaryButton: {
-    backgroundColor: 'white',
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2a6df4',
+  ctaText: {
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.white,
+    marginBottom: SPACING.large,
   },
-  secondaryButtonText: {
-    color: '#2a6df4',
-    fontSize: 16,
-    fontWeight: 'bold',
+  ctaButtons: {
+    flexDirection: 'row',
   },
-  campaignContainer: {
-    marginVertical: 20,
+  ctaSecondaryButton: {
+    marginLeft: SPACING.medium,
+    borderColor: COLORS.white,
   },
-  campaignCard: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  campaignImagePlaceholder: {
-    width: '100%',
-    height: 150,
-    backgroundColor: '#e1e4e8',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
+  campaignsContainer: {
+    padding: SPACING.medium,
   },
   campaignTitle: {
-    fontSize: 20,
+    fontSize: FONT_SIZE.medium,
     fontWeight: 'bold',
-    color: '#2a6df4',
-    marginBottom: 10,
+    color: COLORS.text.primary,
   },
-  campaignDescription: {
-    fontSize: 15,
-    color: '#555',
-    lineHeight: 22,
-    marginBottom: 15,
-  },
-  campaignStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginVertical: 15,
-  },
-  campaignStatItem: {
-    alignItems: 'center',
-  },
-  campaignStatNumber: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#2a6df4',
-  },
-  campaignStatLabel: {
-    fontSize: 12,
-    color: '#666',
+  campaignDate: {
+    fontSize: FONT_SIZE.small,
+    color: COLORS.text.secondary,
   },
   campaignButton: {
-    backgroundColor: '#2a6df4',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
+    alignSelf: 'flex-start',
+    marginTop: SPACING.small,
   },
-  campaignButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
+  testimonialsContainer: {
+    padding: SPACING.medium,
+    backgroundColor: COLORS.background.secondary,
+  },
+  testimonialAuthor: {
+    fontSize: FONT_SIZE.small,
+    fontWeight: '500',
+    color: COLORS.text.secondary,
+    textAlign: 'right',
+    marginTop: SPACING.small,
   },
   footer: {
-    marginTop: 30,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 30,
-  },
-  footerColumns: {
+    padding: SPACING.medium,
+    backgroundColor: COLORS.dark,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     flexWrap: 'wrap',
-    marginBottom: 30,
+    justifyContent: 'space-between',
   },
-  footerColumn: {
-    minWidth: '30%',
-    marginBottom: 20,
+  footerSection: {
+    width: '30%',
+    minWidth: 150,
+    marginBottom: SPACING.large,
   },
-  footerColumnTitle: {
-    fontSize: 16,
+  footerHeading: {
+    fontSize: FONT_SIZE.medium,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    color: COLORS.white,
+    marginBottom: SPACING.medium,
   },
   footerLink: {
-    color: '#666',
-    marginBottom: 10,
-    fontSize: 14,
+    marginBottom: SPACING.small,
   },
-  footerBottom: {
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
+  footerLinkText: {
+    color: COLORS.lightGray,
+    fontSize: FONT_SIZE.small,
   },
   footerText: {
-    color: '#888',
-    fontSize: 14,
+    color: COLORS.lightGray,
+    fontSize: FONT_SIZE.small,
+    marginBottom: SPACING.small,
   },
-  socialLinks: {
-    flexDirection: 'row',
-  },
-  socialButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#2a6df4',
-    justifyContent: 'center',
+  copyright: {
+    padding: SPACING.medium,
+    backgroundColor: '#1a1a1a',
     alignItems: 'center',
-    marginLeft: 10,
   },
-  socialIcon: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  authButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    marginLeft: 10,
-  },
-  registerButton: {
-    backgroundColor: '#34C759',
-  },
-  authButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-});
+  copyrightText: {
+    color: COLORS.text.muted,
+    fontSize: FONT_SIZE.small,
+  }
+};
 
 export default LandingScreen; 

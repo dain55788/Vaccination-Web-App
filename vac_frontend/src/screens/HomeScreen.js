@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  StyleSheet, 
   Text, 
   View, 
   TouchableOpacity, 
@@ -9,7 +8,8 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { logoutUser } from '../utils/api';
+import { logoutUser } from '../utils/Apis';
+import commonStyles, { COLORS, SPACING } from '../styles/MyStyles';
 
 const HomeScreen = ({ navigation }) => {
   const [userData, setUserData] = useState(null);
@@ -48,38 +48,38 @@ const HomeScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={commonStyles.container}>
       <StatusBar style="dark" />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>VaxServe</Text>
+      <View style={commonStyles.header}>
+        <Text style={commonStyles.headerTitle}>VaxServe</Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={{ color: COLORS.primary, fontWeight: '500' }}>Logout</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
         <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeTitle}>Welcome {username ? username : 'to VaxServe'}</Text>
-          <Text style={styles.welcomeSubtitle}>Your vaccination management portal</Text>
+          <Text style={commonStyles.title}>Welcome {username ? username : 'to VaxServe'}</Text>
+          <Text style={commonStyles.subtitle}>Your vaccination management portal</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Your Vaccination Status</Text>
+        <View style={commonStyles.card}>
+          <Text style={commonStyles.cardTitle}>Your Vaccination Status</Text>
           <View style={styles.statusItem}>
             <Text style={styles.statusLabel}>COVID-19:</Text>
-            <Text style={[styles.statusValue, styles.completed]}>Complete (2/2)</Text>
+            <Text style={[styles.statusValue, commonStyles.completed]}>Complete (2/2)</Text>
           </View>
           <View style={styles.statusItem}>
             <Text style={styles.statusLabel}>Flu Shot:</Text>
-            <Text style={[styles.statusValue, styles.pending]}>Due in 2 months</Text>
+            <Text style={[styles.statusValue, commonStyles.pending]}>Due in 2 months</Text>
           </View>
           <View style={styles.statusItem}>
             <Text style={styles.statusLabel}>Hepatitis B:</Text>
-            <Text style={[styles.statusValue, styles.incomplete]}>Not Started</Text>
+            <Text style={[styles.statusValue, commonStyles.incomplete]}>Not Started</Text>
           </View>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Upcoming Appointments</Text>
+        <View style={commonStyles.card}>
+          <Text style={commonStyles.cardTitle}>Upcoming Appointments</Text>
           <View style={styles.appointment}>
             <View style={styles.appointmentDate}>
               <Text style={styles.appointmentMonth}>OCT</Text>
@@ -91,13 +91,13 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.appointmentTime}>10:30 AM - 11:00 AM</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.scheduleButton}>
-            <Text style={styles.scheduleButtonText}>Schedule New Appointment</Text>
+          <TouchableOpacity style={commonStyles.button}>
+            <Text style={commonStyles.buttonText}>Schedule New Appointment</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Available Vaccines</Text>
+        <View style={commonStyles.card}>
+          <Text style={commonStyles.cardTitle}>Available Vaccines</Text>
           <View style={styles.vaccineItem}>
             <View style={styles.vaccineIconPlaceholder}>
               <Text style={styles.vaccineIconText}>💉</Text>
@@ -116,8 +116,8 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.vaccineDescription}>Annual protection against influenza</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.viewAllButton}>
-            <Text style={styles.viewAllButtonText}>View All Vaccines</Text>
+          <TouchableOpacity style={[commonStyles.button, styles.viewAllButton]}>
+            <Text style={commonStyles.buttonText}>View All Vaccines</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -125,158 +125,84 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2a6df4',
-  },
+// Additional styles specific to HomeScreen
+const styles = {
   logoutButton: {
     padding: 5,
   },
-  logoutText: {
-    color: '#2a6df4',
-    fontWeight: '500',
-  },
-  content: {
-    padding: 20,
-  },
   welcomeSection: {
-    marginBottom: 25,
-  },
-  welcomeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  welcomeSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 5,
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    marginBottom: SPACING.extraLarge,
   },
   statusItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
-    paddingBottom: 10,
+    marginBottom: SPACING.small,
+    paddingBottom: SPACING.small,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: COLORS.lightGray,
   },
   statusLabel: {
     fontSize: 16,
-    color: '#333',
+    color: COLORS.text.primary,
   },
   statusValue: {
     fontSize: 16,
     fontWeight: '500',
   },
-  completed: {
-    color: '#28a745',
-  },
-  pending: {
-    color: '#ffc107',
-  },
-  incomplete: {
-    color: '#dc3545',
-  },
   appointment: {
     flexDirection: 'row',
-    marginBottom: 15,
+    marginBottom: SPACING.medium,
   },
   appointmentDate: {
-    width: 60,
-    height: 60,
-    backgroundColor: '#2a6df4',
-    borderRadius: 10,
-    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    padding: SPACING.small,
     alignItems: 'center',
-    marginRight: 15,
+    justifyContent: 'center',
+    width: 50,
+    height: 50,
+    marginRight: SPACING.medium,
   },
   appointmentMonth: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: COLORS.white,
     fontSize: 12,
+    fontWeight: 'bold',
   },
   appointmentDay: {
-    color: 'white',
+    color: COLORS.white,
+    fontSize: 18,
     fontWeight: 'bold',
-    fontSize: 20,
   },
   appointmentDetails: {
     flex: 1,
-    justifyContent: 'center',
   },
   appointmentTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.text.primary,
   },
   appointmentLocation: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.text.secondary,
     marginTop: 2,
   },
   appointmentTime: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.primary,
     marginTop: 2,
-  },
-  scheduleButton: {
-    backgroundColor: '#2a6df4',
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  scheduleButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 14,
   },
   vaccineItem: {
     flexDirection: 'row',
-    marginBottom: 15,
-    alignItems: 'center',
+    marginBottom: SPACING.medium,
   },
   vaccineIconPlaceholder: {
     width: 40,
     height: 40,
-    backgroundColor: '#e1e4e8',
     borderRadius: 20,
-    justifyContent: 'center',
+    backgroundColor: COLORS.lightGray,
     alignItems: 'center',
-    marginRight: 15,
+    justifyContent: 'center',
+    marginRight: SPACING.medium,
   },
   vaccineIconText: {
     fontSize: 20,
@@ -287,26 +213,16 @@ const styles = StyleSheet.create({
   vaccineName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.text.primary,
   },
   vaccineDescription: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.text.secondary,
     marginTop: 2,
   },
   viewAllButton: {
-    borderWidth: 1,
-    borderColor: '#2a6df4',
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 5,
+    marginTop: SPACING.small,
   },
-  viewAllButtonText: {
-    color: '#2a6df4',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-});
+};
 
 export default HomeScreen; 

@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'oauth2_provider',
-    # 'corsheaders',
     'rest_framework.authtoken',
 ]
 
@@ -97,8 +96,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'vaccination_management',
         'USER': 'root',
-        # 'PASSWORD': '123456',
-        'PASSWORD': 'P@ssw0rd',
+        'PASSWORD': '123456',
+        # 'PASSWORD': 'P@ssw0rd',
         'HOST': '' # mặc định localhost
     }
 }
