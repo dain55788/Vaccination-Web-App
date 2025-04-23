@@ -8,14 +8,12 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  Alert,
   ScrollView,
-  Image,
-  ImageBackground
 } from 'react-native';
+
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Apis, { loginUser, authApis, endpoints } from "../utils/Apis";
+import Apis, { authApis, endpoints } from "../utils/Apis";
 import commonStyles, { COLORS, SPACING, FONT_SIZE, SHADOW, BORDER_RADIUS } from '../styles/MyStyles';
 
 import Constants from 'expo-constants';
@@ -69,12 +67,12 @@ const LoginScreen = ({ navigation }) => {
         setIsLoading(true);
         let res = await Apis.post(endpoints['login'], {
           ...user,
-          "client_id": "Je29bz1Ewro4XUQkTPunuEB9qjIgD0Z90VWZxf34",
-          "client_secret": '56vLL47QDw1YXz03iwHSsiRo9yt7EcdRmEwE78ROi1lIjXoLTB60YQnPgu3ecKczSFGBc2bebaJo7a2sEzi33x1yc6LueOnRBHOzEpzHRpHN2pdAIxrbtQn2ZwFqSJR2',
+          "client_id": "rGBJzysv5FpFdDvlPSIbbMAAAUZ32jxWlTAFDb4H",
+          "client_secret": 'pbkdf2_sha256$870000$1wPbZvMcYlGK5HVX74M6Pf$HaAiMuEmBWuKMTAajEOi/ZahdJeG1AX8Gg1LQWZgh5c=',
           'grant_type': 'password'
         });
         
-        await AsyncStorage.setItem('token', res.data.access_token);
+        await AsyncStorage.setItem("token", res.data.access_token);
         let u = await authApis(res.data.access_token).get(endpoints['current-user']);
         dispatch({
           "type": "login",
@@ -82,37 +80,8 @@ const LoginScreen = ({ navigation }) => {
         })
       } catch (error) {
         console.error('Login error details:', error);
-        // setMsg(error.message || 'Network error. Please check your connection.');
       } finally {
         setIsLoading(false);
-      }
-    }
-  };
-
-  const testApiConnection = async () => {
-    try {
-      setServerStatus('Testing connection...');
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      const response = await fetch(Platform.OS === 'android'
-        ? 'http://127.0.0.1:8000'
-        : 'http://127.0.0.1:8000', {
-        signal: controller.signal
-      }).catch(e => {
-        throw e;
-      });
-
-      clearTimeout(timeoutId);
-
-      setServerStatus(`✅ Server reachable (status: ${response.status})`);
-    } catch (error) {
-      console.log('Connection test error:', error);
-      if (error.name === 'AbortError') {
-        setServerStatus('❌ Connection timeout. Server unreachable.');
-      } else {
-        setServerStatus(`❌ Connection failed: ${error.message}`);
       }
     }
   };
@@ -186,13 +155,6 @@ const LoginScreen = ({ navigation }) => {
                 <Text style={styles.serverStatus}>{serverStatus}</Text>
               )}
               
-              <Button 
-                onPress={testApiConnection}
-                mode="outlined"
-                style={styles.testButton}
-              >
-                Test Server Connection
-              </Button>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>

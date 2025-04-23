@@ -141,7 +141,6 @@ def RegisterViewSet(request):
     """
     serializer = serializers.UserRegisterSerializer(data=request.data)
     if serializer.is_valid():
-        # Check if username already exists
         username = serializer.validated_data.get('username')
         if BaseUser.objects.filter(username=username).exists():
             return Response(
@@ -149,13 +148,10 @@ def RegisterViewSet(request):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Create new user as a Citizen instance
         user = serializer.save()
         
-        # Create token for the new user
         token, created = Token.objects.get_or_create(user=user)
         
-        # Prepare the response data
         citizen_data = serializers.CitizenSerializer(user).data
         
         return Response({
@@ -242,7 +238,6 @@ class CampaignCitizenViewSet(viewsets.ModelViewSet):
     queryset = CampaignCitizen.objects.filter(active=True)
     serializer_class = serializers.CampaignCitizenSerializer
 
-    # THỐNG KÊ SỐ LƯỢNG NGƯỜI ĐÃ TIÊM THEO CHIẾN DỊCH
     @action(methods=['get'], url_path='stats-by-campaign', detail=False)
     def stats_by_campaign(self, request):
         stats = (CampaignCitizen.objects
@@ -251,10 +246,9 @@ class CampaignCitizenViewSet(viewsets.ModelViewSet):
                  .order_by('campaign__campaign_name'))
         return Response(stats)
 
-    # THỐNG KÊ SỐ LƯỢNG NGƯỜI ĐÃ TIÊM THEO THÁNG/ QUÝ/ NĂM
     @action(methods=['get'], url_path='stats-by-time', detail=False)
     def stats_by_time(self, request):
-        period = request.query_params.get('period', 'month')  # month, quarter, year
+        period = request.query_params.get('period', 'month')
         if period == 'month':
             truncate_func = TruncMonth
         elif period == 'quarter':
@@ -278,22 +272,18 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Filter by citizen
         citizen_id = self.request.query_params.get('citizen_id')
         if citizen_id:
             queryset = queryset.filter(citizen_id=citizen_id)
 
-        # Filter by staff
         staff_id = self.request.query_params.get('staff_id')
         if staff_id:
             queryset = queryset.filter(staff_id=staff_id)
 
-        # Filter by date
         date = self.request.query_params.get('date')
         if date:
             queryset = queryset.filter(scheduled_date=date)
 
-        # Filter by location
         location = self.request.query_params.get('location')
         if location:
             queryset = queryset.filter(location__icontains=location)
@@ -302,18 +292,13 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True)
     def details(self, request, pk=None):
-        """
-        Retrieve complete details for a specific appointment including vaccines
-        """
         try:
             appointment = self.get_object()
             appointment_data = serializers.AppointmentSerializer(appointment).data
 
-            # Get the related appointment vaccines
             vaccines = AppointmentVaccine.objects.filter(appointment=appointment, active=True)
             vaccines_data = serializers.AppointmentVaccineSerializer(vaccines, many=True).data
 
-            # Combine the data
             result = {
                 'appointment': appointment_data,
                 'vaccines': vaccines_data
@@ -338,7 +323,6 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
-    # THỐNG KÊ TỈ LỆ HOÀN THÀNH LỊCH TIÊM
     @action(methods=['get'], url_path='completion-rate', detail=False)
     def completion_rate(self, request):
         total_scheduled = AppointmentVaccine.objects.filter(status='scheduled').count()
@@ -359,10 +343,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         }
         return Response(result)
 
-    # Thống kê số lượng NGƯỜI đã tiêm theo ngày (status = completed)
     @action(methods=['get'], url_path='people-completed', detail=False)
     def people_completed(self, request):
-        # queryset = super().get_queryset()
 
         p = Appointment.objects.filter(active=True)
         data = Appointment.objects.filter(active=True)
@@ -435,12 +417,10 @@ class AppointmentVaccineViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Filter by status
         status = self.request.query_params.get('status')
         if status:
             queryset = queryset.filter(status=status)
 
-        # Filter by vaccine
         vaccine_id = self.request.query_params.get('vaccine_id')
         if vaccine_id:
             queryset = queryset.filter(vaccine_id=vaccine_id)
@@ -449,9 +429,6 @@ class AppointmentVaccineViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True)
     def vaccine_details(self, request, pk=None):
-        """
-        Get details about the vaccine used in this appointment
-        """
         try:
             appointment_vaccine = self.get_object()
             vaccine = appointment_vaccine.vaccine
@@ -489,7 +466,6 @@ class StaffViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIV
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Filter by shift
         shift = self.request.query_params.get('shift')
         if shift:
             queryset = queryset.filter(shift=shift)
@@ -497,11 +473,9 @@ class StaffViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIV
         return queryset
     
     def perform_create(self, serializer):
-        # This ensures the serializer's create method is called
         serializer.save()
     
     def perform_update(self, serializer):
-        # This ensures the serializer's update method is called
         serializer.save()
 
     @action(methods=['get'], url_path='current-user', detail=False, permission_classes=[permissions.IsAuthenticated])
@@ -525,13 +499,26 @@ class DoctorViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPI
         return queryset
     
     def perform_create(self, serializer):
-        # This ensures the serializer's create method is called
         serializer.save()
     
     def perform_update(self, serializer):
-        # This ensures the serializer's update method is called
         serializer.save()
 
     @action(methods=['get'], url_path='current-user', detail=False, permission_classes=[permissions.IsAuthenticated])
     def get_current_user(self, request):
         return Response(serializers.DoctorSerializer(request.user).data)
+
+class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIView):
+    queryset = BaseUser.objects.filter(is_active=True)
+    serializer_class = serializers.BaseUserSerializer
+    parser_classes = [parsers.MultiPartParser]
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return [perms.OwnerPerms()]
+
+        return [permissions.AllowAny()]
+
+    @action(methods=['get'], url_path='current-user', detail=False, permission_classes=[permissions.IsAuthenticated])
+    def get_current_user(self, request):
+        return Response(serializers.BaseUserSerializer(request.user).data)
