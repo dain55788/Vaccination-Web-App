@@ -15,45 +15,6 @@ class VaccineCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'category_name']
 
 
-class UserLoginSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=255)
-    password = serializers.CharField(max_length=255, write_only=True)
-
-
-class UserRegisterSerializer(serializers.ModelSerializer):
-    confirm_password = serializers.CharField(max_length=255, write_only=True)
-    
-    class Meta:
-        model = Citizen
-        fields = ['first_name', 'last_name', 'username', 'password', 'confirm_password', 
-                  'date_of_birth', 'phone_number', 'address', 'gender', 'health_note']
-        extra_kwargs = {
-            'password': {
-                'write_only': True
-            },
-            'date_of_birth': {'required': False},
-            'phone_number': {'required': False},
-            'address': {'required': False},
-            'gender': {'required': False},
-            'health_note': {'required': False}
-        }
-
-    def validate(self, attrs):
-        password = attrs.get('password')
-        confirm_password = attrs.pop('confirm_password', '')
-
-        if password != confirm_password:
-            raise serializers.ValidationError({'confirm_password': 'Passwords do not match'})
-        
-        return attrs
-
-    def create(self, validated_data):
-        user = Citizen(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
-
-
 class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         abstract = True

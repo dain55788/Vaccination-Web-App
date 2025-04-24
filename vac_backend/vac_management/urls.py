@@ -16,8 +16,4 @@ router.register('users', views.UserViewSet, basename='baseuser')
 urlpatterns = [
     # API endpoints provided by the router
     path('', include(router.urls)),
-    path('register/', views.RegisterViewSet, name='register'),
-    path('login/', views.LoginViewSet, name='login'),
-    # path('api-token-auth/', views.custom_obtain_auth_token, name='api_token_auth'),
-    # path('api-auth/', include('rest_framework.urls')),
 ]

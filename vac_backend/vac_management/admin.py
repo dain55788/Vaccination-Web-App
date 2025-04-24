@@ -50,14 +50,12 @@ class StaffAdmin(BaseUserAdmin):
         ('Staff Details', {'fields': ('shift', 'hire_date')}),
     )
 
-
-# ADD MORE VIEWS INTO THE ADMIN SITE VIEW
 admin_site.register(Vaccine)
 admin_site.register(VaccineCategory)
 admin_site.register(Appointment)
 admin_site.register(Campaign)
-admin_site.register(Doctor)
-admin_site.register(Staff)
+admin_site.register(Doctor, DoctorAdmin)
+admin_site.register(Staff, StaffAdmin)
 admin_site.register(Citizen)
 admin_site.register(BaseUser, BaseUserAdmin)
 

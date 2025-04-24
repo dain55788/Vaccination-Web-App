@@ -20,12 +20,13 @@ import Constants from 'expo-constants';
 import { Button, HelperText, TextInput, Divider } from 'react-native-paper';
 const { CLIENT_ID, CLIENT_SECRET } = Constants.expoConfig.extra;
 import { MyDispatchContext } from "../utils/MyContexts";
+import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = ({ navigation }) => {
   const [user, setUser] = useState({});
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [serverStatus, setServerStatus] = useState(null);
+  const [msg, setMsg] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const nav = useNavigation();
   const dispatch = useContext(MyDispatchContext);
 
   const info = [{
@@ -39,11 +40,11 @@ const LoginScreen = ({ navigation }) => {
     secureTextEntry: true,
     field: "password"
   }];
-
-  const setState = (value, field) => {
-    setUser({ ...user, [field]: value });
-  }
   
+  const setState = (value, field) => {
+    setUser({...user, [field]: value});
+  }
+
   const validate = () => {
     if (!user?.username || !user?.password) {
       setMsg("Vui lòng nhập tên đăng nhập và mật khẩu !");
@@ -54,23 +55,20 @@ const LoginScreen = ({ navigation }) => {
     return true;
   }
 
-  const setMsg = (message) => {
-    setError(message);
-  }
-
   const handleLogin = async () => {
     setMsg('');
 
-
     if (validate() === true) {
       try {
-        setIsLoading(true);
+        setLoading(true);
         let res = await Apis.post(endpoints['login'], {
           ...user,
-          "client_id": "rGBJzysv5FpFdDvlPSIbbMAAAUZ32jxWlTAFDb4H",
-          "client_secret": 'pbkdf2_sha256$870000$1wPbZvMcYlGK5HVX74M6Pf$HaAiMuEmBWuKMTAajEOi/ZahdJeG1AX8Gg1LQWZgh5c=',
+          "client_id": "HxQDtnxYJjTkdRcsicafPK9QqclTYaU8l1CxOQLQ",
+          "client_secret": '2C5lN4AsEqeCxo1CvSDafff0gNeEqf8FzM2pzfLbp1GOpcqIYAzeTS6Cq0yfHTArHr2QTjHRWgu607PocsfdgUmMOXPePq6P3fsBEGDwGcAnP9YtZIzZ6a3Uwzj00GgE',
           'grant_type': 'password'
         });
+
+        console.log('API Response:', res.data);
         
         await AsyncStorage.setItem("token", res.data.access_token);
         let u = await authApis(res.data.access_token).get(endpoints['current-user']);
@@ -79,12 +77,12 @@ const LoginScreen = ({ navigation }) => {
           "payload": u.data
         })
       } catch (error) {
-        console.error('Login error details:', error);
+          console.error('Login error details:', error);
       } finally {
-        setIsLoading(false);
+          setLoading(false);
       }
     }
-  };
+  }
   
   return (
     <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
@@ -108,11 +106,6 @@ const LoginScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.formCard}>
-              {error && (
-                <HelperText type="error" visible={error} style={styles.errorText}>
-                  {error}
-                </HelperText>
-              )}
 
               {info.map(i => (
                 <TextInput 
@@ -131,9 +124,9 @@ const LoginScreen = ({ navigation }) => {
               ))}
               
               <Button 
-                disabled={isLoading} 
-                loading={isLoading} 
-                onPress={handleLogin} 
+                disabled={loading} 
+                loading={loading} 
+                onPress={handleLogin}
                 mode="contained"
                 style={styles.loginButton}
                 contentStyle={styles.loginButtonContent}
@@ -150,10 +143,6 @@ const LoginScreen = ({ navigation }) => {
               </View>
               
               <Divider style={styles.divider} />
-              
-              {serverStatus && (
-                <Text style={styles.serverStatus}>{serverStatus}</Text>
-              )}
               
             </View>
           </ScrollView>
@@ -255,11 +244,6 @@ const styles = {
   testButton: {
     marginTop: SPACING.medium,
   },
-  serverStatus: {
-    textAlign: 'center',
-    marginTop: SPACING.medium,
-    color: COLORS.text.secondary,
-  }
 };
 
 export default LoginScreen; 
