@@ -133,7 +133,7 @@ const AppointmentScreen = () => {
       </View>
 
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
-        <Animated.View style={[styles.formContainer, formAnimatedStyle]}>
+        <Animated.View style={[styles.formContainer, styles.formAnimatedStyle]}>
           <Text style={styles.sectionTitle}>Personal Information</Text>
           
           <View style={commonStyles.formContainer}>

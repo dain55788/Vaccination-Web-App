@@ -22,39 +22,41 @@ const LandingScreen = () => {
           >
           <Text style={styles.navLinkText}>Home</Text>
           </TouchableOpacity>
+
           <TouchableOpacity 
             style={styles.navLink}
             onPress={() => nav.navigate('Services')}
           >
             <Text style={styles.navLinkText}>Services</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.navLink}
-            onPress={() => nav.navigate('About')}
-          >
+
+          <TouchableOpacity style={styles.navLink}
+            onPress={() => nav.navigate('About')}>
             <Text style={styles.navLinkText}>About</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.navLink}
-            onPress={() => nav.navigate('Contact')}
-          >
+
+          <TouchableOpacity style={styles.navLink}
+            onPress={() => nav.navigate('Contact')}>
             <Text style={styles.navLinkText}>Contact</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navLink}>
+
+          <TouchableOpacity style={styles.navLink}
+            onPress={() => nav.navigate('Contact')}>
             <Text style={styles.navLinkText}>Upcoming Campaigns</Text>
           </TouchableOpacity>
+
           <TouchableOpacity 
             style={styles.navLink}
-            onPress={() => nav.navigate('Appointment')}
-          >
+            onPress={() => nav.navigate('Appointment')}>
             <Text style={styles.navLinkText}>Make Appointment</Text>
           </TouchableOpacity>
+
           <TouchableOpacity 
             style={styles.navLink}
-            onPress={() => nav.navigate('Profile')}
-          >
+            onPress={() => nav.navigate('Profile')}>
             <Text style={styles.navLinkText}>Profile</Text>
           </TouchableOpacity>
+
           <TouchableOpacity 
             style={[styles.navLink, styles.authButton]}
             onPress={() => nav.navigate('Login')}
@@ -90,7 +92,11 @@ const LandingScreen = () => {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity style={styles.menuItem}
+            onPress={() => {
+              setMenuVisible(false);
+              nav.navigate('Home');
+            }}>
               <Text style={styles.menuItemText}>Home</Text>
             </TouchableOpacity>
             <TouchableOpacity 
@@ -116,9 +122,16 @@ const LandingScreen = () => {
               onPress={() => {
                 setMenuVisible(false);
                 nav.navigate('Contact');
-              }}
-            >
+              }}>
               <Text style={styles.menuItemText}>Contact</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => {
+                setMenuVisible(false);
+                nav.navigate('Appointment');
+              }}>
+              <Text style={styles.menuItemText}>Make Appointment</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuItemText}>Upcoming Campaigns</Text>
