@@ -46,7 +46,8 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator 
-        initialRouteName={userToken ? "Home" : "Landing"}
+        // initialRouteName={userToken ? "Home" : "Landing"}
+        initialRouteName = "Landing"
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: '#f8f9fa' }
@@ -55,16 +56,11 @@ const AppNavigator = () => {
         <Stack.Screen name="Landing" component={LandingScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Appointment" component={AppointmentScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} 
+          // options={{ gestureEnabled: false }}
+        />
         
-        <Stack.Screen 
-          name="Home" 
-          component={HomeScreen} 
-          options={{ gestureEnabled: false }}
-        />
-        <Stack.Screen 
-          name="Appointment" 
-          component={AppointmentScreen} 
-        />
         <Stack.Screen 
           name="Profile" 
           component={ProfileScreen} 
