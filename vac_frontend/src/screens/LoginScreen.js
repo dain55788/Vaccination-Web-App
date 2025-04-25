@@ -23,24 +23,24 @@ import { MyDispatchContext } from "../utils/MyContexts";
 import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = ({ navigation }) => {
+  const info = [{
+    label: 'Username',
+    icon: "account",
+    secureTextEntry: false,
+    field: "username"
+  }, {
+    label: 'Password',
+    icon: "eye",
+    secureTextEntry: true,
+    field: "password"
+  }];
+
   const [user, setUser] = useState({});
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const nav = useNavigation();
   const dispatch = useContext(MyDispatchContext);
 
-  const info = [{
-    label: 'Tên đăng nhập',
-    icon: "account",
-    secureTextEntry: false,
-    field: "username"
-  }, {
-    label: 'Mật khẩu',
-    icon: "eye",
-    secureTextEntry: true,
-    field: "password"
-  }];
-  
   const setState = (value, field) => {
     setUser({...user, [field]: value});
   }
@@ -68,14 +68,21 @@ const LoginScreen = ({ navigation }) => {
           'grant_type': 'password'
         });
 
-        console.log('API Response:', res.data);
-        
+        console.info(res.data.access_token)
+        console.info('Successfully logged in!!');
+        console.info('User data:', res.data.user);
         await AsyncStorage.setItem("token", res.data.access_token);
-        let u = await authApis(res.data.access_token).get(endpoints['current-user']);
-        dispatch({
-          "type": "login",
-          "payload": u.data
-        })
+        if (dispatch) {
+          let u = await authApis(res.data.access_token).get(endpoints['current-user']);
+          dispatch({
+            "type": "login",
+            "payload": u.data
+          });
+          nav.navigate('Landing');
+        } else {
+          console.error("Dispatch is undefined, cannot update user context");
+          setMsg('Fail to login. Please check your username or password.');
+        }
       } catch (error) {
           console.error('Login error details:', error);
       } finally {
@@ -122,6 +129,8 @@ const LoginScreen = ({ navigation }) => {
                   theme={{ roundness: BORDER_RADIUS.small }}
                 />
               ))}
+
+              {msg && <HelperText type="error" style={styles.errorText}>{msg}</HelperText>}
               
               <Button 
                 disabled={loading} 

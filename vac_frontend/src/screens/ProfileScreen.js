@@ -244,7 +244,6 @@ const ProfileScreen = ({ navigation }) => {
   );
 };
 
-// Additional styles specific to ProfileScreen
 const styles = {
   header: {
     justifyContent: 'space-between',

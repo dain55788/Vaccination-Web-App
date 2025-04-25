@@ -8,15 +8,32 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { logoutUser } from '../utils/Apis';
 import commonStyles, { COLORS, SPACING } from '../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
+import { MyDispatchContext, MyUserContext } from "../utils/MyContexts";
+import { useContext } from "react";
 
 const HomeScreen = () => {
   const [userData, setUserData] = useState(null);
   const [username, setUsername] = useState('');
   const nav = useNavigation();
-  
+  const user = useContext(MyUserContext); 
+  const dispatch = useContext(MyDispatchContext);
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('token');
+      dispatch({ type: 'logout' });
+      nav.reset({
+        index: 0,
+        routes: [{ name: 'Landing' }],
+      });
+      console.info('Successfully log user out!!');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  }
+
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -37,15 +54,6 @@ const HomeScreen = () => {
     
     loadUserData();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      nav.replace('Landing');
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
 
   return (
     <SafeAreaView style={commonStyles.container}>
