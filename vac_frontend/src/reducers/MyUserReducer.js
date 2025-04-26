@@ -1,11 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default async (current, action) => {
+export default (current, action) => {
     switch (action.type) {
         case "login":
             return action.payload;
         case "logout":
-            await AsyncStorage.removeItem("token");
+            //bỏ await trong reducer và nếu cần thiết thì chỉ nên gọi xóa token ở logout handle
+            AsyncStorage.removeItem("token");
             return null;
     }
 

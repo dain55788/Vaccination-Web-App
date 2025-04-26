@@ -26,30 +26,24 @@ const AppNavigator = () => {
 
   return (
     <NavigationContainer>
-            <Stack.Navigator
-              initialRouteName={user === null ? 'Landing' : 'Home'}
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: '#f8f9fa' },
-              }}
-            >
-              {user === null ? (
-                <>
-                  <Stack.Screen name="Login" component={LoginScreen} />
-                  <Stack.Screen name="Register" component={RegisterScreen} />
-                </>
-              ) : (
-                <>
-                  <Stack.Screen name="Home" component={HomeScreen} />
-                  <Stack.Screen name="Profile" component={ProfileScreen} />
-                </>
-              )}
-              <Stack.Screen name="Landing" component={LandingScreen} />
-              <Stack.Screen name="Appointment" component={AppointmentScreen} />
-              <Stack.Screen name="About" component={AboutScreen} />
-              <Stack.Screen name="Contact" component={ContactScreen} />
-              <Stack.Screen name="Services" component={ServicesScreen} />
-            </Stack.Navigator>
+      <Stack.Navigator
+        initialRouteName={user === null ? 'Landing' : 'Home'}
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: '#f8f9fa' },
+        }}
+      >
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+
+        <Stack.Screen name="Landing" component={LandingScreen} />
+        <Stack.Screen name="Appointment" component={AppointmentScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
+        <Stack.Screen name="Contact" component={ContactScreen} />
+        <Stack.Screen name="Services" component={ServicesScreen} />
+      </Stack.Navigator>
     </NavigationContainer>
   )
 }
@@ -70,7 +64,7 @@ const App = () => {
     <SafeAreaProvider>
       <MyUserContext.Provider value={user}>
         <MyDispatchContext.Provider value={dispatch}>
-          <AppNavigator/>
+          <AppNavigator />
         </MyDispatchContext.Provider>
       </MyUserContext.Provider>
       <StatusBar style="auto" />

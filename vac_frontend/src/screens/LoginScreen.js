@@ -63,14 +63,14 @@ const LoginScreen = ({ navigation }) => {
         setLoading(true);
         let res = await Apis.post(endpoints['login'], {
           ...user,
-          "client_id": "HxQDtnxYJjTkdRcsicafPK9QqclTYaU8l1CxOQLQ",
-          "client_secret": '2C5lN4AsEqeCxo1CvSDafff0gNeEqf8FzM2pzfLbp1GOpcqIYAzeTS6Cq0yfHTArHr2QTjHRWgu607PocsfdgUmMOXPePq6P3fsBEGDwGcAnP9YtZIzZ6a3Uwzj00GgE',
+          "client_id": CLIENT_ID,
+          "client_secret": CLIENT_SECRET,
           'grant_type': 'password'
         });
 
         console.info(res.data.access_token)
         console.info('Successfully logged in!!');
-        console.info('User data:', res.data.user);
+        console.info('User data:', res.data);
         await AsyncStorage.setItem("token", res.data.access_token);
         if (dispatch) {
           let u = await authApis(res.data.access_token).get(endpoints['current-user']);

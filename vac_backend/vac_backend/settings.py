@@ -87,13 +87,23 @@ WSGI_APPLICATION = 'vac_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+import cloudinary
+from cloudinary import uploader
+from cloudinary.utils import cloudinary_url
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+MYSQLPASSWORD =f"{os.getenv('MYSQLPASSWORD')}"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'vaccination_management',
         'USER': 'root',
-        'PASSWORD': '123456',
-        # 'PASSWORD': 'P@ssw0rd',
+        # 'PASSWORD': '123456',
+        'PASSWORD':MYSQLPASSWORD,
         'HOST': '' # mặc định localhost
     }
 }
@@ -143,14 +153,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-import cloudinary
-from cloudinary import uploader
-from cloudinary.utils import cloudinary_url
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # Configuration
 cloudinary.config(

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { 
-  Text, 
-  View, 
-  TouchableOpacity, 
-  ScrollView, 
+import React, { useContext, useState } from 'react';
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
   SafeAreaView,
   Image,
   TextInput,
@@ -12,8 +12,13 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
+import { MyDispatchContext, MyUserContext } from '../utils/MyContexts';
 
 const ProfileScreen = ({ navigation }) => {
+  // use context:
+  const user = useContext(MyUserContext)
+  const dispatch = useContext(MyDispatchContext)
+
   const [userData, setUserData] = useState({
     name: 'John Doe',
     email: 'john.doe@example.com',
@@ -75,17 +80,24 @@ const ProfileScreen = ({ navigation }) => {
     Alert.alert('Edit Profile', 'This would navigate to an edit profile screen');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // bổ sung dispatch để xử lý? logout user 
+    console.info(user)
+    await dispatch({
+      "type": "logout"
+    })
+
+    //chờ dispatch logout rồi thì mới quay lại trang chủ
     navigation.navigate('Landing');
   };
-  
+
   return (
     <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
-      
+
       <View style={[commonStyles.header, styles.header]}>
-        <TouchableOpacity 
-          style={styles.backButton} 
+        <TouchableOpacity
+          style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Text style={styles.backButtonText}>← Back</Text>
@@ -128,7 +140,7 @@ const ProfileScreen = ({ navigation }) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Vaccination History</Text>
-          
+
           {vaccinationHistory.map((record) => (
             <View key={record.id} style={commonStyles.card}>
               <View style={[commonStyles.row, commonStyles.spaceBetween]}>
@@ -152,7 +164,7 @@ const ProfileScreen = ({ navigation }) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-          
+
           {upcomingAppointments.length > 0 ? (
             upcomingAppointments.map((appointment) => (
               <View key={appointment.id} style={commonStyles.card}>
@@ -180,7 +192,7 @@ const ProfileScreen = ({ navigation }) => {
             </View>
           )}
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={commonStyles.button}
             onPress={() => navigation.navigate('Appointment')}
           >
@@ -190,7 +202,7 @@ const ProfileScreen = ({ navigation }) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
-          
+
           <View style={commonStyles.card}>
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Push Notifications</Text>
@@ -201,7 +213,7 @@ const ProfileScreen = ({ navigation }) => {
                 thumbColor={COLORS.white}
               />
             </View>
-            
+
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Email Updates</Text>
               <Switch
@@ -211,7 +223,7 @@ const ProfileScreen = ({ navigation }) => {
                 thumbColor={COLORS.white}
               />
             </View>
-            
+
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Text Reminders</Text>
               <Switch
@@ -221,7 +233,7 @@ const ProfileScreen = ({ navigation }) => {
                 thumbColor={COLORS.white}
               />
             </View>
-            
+
             <View style={styles.settingRow}>
               <Text style={styles.settingLabel}>Dark Mode</Text>
               <Switch
@@ -233,11 +245,11 @@ const ProfileScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
-        
+
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-        
+
         <View style={styles.footer} />
       </ScrollView>
     </SafeAreaView>
