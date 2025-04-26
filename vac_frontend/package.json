@@ -20,6 +20,7 @@
     "dotenv": "^16.5.0",
     "expo": "~52.0.43",
     "expo-constants": "~17.0.8",
+    "expo-image-picker": "^16.0.6",
     "expo-linear-gradient": "^14.0.2",
     "expo-status-bar": "~2.0.1",
     "express": "^5.1.0",

@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
 import { 
   Text, 
   View, 
-  TextInput, 
   TouchableOpacity, 
   SafeAreaView, 
   KeyboardAvoidingView,
@@ -11,12 +9,16 @@ import {
   Keyboard,
   ScrollView,
   Alert,
-  ImageBackground
 } from 'react-native';
+import { Button, HelperText, TextInput } from "react-native-paper";
 import { StatusBar } from 'expo-status-bar';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from "react";
+import Apis, { authApis, endpoints } from "../utils/Apis";
+import { useNavigation } from "@react-navigation/native";
+import * as ImagePicker from 'expo-image-picker';
 
 const RegisterScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState('');
@@ -31,6 +33,27 @@ const RegisterScreen = ({ navigation }) => {
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [error, setError] = useState('');
+  const [user, setUser] = useState({});
+  const [msg, setMsg] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const nav = useNavigation();
+
+  const picker = async () => {
+    let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+    if (status !== 'granted') {
+        alert("Permissions denied!");
+    } else {
+        const result = await ImagePicker.launchImageLibraryAsync();
+  
+        if (!result.canceled)
+            setState(result.assets[0], "avatar");
+    }
+  }
+
+  const setState = (value, field) => {
+    setUser({...user, [field]: value});
+  }
 
   const formatDate = (date) => {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -43,30 +66,53 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const handleRegister = async () => {
-    // Reset error
     setError('');
-    
-    // Basic validation for compulsory fields
+    const info = [{
+      label: 'Tên',
+      icon: "text",
+      secureTextEntry: false,
+      field: "first_name"
+  }, {
+      label: 'Họ và tên lót',
+      icon: "text",
+      secureTextEntry: false,
+      field: "last_name"
+  }, {
+      label: 'Tên đăng nhập',
+      icon: "text",
+      secureTextEntry: false,
+      field: "username"
+  }, {
+      label: 'Mật khẩu',
+      icon: "eye",
+      secureTextEntry: true,
+      field: "password"
+  }, {
+      label: 'Xác nhận mật khẩu',
+      icon: "eye",
+      secureTextEntry: true,
+      field: "confirm"
+  }];
+
     if (!firstName || !lastName || !email || !phoneNumber || !gender || !password || !confirmPassword) {
-      setError('Please fill in all required fields');
+      setMsg('Please fill in all required fields');
       return;
     }
     
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setMsg('Passwords do not match');
       return;
     }
     
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setMsg('Password must be at least 6 characters');
       return;
     }
     
-    // Create request body
     const userData = {
       first_name: firstName,
       last_name: lastName,
-      username: username || email.split('@')[0], // Use part of email as username if not provided
+      username: username || email.split('@')[0],
       email: email,
       phone_number: phoneNumber,
       password: password,
@@ -74,11 +120,9 @@ const RegisterScreen = ({ navigation }) => {
       date_of_birth: formatDate(dateOfBirth),
     };
     
-    // Add optional fields if provided
     if (address) userData.address = address;
     
     try {
-      // Make API request to Django backend
       const apiUrl = Platform.OS === 'android' 
         ? 'http://10.0.2.2:8000/api/register/' 
         : 'http://127.0.0.1:8000/api/register/';
@@ -94,7 +138,6 @@ const RegisterScreen = ({ navigation }) => {
         body: JSON.stringify(userData),
       });
       
-      // In case of network error, check response status
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Registration error response:', errorData);
@@ -105,7 +148,6 @@ const RegisterScreen = ({ navigation }) => {
       const data = await response.json();
       console.log('Registration successful:', data);
       
-      // Registration successful
       Alert.alert(
         'Success',
         'Account created successfully!',
@@ -166,10 +208,10 @@ const RegisterScreen = ({ navigation }) => {
               </View>
               
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Username</Text>
+                <Text style={styles.label}>Username *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Choose a username (optional)"
+                  placeholder="Enter your Username"
                   value={username}
                   onChangeText={setUsername}
                   autoCapitalize="none"
@@ -294,6 +336,10 @@ const RegisterScreen = ({ navigation }) => {
                 <Text style={styles.registerButtonText}>Create Account</Text>
               </TouchableOpacity>
               
+              <HelperText type="error" visible={msg}>
+                    {msg}
+              </HelperText>
+
               <TouchableOpacity 
                 style={styles.loginLink}
                 onPress={() => navigation.navigate('Login')}
