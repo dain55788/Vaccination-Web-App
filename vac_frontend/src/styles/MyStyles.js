@@ -95,9 +95,7 @@ const SHADOW = {
   },
 };
 
-// Common styles
 export const commonStyles = StyleSheet.create({
-  // Container styles
   container: {
     flex: 1,
     backgroundColor: COLORS.background.secondary,
@@ -135,8 +133,12 @@ export const commonStyles = StyleSheet.create({
   marginTop: {
     marginTop: SPACING.medium,
   },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 50
+  },
   
-  // Header styles
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -176,7 +178,6 @@ export const commonStyles = StyleSheet.create({
     marginBottom: SPACING.regular,
   },
   
-  // Text styles
   title: {
     fontSize: FONT_SIZE.huge,
     fontWeight: 'bold',
