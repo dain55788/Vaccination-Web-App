@@ -87,9 +87,6 @@ WSGI_APPLICATION = 'vac_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-import cloudinary
-from cloudinary import uploader
-from cloudinary.utils import cloudinary_url
 import os
 from dotenv import load_dotenv
 
@@ -154,6 +151,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
 # Configuration
 cloudinary.config(
     cloud_name="dtrmjyjli",
@@ -162,7 +163,6 @@ cloudinary.config(
     secure=True
 )
 
-# CKEditor configuration
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_IMAGE_BACKEND = "pillow"
 MEDIA_URL = '/media/'

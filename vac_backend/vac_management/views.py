@@ -1,7 +1,3 @@
-from datetime import datetime
-
-from django.shortcuts import render
-from oauthlib.uri_validate import query
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import viewsets, generics, parsers, permissions, status
@@ -9,11 +5,6 @@ from vac_management.models import *
 from vac_management import serializers, perms, paginators
 from django.db.models import Count, Sum, Q
 from django.db.models.functions import TruncMonth, TruncQuarter, TruncYear
-from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
 
 class VaccineCategoryViewSet(viewsets.ViewSet, generics.ListAPIView):
@@ -341,7 +332,6 @@ class DoctorViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPI
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Filter by specialty
         specialty = self.request.query_params.get('specialty')
         if specialty:
             queryset = queryset.filter(specialty__icontains=specialty)

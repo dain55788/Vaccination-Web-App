@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from vac_management.models import *
-from django.contrib.auth import authenticate
-
+from cloudinary.uploader import upload
 
 class BaseSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
@@ -16,6 +15,7 @@ class VaccineCategorySerializer(serializers.ModelSerializer):
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
+    avatar = serializers.FileField(required=False, allow_null=True)
     class Meta:
         abstract = True
         model = BaseUser
@@ -27,23 +27,31 @@ class BaseUserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
-        model_class = self.Meta.model
-        user = model_class(**validated_data)
-        
-        user.set_password(password)
+        avatar_file = validated_data.pop('avatar', None)
+        data = validated_data.copy()
+        user = BaseUser(**data)
+        user.set_password(user.password)
+
+        if avatar_file:
+            upload_result = upload(avatar_file)
+            user.avatar = upload_result['public_id']
+
         user.save()
         
         return user
 
     def update(self, instance, validated_data):
+        avatar_file = validated_data.pop('avatar', None)
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
         
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-            
+        if avatar_file:
+            upload_result = upload(avatar_file)
+            instance.avatar = upload_result['public_id']
+
         instance.save()
         return instance
 
@@ -57,8 +65,6 @@ class CitizenSerializer(BaseUserSerializer):
     class Meta:
         model = Citizen
         return_lists = BaseUserSerializer.Meta.fields + ['health_note']
-        return_lists.remove('password')
-        return_lists.remove('username')
         extra_kwargs = {
             'password': {'write_only': True},
             'username': {'read_only': True}
@@ -70,9 +76,6 @@ class StaffSerializer(BaseUserSerializer):
     class Meta:
         model = Staff
         return_lists = BaseUserSerializer.Meta.fields + ['shift', 'hire_date']
-        return_lists.remove('password')
-        return_lists.remove('hire_date')
-        return_lists.remove('username')
         extra_kwargs = {
             'password': {'write_only': True},
             'username': {'read_only': True}
@@ -84,7 +87,6 @@ class DoctorSerializer(BaseUserSerializer):
     class Meta:
         model = Doctor
         return_lists = BaseUserSerializer.Meta.fields + ['specialty', 'years_of_experience', 'medical_license']
-        return_lists.remove('password')
         extra_kwargs = {
             'password': {'write_only': True},
             'username': {'read_only': True}
