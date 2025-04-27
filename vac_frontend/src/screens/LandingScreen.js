@@ -1,10 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Pressable } from 'react-native';
+import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
 import { MyUserContext, MyDispatchContext } from '../utils/MyContexts';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LandingScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -134,9 +133,11 @@ const LandingScreen = () => {
         </View>
 
         <View style={styles.imageContainer}>
-          <View style={styles.imagePlaceholder}>
-            <Text style={styles.placeholderText}>Vaccination Image</Text>
-          </View>
+          <Image
+            source={require('../assets/images/VaxServe.png')}
+            style={styles.image}
+            resizeMode="cover"
+          />
         </View>
 
         <View style={styles.overviewContainer}>
@@ -407,6 +408,12 @@ const styles = {
   imageContainer: {
     paddingHorizontal: SPACING.medium,
     marginVertical: SPACING.large,
+  },
+  image: {
+    height: 200,
+    width: '100%',
+    borderRadius: BORDER_RADIUS.medium,
+    ...SHADOW.medium,
   },
   imagePlaceholder: {
     height: 200,

@@ -1,4 +1,5 @@
 import { 
+  Image,
   Text, 
   View, 
   TouchableOpacity, 
@@ -8,6 +9,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  Animated,
+  Dimensions,
   Alert,
 } from 'react-native';
 import { Button, HelperText, TextInput } from "react-native-paper";
@@ -15,12 +18,83 @@ import { StatusBar } from 'expo-status-bar';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Apis, { authApis, endpoints } from "../utils/Apis";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
 
-const RegisterScreen = ({ navigation }) => {
+const { width, height } = Dimensions.get('window');
+
+const RegisterScreen = () => {
+
+  const [syringes, setSyringes] = useState([]);
+
+  const createSyringe = () => ({
+    id: Math.random().toString(),
+    x: new Animated.Value(Math.random() * (width - 50)),
+    y: new Animated.Value(-50),
+  });
+
+  useEffect(() => {
+    const addSyringe = () => {
+      setSyringes((prev) => [...prev, createSyringe()]);
+    };
+
+    addSyringe();
+
+    const interval = setInterval(() => {
+      addSyringe();
+    }, 500 + Math.random() * 500);
+
+    const cleanup = setInterval(() => {
+      setSyringes((prev) => prev.filter((s) => s.y._value < height));
+    }, 5000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(cleanup);
+    };
+  }, []);
+
+  useEffect(() => {
+    syringes.forEach((syringe) => {
+      Animated.parallel([
+        Animated.timing(syringe.y, {
+          toValue: height + 50,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  }, [syringes]);
+
+  const info = [{
+    label: 'First name',
+    icon: "text",
+    secureTextEntry: false,
+    field: "first_name"
+  }, {
+      label: 'Last name',
+      icon: "text",
+      secureTextEntry: false,
+      field: "last_name"
+  }, {
+      label: 'Username',
+      icon: "text",
+      secureTextEntry: false,
+      field: "username"
+  }, {
+      label: 'Password',
+      icon: "eye",
+      secureTextEntry: true,
+      field: "password"
+  }, {
+      label: 'Confirm password',
+      icon: "eye",
+      secureTextEntry: true,
+      field: "confirm"
+  }];
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
@@ -34,8 +108,8 @@ const RegisterScreen = ({ navigation }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [error, setError] = useState('');
   const [user, setUser] = useState({});
-  const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState(null);
   const nav = useNavigation();
 
   const picker = async () => {
@@ -55,6 +129,23 @@ const RegisterScreen = ({ navigation }) => {
     setUser({...user, [field]: value});
   }
 
+  const validate = () => {
+    if (!user?.username || !user?.password) {
+        setMsg("Please enter username and password!");
+        return false;
+    } else if (user.password !== user.confirm) {
+        setMsg("Passwords do not match!");
+        return false;
+    } else if (user.password.length < 6) {
+        setMsg("Password must be at least 6 characters!");
+        return false;
+    }
+
+    setMsg(null);
+    
+    return true;
+  }
+
   const formatDate = (date) => {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   };
@@ -66,102 +157,61 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   const handleRegister = async () => {
-    setError('');
-    const info = [{
-      label: 'Tên',
-      icon: "text",
-      secureTextEntry: false,
-      field: "first_name"
-  }, {
-      label: 'Họ và tên lót',
-      icon: "text",
-      secureTextEntry: false,
-      field: "last_name"
-  }, {
-      label: 'Tên đăng nhập',
-      icon: "text",
-      secureTextEntry: false,
-      field: "username"
-  }, {
-      label: 'Mật khẩu',
-      icon: "eye",
-      secureTextEntry: true,
-      field: "password"
-  }, {
-      label: 'Xác nhận mật khẩu',
-      icon: "eye",
-      secureTextEntry: true,
-      field: "confirm"
-  }];
+    if (validate() === true) {
+      try {
+          setLoading(true);
 
-    if (!firstName || !lastName || !email || !phoneNumber || !gender || !password || !confirmPassword) {
-      setMsg('Please fill in all required fields');
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      setMsg('Passwords do not match');
-      return;
-    }
-    
-    if (password.length < 6) {
-      setMsg('Password must be at least 6 characters');
-      return;
-    }
-    
-    const userData = {
-      first_name: firstName,
-      last_name: lastName,
-      username: username || email.split('@')[0],
-      email: email,
-      phone_number: phoneNumber,
-      password: password,
-      gender: gender.toLowerCase(),
-      date_of_birth: formatDate(dateOfBirth),
-    };
-    
-    if (address) userData.address = address;
-    
-    try {
-      const apiUrl = Platform.OS === 'android' 
-        ? 'http://10.0.2.2:8000/api/register/' 
-        : 'http://127.0.0.1:8000/api/register/';
-        
-      console.log('Sending registration request to:', apiUrl);
-      
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Registration error response:', errorData);
-        setError(errorData.detail || `Error: ${response.status}`);
-        return;
+          let form = new FormData();
+          for (let key in user) {
+              if (key !== 'confirm') {
+                  if (key === 'avatar' && user?.avatar !== null) {
+                      form.append(key, {
+                          uri: user.avatar.uri,
+                          name: user.avatar.fileName,
+                          type: user.avatar.type
+                      });
+                  } else {
+                      form.append(key, user[key]);
+                  }
+              }
+          }
+
+          let res = await Apis.post(endpoints['register'], form, {
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              }
+          });
+
+          if (res.status === 201) {
+              nav.navigate("Login");
+          }
+      } catch (ex) {
+          console.error(ex);
+      } finally {
+          setLoading(false);
       }
-      
-      const data = await response.json();
-      console.log('Registration successful:', data);
-      
-      Alert.alert(
-        'Success',
-        'Account created successfully!',
-        [{ text: 'Login Now', onPress: () => navigation.navigate('Login') }]
-      );
-    } catch (error) {
-      console.error('Registration error:', error);
-      setError('Network error. Please try again later.');
     }
   };
 
   return (
     <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
       <StatusBar style="light" />
+      <View style={styles.syringeAnimationContainer}>
+                {syringes.map((syringe) => (
+                  <Animated.View
+                    key={syringe.id}
+                    style={[
+                      styles.syringe,
+                      {
+                        transform: [{ translateX: syringe.x }, { translateY: syringe.y }],
+                        pointerEvents: 'none',
+                      },
+                    ]}
+                  >
+                    <Text style={styles.syringeIcon}>💉</Text>
+                  </Animated.View>
+                ))}
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingView}
@@ -169,15 +219,18 @@ const RegisterScreen = ({ navigation }) => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <LinearGradient
-              colors={[COLORS.primary, '#1a4dc7']} 
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={styles.header}
-            >
-              <View style={styles.headerContent}>
-                <Text style={styles.headerTitle}>Create Account</Text>
-                <Text style={styles.headerSubtitle}>Join VaxServe for easy vaccination management</Text>
-              </View>
+                colors={[COLORS.primary, '#1a4dc7']} 
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={styles.header}
+              >
+                <View style={styles.headerContent}>
+                  <Text style={styles.headerTitle}>Create Account</Text>
+                  <Text style={styles.headerSubtitle}>
+                    💉 Join VaxServe for easy vaccination management
+                  </Text>
+                  
+                </View>
             </LinearGradient>
 
             <View style={styles.formCard}>
@@ -189,8 +242,8 @@ const RegisterScreen = ({ navigation }) => {
                   <TextInput
                     style={styles.input}
                     placeholder="First name"
-                    value={firstName}
-                    onChangeText={setFirstName}
+                    value={user.first_name}
+                    onChangeText={(t) => setState(t, 'first_name')}
                     placeholderTextColor={COLORS.text.muted}
                   />
                 </View>
@@ -200,8 +253,8 @@ const RegisterScreen = ({ navigation }) => {
                   <TextInput
                     style={styles.input}
                     placeholder="Last name"
-                    value={lastName}
-                    onChangeText={setLastName}
+                    value={user.last_name}
+                    onChangeText={(t) => setState(t, 'last_name')}
                     placeholderTextColor={COLORS.text.muted}
                   />
                 </View>
@@ -212,8 +265,8 @@ const RegisterScreen = ({ navigation }) => {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your Username"
-                  value={username}
-                  onChangeText={setUsername}
+                  value={user.username}
+                  onChangeText={(t) => setState(t, 'username')}
                   autoCapitalize="none"
                   placeholderTextColor={COLORS.text.muted}
                 />
@@ -224,8 +277,8 @@ const RegisterScreen = ({ navigation }) => {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your email"
-                  value={email}
-                  onChangeText={setEmail}
+                  value={user.email}
+                  onChangeText={(t) => setState(t, 'email')}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   placeholderTextColor={COLORS.text.muted}
@@ -237,8 +290,8 @@ const RegisterScreen = ({ navigation }) => {
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your phone number"
-                  value={phoneNumber}
-                  onChangeText={setPhoneNumber}
+                  value={user.phone_number}
+                  onChangeText={(t) => setState(t, 'phone_number')}
                   keyboardType="phone-pad"
                   placeholderTextColor={COLORS.text.muted}
                 />
@@ -298,12 +351,20 @@ const RegisterScreen = ({ navigation }) => {
                 <TextInput
                   style={[styles.input, styles.multilineInput]}
                   placeholder="Enter your address"
-                  value={address}
-                  onChangeText={setAddress}
+                  value={user.address}
+                  onChangeText={(t) => setState(t, 'address')}
                   multiline
                   numberOfLines={3}
                   placeholderTextColor={COLORS.text.muted}
                 />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Avatar</Text>
+                <TouchableOpacity style={styles.dateButton} onPress={picker}>
+                  <Text style={styles.dateButtonText}>Choose your avatar</Text>
+                </TouchableOpacity>
+                {user?.avatar && <Image style={[commonStyles.avatar, { marginTop: SPACING.medium }]} source={{uri: user.avatar.uri}} />}
               </View>
               
               <View style={styles.divider} />
@@ -313,20 +374,20 @@ const RegisterScreen = ({ navigation }) => {
                 <TextInput
                   style={styles.input}
                   placeholder="Create a password"
-                  value={password}
-                  onChangeText={setPassword}
+                  value={user.password}
+                  onChangeText={(t) => setState(t, 'password')}
                   secureTextEntry
                   placeholderTextColor={COLORS.text.muted}
                 />
               </View>
               
-              <View style={styles.inputContainer}>
+              <View style={[styles.inputContainer, { zIndex: 3, pointerEvents: 'auto' }]}>
                 <Text style={styles.label}>Confirm Password *</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="Confirm your password"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
+                  value={user.confirm}
+                  onChangeText={(t) => setState(t, 'confirm')}
                   secureTextEntry
                   placeholderTextColor={COLORS.text.muted}
                 />
@@ -337,12 +398,12 @@ const RegisterScreen = ({ navigation }) => {
               </TouchableOpacity>
               
               <HelperText type="error" visible={msg}>
-                    {msg}
+                {msg}
               </HelperText>
 
               <TouchableOpacity 
                 style={styles.loginLink}
-                onPress={() => navigation.navigate('Login')}
+                onPress={() => nav.navigate('Login')}
               >
                 <Text style={styles.loginText}>
                   Already have an account? <Text style={styles.loginTextBold}>Sign In</Text>
@@ -362,14 +423,31 @@ const styles = {
   },
   keyboardAvoidingView: {
     flex: 1,
+    zIndex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
   },
   header: {
-    paddingVertical: SPACING.large,
+    paddingVertical: SPACING.huge,
     paddingHorizontal: SPACING.medium,
     marginBottom: -SPACING.large,
+  },
+  syringeAnimationContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 100,
+    zIndex: 2,
+  },
+  syringe: {
+    position: 'absolute',
+  },
+  syringeIcon: {
+    fontSize: 50,
+    color: COLORS.white,
+    opacity: 1,
   },
   headerContent: {
     alignItems: 'center',
@@ -384,7 +462,7 @@ const styles = {
   headerSubtitle: {
     fontSize: FONT_SIZE.medium,
     color: COLORS.white,
-    opacity: 0.9,
+    opacity: 1,
     textAlign: 'center',
   },
   formCard: {
@@ -402,7 +480,7 @@ const styles = {
     fontSize: FONT_SIZE.medium,
   },
   inputContainer: {
-    marginBottom: SPACING.medium,
+    marginBottom: SPACING.small,
   },
   halfWidth: {
     flex: 1,
@@ -419,12 +497,12 @@ const styles = {
     borderWidth: 1,
     borderColor: COLORS.border,
     borderRadius: BORDER_RADIUS.small,
-    padding: SPACING.medium,
+    padding: SPACING.small,
     fontSize: FONT_SIZE.medium,
     color: COLORS.text.primary,
   },
   multilineInput: {
-    height: 80,
+    height: 60,
     textAlignVertical: 'top',
   },
   radioContainer: {
