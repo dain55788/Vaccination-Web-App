@@ -23,11 +23,11 @@ def get_valid_appointments():
         today = datetime.now().date()
         next_day = today + timedelta(days=1)
         print(f"Filtering appointments for date: {next_day}")
-        
+
         # Get appointments scheduled for tomorrow
         appointments = Appointment.objects.filter(scheduled_date=next_day, active=True)
         print(f"Found {len(appointments)} appointments for tomorrow")
-        
+
         return list(appointments)
     except Exception as e:
         print(f"Error getting valid appointments: {str(e)}")
