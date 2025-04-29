@@ -41,16 +41,16 @@ class BaseUserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        avatar_file = validated_data.pop('avatar', None)
+        # avatar_file = validated_data.pop('avatar', None)
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
         
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        if avatar_file:
-            upload_result = upload(avatar_file)
-            instance.avatar = upload_result['public_id']
+        # for attr, value in validated_data.items():
+        #     setattr(instance, attr, value)
+        # if avatar_file:
+        #     upload_result = upload(avatar_file)
+        #     instance.avatar = upload_result['public_id']
 
         instance.save()
         return instance
@@ -71,6 +71,26 @@ class CitizenSerializer(BaseUserSerializer):
         }
         fields = return_lists
 
+    def update(self, instance, validated_data):
+        # avatar_file = validated_data.pop('avatar', None)
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+
+        # for attr, value in validated_data.items():
+        #     setattr(instance, attr, value)
+        # if avatar_file:
+        #     upload_result = upload(avatar_file)
+        #     instance.avatar = upload_result['public_id']
+
+        instance.save()
+        return instance
+
+    def to_representation(self, instance):
+        d = super().to_representation(instance)
+        d['avatar'] = instance.avatar.url if instance.avatar else ''
+        return d
+
 
 class StaffSerializer(BaseUserSerializer):
     class Meta:
@@ -82,6 +102,26 @@ class StaffSerializer(BaseUserSerializer):
         }
         fields = return_lists
 
+    def update(self, instance, validated_data):
+        # avatar_file = validated_data.pop('avatar', None)
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+
+        # for attr, value in validated_data.items():
+        #     setattr(instance, attr, value)
+        # if avatar_file:
+        #     upload_result = upload(avatar_file)
+        #     instance.avatar = upload_result['public_id']
+
+        instance.save()
+        return instance
+
+    def to_representation(self, instance):
+        d = super().to_representation(instance)
+        d['avatar'] = instance.avatar.url if instance.avatar else ''
+        return d
+
 
 class DoctorSerializer(BaseUserSerializer):
     class Meta:
@@ -92,6 +132,26 @@ class DoctorSerializer(BaseUserSerializer):
             'username': {'read_only': True}
         }
         fields = return_lists
+
+    def update(self, instance, validated_data):
+        # avatar_file = validated_data.pop('avatar', None)
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+
+        # for attr, value in validated_data.items():
+        #     setattr(instance, attr, value)
+        # if avatar_file:
+        #     upload_result = upload(avatar_file)
+        #     instance.avatar = upload_result['public_id']
+
+        instance.save()
+        return instance
+
+    def to_representation(self, instance):
+        d = super().to_representation(instance)
+        d['avatar'] = instance.avatar.url if instance.avatar else ''
+        return d
 
 
 class VaccineSerializer(BaseSerializer):
