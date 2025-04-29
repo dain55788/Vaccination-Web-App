@@ -1,7 +1,5 @@
 # CRONTAB - CRONJOB FOR APPOINTMENT EMAIL SENDER
 
-## crontab -e, crontab -l :)
-
 ## Possible schedule for the task:
 
 ## Extract valid appointment
