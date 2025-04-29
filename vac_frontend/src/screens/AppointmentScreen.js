@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { 
+import React, { useContext, useState, useEffect } from 'react';import { 
   Text, 
   View, 
   TouchableOpacity, 
@@ -19,6 +18,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
+import Apis, { authApis, endpoints } from "../utils/Apis";
+import { MyDispatchContext } from "../utils/MyContexts";
 
 const AppointmentScreen = () => {
   const [fullName, setFullName] = useState('');
@@ -30,12 +31,19 @@ const AppointmentScreen = () => {
   const [vaccineType, setVaccineType] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   const formOpacity = useSharedValue(0);
   const formTranslateY = useSharedValue(50);
   const submitButtonScale = useSharedValue(1);
   const successOpacity = useSharedValue(0);
+
+  const [user, setUser] = useState({});
+  const [msg, setMsg] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useContext(MyDispatchContext);
+  
   const nav = useNavigation();
+  
   
   useEffect(() => {
     formOpacity.value = withTiming(1, { duration: 800 });

@@ -13,20 +13,12 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 import { MyDispatchContext, MyUserContext } from '../utils/MyContexts';
+import { handleLogout } from './HomeScreen.js';
 
 const ProfileScreen = ({ navigation }) => {
-  // use context:
   const user = useContext(MyUserContext)
   const dispatch = useContext(MyDispatchContext)
-
-  const [userData, setUserData] = useState({
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '(555) 123-4567',
-    dateOfBirth: '01/15/1985',
-    address: '123 Main St, Anytown, US 12345',
-    emergencyContact: 'Jane Doe - (555) 987-6543'
-  });
+  const {loading, setLoading} = useState(false);
 
   const vaccinationHistory = [
     {
@@ -80,16 +72,6 @@ const ProfileScreen = ({ navigation }) => {
     Alert.alert('Edit Profile', 'This would navigate to an edit profile screen');
   };
 
-  const handleLogout = async () => {
-    // bổ sung dispatch để xử lý? logout user 
-    console.info(user)
-    await dispatch({
-      "type": "logout"
-    })
-
-    //chờ dispatch logout rồi thì mới quay lại trang chủ
-    navigation.navigate('Landing');
-  };
 
   return (
     <SafeAreaView style={commonStyles.safeArea}>
@@ -107,34 +89,38 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.editButton}>Edit</Text>
         </TouchableOpacity>
       </View>
-
+      
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
-        <View style={styles.profileSection}>
-          <View style={styles.profileImageContainer}>
-            <View style={styles.profileImagePlaceholder}>
-              <Text style={styles.profileInitials}>JD</Text>
+
+      <View style={styles.section}>
+          <View style={styles.profileSection}>
+            <View style={styles.profileImageContainer}>
+              <View style={styles.profileImagePlaceholder}>
+                <Text style={styles.profileInitials}>user.avatar</Text>
+              </View>
             </View>
-          </View>
-          <Text style={styles.profileName}>{userData.name}</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Email:</Text>
-            <Text style={styles.infoValue}>{userData.email}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Phone:</Text>
-            <Text style={styles.infoValue}>{userData.phone}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Date of Birth:</Text>
-            <Text style={styles.infoValue}>{userData.dateOfBirth}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Address:</Text>
-            <Text style={styles.infoValue}>{userData.address}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Emergency Contact:</Text>
-            <Text style={styles.infoValue}>{userData.emergencyContact}</Text>
+            <Text style={styles.profileName}>{user.username}</Text>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Email:</Text>
+              <Text style={styles.infoValue}>{user.email}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Phone:</Text>
+              <Text style={styles.infoValue}>{user.phone_number}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Date of Birth:</Text>
+              <Text style={styles.infoValue}>{user.date_of_birth}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Address:</Text>
+              <Text style={styles.infoValue}>{user.address}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Gender:</Text>
+              <Text style={styles.infoValue}>{user.gender}</Text>
+            </View>
           </View>
         </View>
 
@@ -246,7 +232,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <TouchableOpacity disabled={loading} loading={loading}style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
 
@@ -323,6 +309,7 @@ const styles = {
     fontWeight: 'bold',
     color: COLORS.text.primary,
     marginBottom: SPACING.medium,
+
   },
   cardDate: {
     fontSize: FONT_SIZE.medium,

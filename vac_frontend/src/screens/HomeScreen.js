@@ -66,7 +66,7 @@ const HomeScreen = () => {
       </View>
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
         <View style={styles.welcomeSection}>
-          <Text style={commonStyles.title}>Welcome {username ? username : 'to VaxServe'}</Text>
+          <Text style={commonStyles.title}>Welcome {user.username + ' to VaxServe'}</Text>
           <Text style={commonStyles.subtitle}>Your vaccination management portal</Text>
         </View>
 
