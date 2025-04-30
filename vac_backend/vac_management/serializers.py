@@ -2,6 +2,7 @@ from rest_framework import serializers
 from vac_management.models import *
 from cloudinary.uploader import upload
 
+
 class BaseSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         d = super().to_representation(instance)
@@ -16,10 +17,12 @@ class VaccineCategorySerializer(serializers.ModelSerializer):
 
 class BaseUserSerializer(serializers.ModelSerializer):
     avatar = serializers.FileField(required=False, allow_null=True)
+
     class Meta:
         abstract = True
         model = BaseUser
-        fields = ['first_name', 'last_name', 'username', 'password', 'avatar']
+        fields = ['first_name', 'last_name', 'username', 'password', 'avatar', 'gender', 'address', 'date_of_birth',
+                  'phone_number', 'email']
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -37,7 +40,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
             user.avatar = upload_result['public_id']
 
         user.save()
-        
+
         return user
 
     def update(self, instance, validated_data):
@@ -45,7 +48,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
-        
+
         # for attr, value in validated_data.items():
         #     setattr(instance, attr, value)
         # if avatar_file:
@@ -200,7 +203,7 @@ class CampaignSerializer(BaseSerializer):
 class CampaignCitizenSerializer(serializers.ModelSerializer):
     class Meta:
         model = CampaignCitizen
-        fields =  ['id', 'injection_date', 'campaign_id', 'citizen_id']
+        fields = ['id', 'injection_date', 'campaign_id', 'citizen_id']
 
 
 class CampaignVaccineSerializer(serializers.ModelSerializer):
