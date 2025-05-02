@@ -18,6 +18,7 @@ class BaseUser(AbstractUser):
     GENDER_CHOICES = (
         ('male', 'Male'),
         ('female', 'Female'),
+        ('other', 'Other'),
     )
 
     date_of_birth = models.DateField(null=True)

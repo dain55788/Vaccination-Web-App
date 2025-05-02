@@ -1,9 +1,9 @@
-import { 
+import {
   Image,
-  Text, 
-  View, 
-  TouchableOpacity, 
-  SafeAreaView, 
+  Text,
+  View,
+  TouchableOpacity,
+  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
@@ -69,80 +69,123 @@ const RegisterScreen = () => {
   }, [syringes]);
 
   const info = [{
-    label: 'First name',
-    icon: "text",
+    label: 'First Name',
+    icon: "information",
     secureTextEntry: false,
-    field: "first_name"
+    field: "first_name",
+    description: "First name"
   }, {
-      label: 'Last name',
-      icon: "text",
-      secureTextEntry: false,
-      field: "last_name"
+    label: 'Last Name',
+    icon: "information",
+    secureTextEntry: false,
+    field: "last_name",
+    description: "Last name"
   }, {
-      label: 'Username',
-      icon: "text",
-      secureTextEntry: false,
-      field: "username"
+    label: 'Username',
+    icon: "human",
+    secureTextEntry: false,
+    field: "username",
+    description: "Enter your username"
   }, {
-      label: 'Password',
-      icon: "eye",
-      secureTextEntry: true,
-      field: "password"
+    label: 'Password',
+    icon: "eye",
+    secureTextEntry: true,
+    field: "password",
+    description: "Create password"
   }, {
-      label: 'Confirm password',
-      icon: "eye",
-      secureTextEntry: true,
-      field: "confirm"
+    label: 'Confirm password',
+    icon: "eye",
+    secureTextEntry: true,
+    field: "confirm",
+    description: "Confirm your password"
+  }, {
+    label: 'Email',
+    icon: "mail",
+    secureTextEntry: false,
+    field: "email",
+    description: "Enter your email"
+  }, {
+    label: 'Phone Number',
+    icon: "phone",
+    secureTextEntry: false,
+    field: "phone_number",
+    description: "Enter your phone number"
+  }, {
+    label: 'Address (Optional)',
+    icon: "phone",
+    secureTextEntry: false,
+    field: "address",
+    description: "Enter your address"
   }];
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [address, setAddress] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [gender, setGender] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+
   const [error, setError] = useState('');
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
   const nav = useNavigation();
 
-  const picker = async () => {
-    let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  
-    if (status !== 'granted') {
-        alert("Permissions denied!");
-    } else {
-        const result = await ImagePicker.launchImageLibraryAsync();
-  
-        if (!result.canceled)
-            setState(result.assets[0], "avatar");
-    }
+  const setState = (value, field) => {
+    setUser({ ...user, [field]: value });
   }
 
-  const setState = (value, field) => {
-    setUser({...user, [field]: value});
+  // const handleDateChange = (event, selectedDate) => {
+  //   const currentDate = selectedDate || dateOfBirth;
+  //   setShowDatePicker(Platform.OS === 'ios');
+  //   setState(currentDate, 'date_of_birth')
+  // };
+
+  const setStateDoB = (event, selectedDate) => {
+    setDateOfBirth(selectedDate)
+    setShowDatePicker(Platform.OS === 'ios');
+    setState(formatDate(selectedDate), 'date_of_birth');
+  }
+  const setStateGender = (gender) => {
+    setGender(gender)
+    setState(gender, 'gender');
+  }
+
+  const picker = async () => {
+    let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== 'granted') {
+      alert("Permissions denied!");
+    } else {
+      const result = await ImagePicker.launchImageLibraryAsync();
+
+      if (!result.canceled)
+        setState(result.assets[0], "avatar");
+    }
   }
 
   const validate = () => {
     if (!user?.username || !user?.password) {
-        setMsg("Please enter username and password!");
-        return false;
+      setMsg("Please enter username and password!");
+      return false;
     } else if (user.password !== user.confirm) {
-        setMsg("Passwords do not match!");
-        return false;
+      setMsg("Passwords do not match!");
+      return false;
     } else if (user.password.length < 6) {
-        setMsg("Password must be at least 6 characters!");
-        return false;
+      setMsg("Password must be at least 6 characters!");
+      return false;
+    } else if (!user.email.includes('@') && !user.email.includes('.')) {
+      setMsg("Check again your email format!");
+      return false;
+    } else if (user.phone_number.length < 10) {
+      setMsg("Phone Number Invalid!");
+      return false;
+    } else {
+      for (let i of info) {
+        if ((user[i.field] === '' || user[i.field] === undefined) && i.field !== 'address') {
+          setMsg(`${i.label} can not be empty!`);
+          return false;
+        }
+      }
     }
-
     setMsg(null);
-    
     return true;
   }
 
@@ -150,45 +193,40 @@ const RegisterScreen = () => {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   };
 
-  const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || dateOfBirth;
-    setShowDatePicker(Platform.OS === 'ios');
-    setDateOfBirth(currentDate);
-  };
 
   const handleRegister = async () => {
+    console.info(user)
     if (validate() === true) {
       try {
-          setLoading(true);
-
-          let form = new FormData();
-          for (let key in user) {
-              if (key !== 'confirm') {
-                  if (key === 'avatar' && user?.avatar !== null) {
-                      form.append(key, {
-                          uri: user.avatar.uri,
-                          name: user.avatar.fileName,
-                          type: user.avatar.type
-                      });
-                  } else {
-                      form.append(key, user[key]);
-                  }
-              }
+        setLoading(true);
+        let form = new FormData();
+        for (let key in user) {
+          if (key !== 'confirm') {
+            if (key === 'avatar' && user?.avatar !== null) {
+              form.append(key, {
+                uri: user.avatar.uri,
+                name: user.avatar.fileName,
+                type: user.avatar.type
+              });
+            } else {
+              form.append(key, user[key]);
+            }
           }
+        }
 
-          let res = await Apis.post(endpoints['register'], form, {
-              headers: {
-                  'Content-Type': 'multipart/form-data'
-              }
-          });
-
-          if (res.status === 201) {
-              nav.navigate("Login");
+        let res = await Apis.post(endpoints['register'], form, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
           }
+        });
+
+        if (res.status === 201) {
+          nav.navigate("Login");
+        }
       } catch (ex) {
-          console.error(ex);
+        console.error(ex);
       } finally {
-          setLoading(false);
+        setLoading(false);
       }
     }
   };
@@ -197,20 +235,20 @@ const RegisterScreen = () => {
     <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
       <StatusBar style="light" />
       <View style={styles.syringeAnimationContainer}>
-                {syringes.map((syringe) => (
-                  <Animated.View
-                    key={syringe.id}
-                    style={[
-                      styles.syringe,
-                      {
-                        transform: [{ translateX: syringe.x }, { translateY: syringe.y }],
-                        pointerEvents: 'none',
-                      },
-                    ]}
-                  >
-                    <Text style={styles.syringeIcon}>💉</Text>
-                  </Animated.View>
-                ))}
+        {syringes.map((syringe) => (
+          <Animated.View
+            key={syringe.id}
+            style={[
+              styles.syringe,
+              {
+                transform: [{ translateX: syringe.x }, { translateY: syringe.y }],
+                pointerEvents: 'none',
+              },
+            ]}
+          >
+            <Text style={styles.syringeIcon}>💉</Text>
+          </Animated.View>
+        ))}
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -219,144 +257,81 @@ const RegisterScreen = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <LinearGradient
-                colors={[COLORS.primary, '#1a4dc7']} 
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                style={styles.header}
-              >
-                <View style={styles.headerContent}>
-                  <Text style={styles.headerTitle}>Create Account</Text>
-                  <Text style={styles.headerSubtitle}>
-                    💉 Join VaxServe for easy vaccination management
-                  </Text>
-                  
-                </View>
+              colors={[COLORS.primary, '#1a4dc7']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.header}
+            >
+              <View style={styles.headerContent}>
+                <Text style={styles.headerTitle}>Create Account</Text>
+                <Text style={styles.headerSubtitle}>
+                  💉 Join VaxServe for easy vaccination management
+                </Text>
+
+              </View>
             </LinearGradient>
 
             <View style={styles.formCard}>
               {error ? <Text style={[commonStyles.errorText, styles.errorText]}>{error}</Text> : null}
-              
-              <View style={commonStyles.row}>
-                <View style={[styles.inputContainer, styles.halfWidth]}>
-                  <Text style={styles.label}>First Name *</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="First name"
-                    value={user.first_name}
-                    onChangeText={(t) => setState(t, 'first_name')}
-                    placeholderTextColor={COLORS.text.muted}
-                  />
-                </View>
-                
-                <View style={[styles.inputContainer, styles.halfWidth]}>
-                  <Text style={styles.label}>Last Name *</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Last name"
-                    value={user.last_name}
-                    onChangeText={(t) => setState(t, 'last_name')}
-                    placeholderTextColor={COLORS.text.muted}
-                  />
-                </View>
-              </View>
-              
+
+              {info.map(i => <View key={i.field}>
+                <Text style={styles.label}> {i.label}</Text>
+                <TextInput key={i.field} style={styles.input}
+                  label={i.label}
+                  secureTextEntry={i.secureTextEntry}
+                  right={<TextInput.Icon icon={i.icon} />}
+                  value={user[i.description]} onChangeText={t => setState(t, i.field)} />
+              </View>)}
+
+
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Username *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your Username"
-                  value={user.username}
-                  onChangeText={(t) => setState(t, 'username')}
-                  autoCapitalize="none"
-                  placeholderTextColor={COLORS.text.muted}
-                />
-              </View>
-              
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Email *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your email"
-                  value={user.email}
-                  onChangeText={(t) => setState(t, 'email')}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  placeholderTextColor={COLORS.text.muted}
-                />
-              </View>
-              
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Phone Number *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your phone number"
-                  value={user.phone_number}
-                  onChangeText={(t) => setState(t, 'phone_number')}
-                  keyboardType="phone-pad"
-                  placeholderTextColor={COLORS.text.muted}
-                />
-              </View>
-              
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Gender *</Text>
+                <Text style={styles.label}>Gender</Text>
                 <View style={styles.radioContainer}>
-                  <TouchableOpacity 
-                    style={[styles.radioButton, gender === 'Male' && styles.radioButtonSelected]} 
-                    onPress={() => setGender('Male')}
+                  <TouchableOpacity
+                    style={[styles.radioButton, gender === 'male' && styles.radioButtonSelected]}
+                    onPress={() => setStateGender('male')}
                   >
-                    <View style={gender === 'Male' ? styles.radioInnerSelected : styles.radioInner} />
+                    <View style={gender === 'male' ? styles.radioInnerSelected : styles.radioInner} />
                     <Text style={styles.radioLabel}>Male</Text>
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity 
-                    style={[styles.radioButton, gender === 'Female' && styles.radioButtonSelected]} 
-                    onPress={() => setGender('Female')}
+
+                  <TouchableOpacity
+                    style={[styles.radioButton, gender === 'female' && styles.radioButtonSelected]}
+                    onPress={() => setStateGender('female')}
                   >
-                    <View style={gender === 'Female' ? styles.radioInnerSelected : styles.radioInner} />
+                    <View style={gender === 'female' ? styles.radioInnerSelected : styles.radioInner} />
                     <Text style={styles.radioLabel}>Female</Text>
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity 
-                    style={[styles.radioButton, gender === 'Other' && styles.radioButtonSelected]} 
-                    onPress={() => setGender('Other')}
+
+                  <TouchableOpacity
+                    style={[styles.radioButton, gender === 'other' && styles.radioButtonSelected]}
+                    onPress={() => setStateGender('other')}
                   >
-                    <View style={gender === 'Other' ? styles.radioInnerSelected : styles.radioInner} />
+                    <View style={gender === 'other' ? styles.radioInnerSelected : styles.radioInner} />
                     <Text style={styles.radioLabel}>Other</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-              
+
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Date of Birth *</Text>
-                <TouchableOpacity 
-                  style={styles.dateButton}
-                  onPress={() => setShowDatePicker(true)}
-                >
-                  <Text style={styles.dateButtonText}>{formatDate(dateOfBirth)}</Text>
-                </TouchableOpacity>
-                
-                {showDatePicker && (
+                <Text style={styles.label}>Date of Birth</Text>
+                <DateTimePicker
+                  value={dateOfBirth}
+                  mode="date"
+                  display="default"
+                  onChange={setStateDoB}
+                  maximumDate={new Date()}
+                />
+
+                {/* {showDatePicker && (
                   <DateTimePicker
                     value={dateOfBirth}
                     mode="date"
                     display="default"
-                    onChange={handleDateChange}
+                    onChange={setStateDoB}
                     maximumDate={new Date()}
                   />
-                )}
-              </View>
-              
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Address (Optional)</Text>
-                <TextInput
-                  style={[styles.input, styles.multilineInput]}
-                  placeholder="Enter your address"
-                  value={user.address}
-                  onChangeText={(t) => setState(t, 'address')}
-                  multiline
-                  numberOfLines={3}
-                  placeholderTextColor={COLORS.text.muted}
-                />
+                )} */}
               </View>
 
               <View style={styles.inputContainer}>
@@ -364,44 +339,20 @@ const RegisterScreen = () => {
                 <TouchableOpacity style={styles.dateButton} onPress={picker}>
                   <Text style={styles.dateButtonText}>Choose your avatar</Text>
                 </TouchableOpacity>
-                {user?.avatar && <Image style={[commonStyles.avatar, { marginTop: SPACING.medium }]} source={{uri: user.avatar.uri}} />}
+                {user?.avatar && <Image style={[commonStyles.avatar, { marginTop: SPACING.medium }]} source={{ uri: user.avatar.uri }} />}
               </View>
-              
+
               <View style={styles.divider} />
-              
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Password *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Create a password"
-                  value={user.password}
-                  onChangeText={(t) => setState(t, 'password')}
-                  secureTextEntry
-                  placeholderTextColor={COLORS.text.muted}
-                />
-              </View>
-              
-              <View style={[styles.inputContainer, { zIndex: 3, pointerEvents: 'auto' }]}>
-                <Text style={styles.label}>Confirm Password *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Confirm your password"
-                  value={user.confirm}
-                  onChangeText={(t) => setState(t, 'confirm')}
-                  secureTextEntry
-                  placeholderTextColor={COLORS.text.muted}
-                />
-              </View>
-              
+
               <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
                 <Text style={styles.registerButtonText}>Create Account</Text>
               </TouchableOpacity>
-              
-              <HelperText type="error" visible={msg}>
+
+              <HelperText type="error" style={styles.fontHuge} visible={msg}>
                 {msg}
               </HelperText>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.loginLink}
                 onPress={() => nav.navigate('Login')}
               >
@@ -586,6 +537,9 @@ const styles = {
   loginTextBold: {
     fontWeight: 'bold',
     color: COLORS.primary,
+  },
+  fontHuge: {
+    fontSize: FONT_SIZE.huge,
   },
 };
 
