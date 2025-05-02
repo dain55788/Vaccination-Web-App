@@ -1,0 +1,16 @@
+{
+    "sum_number_of_appointments": 1,
+    "appointments": [
+        {
+            "id": 4,
+            "scheduled_date": "2025-05-01",
+            "location": "Khu tu tri Campuchia",
+            "notes": "Benh nhan vui long khong choi ma tuy truoc khi co  su khuyen dung tu bac si",
+            "citizen_id": 2,
+            "staff_id": 8,
+            "email": "dain55788@gmail.com",
+            "patient_name": "dainy nguyen",
+            "phone": "093093403"
+        }
+    ]
+}

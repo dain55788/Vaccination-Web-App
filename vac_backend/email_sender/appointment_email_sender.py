@@ -3,10 +3,8 @@ import json
 from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Access the API_KEY
 api_key = os.getenv("SENDGRID_API_KEY")
 APPOINTMENTS_FILE = os.getenv("APPOINTMENTS_FILE_PATH")
 
@@ -68,3 +66,6 @@ def send_emails():
                 print(f"Error sending email to {patient_email}: {str(e)}")
     except Exception as e:
         print(f"Error in send_emails function: {str(e)}")
+
+# Execution
+send_emails()

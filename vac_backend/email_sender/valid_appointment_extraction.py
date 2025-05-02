@@ -1,22 +1,18 @@
 from datetime import datetime, timedelta
 import os
 import json
-import sys
-import django
 from dotenv import load_dotenv
-from vac_management.models import Appointment
+import django
+import sys
 
-# add the project directory to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
-# set up Django for Airflow MySQL Connection
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vac_backend.airflow_mysql_settings')
-django.setup()
-
-# load environment variabless
 load_dotenv()
 APPOINTMENTS_FILE = os.getenv("APPOINTMENTS_FILE_PATH")
 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vac_backend.settings')
+django.setup()
+
+from vac_management.models import Appointment
 
 def get_valid_appointments():
     try:
@@ -45,7 +41,7 @@ def save_appointments_to_json():
 
         for app in valid_appointments:
             citizen = app.citizen
-            appointments_data["arrangements"].append({
+            appointments_data["appointments"].append({
                 "id": app.id,
                 "scheduled_date": str(app.scheduled_date),
                 "location": app.location,
@@ -66,3 +62,6 @@ def save_appointments_to_json():
     except Exception as e:
         print(f"Error saving appointments to JSON: {str(e)}")
         return False
+
+# Execution
+save_appointments_to_json()
