@@ -110,13 +110,13 @@ export const commonStyles = StyleSheet.create({
   optionsContainer: {
     flexDirection: 'column',
   },
-  vaccineSelectedOption: {
+  selectedOption: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
   selectedOptionText: {
     color: COLORS.white,
-    fontWeight: '600',
+    fontWeight: '400',
   },
   container: {
     flex: 1,
@@ -274,9 +274,13 @@ export const commonStyles = StyleSheet.create({
   },
   errorText: {
     color: COLORS.danger,
-    fontSize: FONT_SIZE.small,
+    fontSize: FONT_SIZE.medium,
     marginTop: SPACING.tiny,
     marginBottom: SPACING.small,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
   
   button: {
@@ -314,10 +318,24 @@ export const commonStyles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.round,
   },
   imageContainer: {
-    overflow: 'hidden',
-    borderRadius: BORDER_RADIUS.medium,
+    marginBottom: SPACING.small,
+    paddingHorizontal: SPACING.medium,
+    marginVertical: SPACING.huge,
   },
-  
+  image: {
+    height: 200,
+    width: '100%',
+    borderRadius: BORDER_RADIUS.medium,
+    ...SHADOW.medium,
+  },
+  imagePlaceholder: {
+    height: 200,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: BORDER_RADIUS.medium,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...SHADOW.medium,
+  },
   completed: {
     color: COLORS.status.completed,
   },

@@ -332,7 +332,7 @@ const RegisterScreen = () => {
                 <Text style={commonStyles.registerButtonText}>Create Account</Text>
               </TouchableOpacity>
 
-              <HelperText type="error" style={styles.fontHuge} visible={msg}>
+              <HelperText type="error" style={commonStyles.errorText} visible={msg}>
                 {msg}
               </HelperText>
 

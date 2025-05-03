@@ -67,11 +67,11 @@ const LandingScreen = () => {
               }}>
               <Text style={styles.menuItemText}>Contact</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
-                nav.navigate('Appointment');
+                nav.navigate(user === null ? 'Login' : 'Appointment');
               }}>
               <Text style={styles.menuItemText}>Make Appointment</Text>
             </TouchableOpacity>
@@ -132,10 +132,10 @@ const LandingScreen = () => {
           <Text style={styles.subtitle}>Fast, Safe, Reliable Vaccination</Text>
         </View>
 
-        <View style={styles.imageContainer}>
+        <View style={commonStyles.imageContainer}>
           <Image
             source={require('../assets/images/VaxServe.png')}
-            style={styles.image}
+            style={commonStyles.image}
             resizeMode="cover"
           />
         </View>
@@ -163,6 +163,14 @@ const LandingScreen = () => {
               <Text style={styles.statLabel}>Vaccines</Text>
             </View>
           </View>
+        </View>
+
+        <View style={styles.imageContainer}>
+          <Image
+            source={require('../assets/images/VaxServe3.jpg')}
+            style={styles.image}
+            resizeMode="cover"
+          />
         </View>
 
         <View style={styles.featuresContainer}>
@@ -325,7 +333,7 @@ const styles = {
     color: COLORS.primary,
   },
   navLinksContainer: {
-    display: 'none', // Hidden on mobile
+    display: 'none',
   },
   navLink: {
     paddingHorizontal: SPACING.medium,
@@ -525,7 +533,7 @@ const styles = {
   },
   footer: {
     padding: SPACING.medium,
-    backgroundColor: COLORS.dark,
+    backgroundColor: COLORS.primary,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
