@@ -99,8 +99,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'vaccination_management',
         'USER': 'root',
-        # 'PASSWORD': '123456',
-        'PASSWORD':MYSQLPASSWORD, # .env: MYSQLPASSWORD = '...'
+        'PASSWORD': '123456',
+        # 'PASSWORD':MYSQLPASSWORD, # .env: MYSQLPASSWORD = '...'
         'HOST': '' # mặc định localhost
     }
 }
