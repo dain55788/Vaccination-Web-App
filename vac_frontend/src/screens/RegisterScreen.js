@@ -112,7 +112,7 @@ const RegisterScreen = () => {
     description: "Enter your phone number"
   }, {
     label: 'Address (Optional)',
-    icon: "phone",
+    icon: "home",
     secureTextEntry: false,
     field: "address",
     description: "Enter your address"
@@ -131,12 +131,6 @@ const RegisterScreen = () => {
   const setState = (value, field) => {
     setUser({ ...user, [field]: value });
   }
-
-  // const handleDateChange = (event, selectedDate) => {
-  //   const currentDate = selectedDate || dateOfBirth;
-  //   setShowDatePicker(Platform.OS === 'ios');
-  //   setState(currentDate, 'date_of_birth')
-  // };
 
   const setStateDoB = (event, selectedDate) => {
     setDateOfBirth(selectedDate)
@@ -276,7 +270,7 @@ const RegisterScreen = () => {
 
               {info.map(i => <View key={i.field}>
                 <Text style={styles.label}> {i.label}</Text>
-                <TextInput key={i.field} style={styles.input}
+                <TextInput key={i.field} style={commonStyles.input}
                   label={i.label}
                   secureTextEntry={i.secureTextEntry}
                   right={<TextInput.Icon icon={i.icon} />}
@@ -284,7 +278,7 @@ const RegisterScreen = () => {
               </View>)}
 
 
-              <View style={styles.inputContainer}>
+              <View style={commonStyles.inputContainer}>
                 <Text style={styles.label}>Gender</Text>
                 <View style={styles.radioContainer}>
                   <TouchableOpacity
@@ -313,7 +307,7 @@ const RegisterScreen = () => {
                 </View>
               </View>
 
-              <View style={styles.inputContainer}>
+              <View style={commonStyles.inputContainer}>
                 <Text style={styles.label}>Date of Birth</Text>
                 <DateTimePicker
                   value={dateOfBirth}
@@ -322,30 +316,20 @@ const RegisterScreen = () => {
                   onChange={setStateDoB}
                   maximumDate={new Date()}
                 />
-
-                {/* {showDatePicker && (
-                  <DateTimePicker
-                    value={dateOfBirth}
-                    mode="date"
-                    display="default"
-                    onChange={setStateDoB}
-                    maximumDate={new Date()}
-                  />
-                )} */}
               </View>
 
-              <View style={styles.inputContainer}>
-                <Text style={styles.label}>Avatar</Text>
+              <View style={commonStyles.inputContainer}>
+                <Text style={commonStyles.label}>Avatar</Text>
                 <TouchableOpacity style={styles.dateButton} onPress={picker}>
                   <Text style={styles.dateButtonText}>Choose your avatar</Text>
                 </TouchableOpacity>
                 {user?.avatar && <Image style={[commonStyles.avatar, { marginTop: SPACING.medium }]} source={{ uri: user.avatar.uri }} />}
               </View>
 
-              <View style={styles.divider} />
+              <View style={commonStyles.divider} />
 
-              <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-                <Text style={styles.registerButtonText}>Create Account</Text>
+              <TouchableOpacity style={commonStyles.registerButton} onPress={handleRegister}>
+                <Text style={commonStyles.registerButtonText}>Create Account</Text>
               </TouchableOpacity>
 
               <HelperText type="error" style={styles.fontHuge} visible={msg}>
@@ -430,9 +414,6 @@ const styles = {
     marginBottom: SPACING.medium,
     fontSize: FONT_SIZE.medium,
   },
-  inputContainer: {
-    marginBottom: SPACING.small,
-  },
   halfWidth: {
     flex: 1,
     marginRight: SPACING.small,
@@ -506,25 +487,6 @@ const styles = {
   dateButtonText: {
     fontSize: FONT_SIZE.medium,
     color: COLORS.text.primary,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.lightGray,
-    marginVertical: SPACING.medium,
-  },
-  registerButton: {
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.small,
-    padding: SPACING.medium,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: SPACING.medium,
-    ...SHADOW.medium,
-  },
-  registerButtonText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZE.medium,
-    fontWeight: 'bold',
   },
   loginLink: {
     marginTop: SPACING.medium,

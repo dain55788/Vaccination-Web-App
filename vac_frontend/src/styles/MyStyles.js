@@ -1,9 +1,7 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 
-// Get device dimensions
 const { width, height } = Dimensions.get('window');
 
-// Colors
 const COLORS = {
   primary: '#2a6df4',
   secondary: '#4CAF50',
@@ -37,7 +35,6 @@ const COLORS = {
   }
 };
 
-// Font sizes
 const FONT_SIZE = {
   tiny: 10,
   small: 12,
@@ -49,7 +46,6 @@ const FONT_SIZE = {
   enormous: 30,
 };
 
-// Spacing
 const SPACING = {
   tiny: 4,
   small: 8,
@@ -61,7 +57,6 @@ const SPACING = {
   enormous: 40,
 };
 
-// Border Radius
 const BORDER_RADIUS = {
   small: 4,
   regular: 8,
@@ -70,7 +65,6 @@ const BORDER_RADIUS = {
   round: 50,
 };
 
-// Shadows
 const SHADOW = {
   light: {
     shadowColor: '#000',
@@ -96,6 +90,34 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  vaccineText: {
+    fontSize: FONT_SIZE.regular,
+    color: COLORS.text.primary,
+  },
+  optionButton: {
+    paddingVertical: SPACING.small,
+    paddingHorizontal: SPACING.medium,
+    backgroundColor: COLORS.background.primary,
+    borderRadius: BORDER_RADIUS.small,
+    marginRight: SPACING.small,
+    marginBottom: SPACING.small,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  inputContainer: {
+    marginBottom: SPACING.small,
+  },
+  optionsContainer: {
+    flexDirection: 'column',
+  },
+  vaccineSelectedOption: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  selectedOptionText: {
+    color: COLORS.white,
+    fontWeight: '600',
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background.secondary,
@@ -138,7 +160,20 @@ export const commonStyles = StyleSheet.create({
     height: 80,
     borderRadius: 50
   },
-  
+  registerButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.small,
+    padding: SPACING.medium,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: SPACING.medium,
+    ...SHADOW.medium,
+  },
+  registerButtonText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZE.medium,
+    fontWeight: 'bold',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -154,8 +189,23 @@ export const commonStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.primary,
   },
+    headerContent: {
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: FONT_SIZE.huge,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginBottom: SPACING.small,
+    textAlign: 'center',
+  },
+  headerSubtitle: {
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.white,
+    opacity: 1,
+    textAlign: 'center',
+  },
   
-  // Content styles
   content: {
     padding: SPACING.medium,
   },
@@ -163,7 +213,6 @@ export const commonStyles = StyleSheet.create({
     padding: SPACING.medium,
   },
   
-  // Card styles
   card: {
     backgroundColor: COLORS.background.primary,
     borderRadius: BORDER_RADIUS.medium,
@@ -206,7 +255,6 @@ export const commonStyles = StyleSheet.create({
     fontWeight: 'bold',
   },
   
-  // Form styles
   formContainer: {
     marginBottom: SPACING.medium,
   },
@@ -214,10 +262,10 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: COLORS.background.primary,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: BORDER_RADIUS.small,
-    padding: SPACING.medium,
+    borderRadius: BORDER_RADIUS.regular,
+    padding: SPACING.tiny,
     marginVertical: SPACING.small,
-    fontSize: FONT_SIZE.medium,
+    fontSize: FONT_SIZE.regular,
   },
   label: {
     fontSize: FONT_SIZE.regular,
@@ -231,7 +279,6 @@ export const commonStyles = StyleSheet.create({
     marginBottom: SPACING.small,
   },
   
-  // Button styles
   button: {
     backgroundColor: COLORS.primary,
     borderRadius: BORDER_RADIUS.small,
@@ -256,8 +303,11 @@ export const commonStyles = StyleSheet.create({
   buttonDisabled: {
     backgroundColor: COLORS.lightGray,
   },
-  
-  // Avatar and image styles
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.lightGray,
+    marginVertical: SPACING.medium,
+  },
   avatar: {
     width: 50,
     height: 50,
@@ -268,7 +318,6 @@ export const commonStyles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.medium,
   },
   
-  // Status styles
   completed: {
     color: COLORS.status.completed,
   },
@@ -279,7 +328,6 @@ export const commonStyles = StyleSheet.create({
     color: COLORS.status.incomplete,
   },
   
-  // Row styles
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -288,7 +336,6 @@ export const commonStyles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   
-  // List item styles
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -297,7 +344,6 @@ export const commonStyles = StyleSheet.create({
     borderBottomColor: COLORS.lightGray,
   },
   
-  // Badge styles
   badge: {
     paddingHorizontal: SPACING.small,
     paddingVertical: SPACING.tiny,
@@ -311,7 +357,6 @@ export const commonStyles = StyleSheet.create({
   },
 });
 
-// Responsive utilities
 export const responsive = {
   isSmallDevice: width < 375,
   isMediumDevice: width >= 375 && width < 768,
@@ -320,7 +365,6 @@ export const responsive = {
   isAndroid: Platform.OS === 'android',
 };
 
-// Export constants for direct access
 export {
   COLORS,
   FONT_SIZE,
