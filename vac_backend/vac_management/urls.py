@@ -6,6 +6,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register('categories', views.VaccineCategoryViewSet, basename='category')
 router.register('vaccines', views.VaccineViewSet, basename='vaccine')
+router.register('vaccinetypes', views.VaccineViewSet, basename='vaccinetypes')
 router.register('campaigns', views.CampaignViewSet, basename='campaign')
 router.register('appointments', views.AppointmentViewSet, basename='appointment')
 router.register('citizen', views.CitizenViewSet, basename='citizen')

@@ -22,7 +22,6 @@ class BaseUserChangeForm(UserChangeForm):
         fields = '__all__'
 
 
-
 class MyAdminSite(admin.AdminSite):
     site_header = 'Vaccination Management Online'
 
