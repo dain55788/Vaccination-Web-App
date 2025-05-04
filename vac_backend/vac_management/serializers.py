@@ -32,7 +32,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
         abstract = True
         model = BaseUser
         fields = ['id', 'first_name', 'last_name', 'username', 'password', 'avatar', 'gender', 'address',
-                  'date_of_birth', 'phone_number', 'email']
+                  'date_of_birth', 'phone_number', 'email', 'is_superuser', 'is_staff', 'is_active', 'groups',]
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -54,16 +54,9 @@ class BaseUserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        # avatar_file = validated_data.pop('avatar', None)
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
-
-        # for attr, value in validated_data.items():
-        #     setattr(instance, attr, value)
-        # if avatar_file:
-        #     upload_result = upload(avatar_file)
-        #     instance.avatar = upload_result['public_id']
 
         instance.save()
         return instance
@@ -71,7 +64,6 @@ class BaseUserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         d = super().to_representation(instance)
         d['avatar'] = self.get_avatar(instance)
-        # d['avatar'] = instance.avatar.url if instance.avatar else ''
         return d
 
 
@@ -91,19 +83,8 @@ class CitizenSerializer(BaseUserSerializer):
             password = validated_data.pop('password')
             instance.set_password(password)
 
-        # for attr, value in validated_data.items():
-        #     setattr(instance, attr, value)
-        # if avatar_file:
-        #     upload_result = upload(avatar_file)
-        #     instance.avatar = upload_result['public_id']
-
         instance.save()
         return instance
-
-    # def to_representation(self, instance):
-    #     d = super().to_representation(instance)
-    #     d['avatar'] = instance.avatar.url if instance.avatar else ''
-    #     return d
 
 
 class StaffSerializer(BaseUserSerializer):
@@ -122,19 +103,8 @@ class StaffSerializer(BaseUserSerializer):
             password = validated_data.pop('password')
             instance.set_password(password)
 
-        # for attr, value in validated_data.items():
-        #     setattr(instance, attr, value)
-        # if avatar_file:
-        #     upload_result = upload(avatar_file)
-        #     instance.avatar = upload_result['public_id']
-
         instance.save()
         return instance
-
-    # def to_representation(self, instance):
-    #     d = super().to_representation(instance)
-    #     d['avatar'] = instance.avatar.url if instance.avatar else ''
-    #     return d
 
 
 class DoctorSerializer(BaseUserSerializer):
@@ -148,24 +118,12 @@ class DoctorSerializer(BaseUserSerializer):
         fields = return_lists
 
     def update(self, instance, validated_data):
-        # avatar_file = validated_data.pop('avatar', None)
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
 
-        # for attr, value in validated_data.items():
-        #     setattr(instance, attr, value)
-        # if avatar_file:
-        #     upload_result = upload(avatar_file)
-        #     instance.avatar = upload_result['public_id']
-
         instance.save()
         return instance
-
-    # def to_representation(self, instance):
-    #     d = super().to_representation(instance)
-    #     d['avatar'] = instance.avatar.url if instance.avatar else ''
-    #     return d
 
 
 class VaccineSerializer(BaseSerializer):
@@ -175,7 +133,7 @@ class VaccineSerializer(BaseSerializer):
     class Meta:
         model = Vaccine
         fields = ['id', 'category', 'category_id', 'vaccine_name', 'dose_quantity', 'image', 'instruction',
-                  'unit_price']
+                  'unit_price', 'created_date', 'updated_date']
 
 
 class AppointmentSerializer(BaseSerializer):
@@ -184,7 +142,8 @@ class AppointmentSerializer(BaseSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['id', 'citizen', 'citizen_info', 'staff', 'staff_info', 'scheduled_date', 'location', 'notes']
+        fields = ['id', 'citizen', 'citizen_info', 'staff', 'staff_info', 'scheduled_date', 'location', 'notes',
+                  'created_date', 'updated_date']
         extra_kwargs = {
             'citizen': {'write_only': True},
             'staff': {'write_only': True}
@@ -208,7 +167,8 @@ class AppointmentVaccineSerializer(BaseSerializer):
 class CampaignSerializer(BaseSerializer):
     class Meta:
         model = Campaign
-        fields = ['id', 'start_date', 'end_date', 'target_population', 'status', 'image']
+        fields = ['id', 'start_date', 'end_date',
+                  'created_date', 'updated_date', 'target_population', 'status', 'image']
 
 
 class CampaignCitizenSerializer(serializers.ModelSerializer):
