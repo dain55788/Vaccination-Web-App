@@ -21,12 +21,12 @@ import {
   withDelay,
   withTiming,
 } from 'react-native-reanimated';
-import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
 import { Button, HelperText, TextInput } from "react-native-paper";
-import Apis, { authApis, endpoints } from "../utils/Apis";
+import Apis, { authApis, endpoints } from "../../utils/Apis";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { MyDispatchContext, MyUserContext } from '../utils/MyContexts';
+import { MyDispatchContext, MyUserContext } from '../../utils/MyContexts';
 
 const AppointmentScreen = () => {
   const [time, setTime] = useState('');
@@ -40,10 +40,11 @@ const AppointmentScreen = () => {
   const user = useContext(MyUserContext);
 
   const [appointment, setAppointment] = useState({});
-  const [msg, setMsg] = useState(null);
+  const [errMsg, setErrMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useContext(MyDispatchContext);
   const [loc, setLocation] = useState('');
+  const [scMsg, setScMsg] = useState(null);
 
   const setState = (value, field) => {
     setAppointment({ ...appointment, [field]: value });
@@ -83,19 +84,19 @@ const AppointmentScreen = () => {
 
   const validate = () => {
     if (!appointment?.full_name) {
-      setMsg("Please enter your username!");
+      setErrMsg("Please enter your username!");
       return false;
     } else if (!appointment.email.includes('@') && !appointment.email.includes('.')) {
-      setMsg("Check again your email format!");
+      setErrMsg("Check again your email format!");
       return false;
     } else if (appointment.phone_number.length < 10) {
-      setMsg("Phone Number Invalid!");
+      setErrMsg("Phone Number Invalid!");
       return false;
     } else if (!loc) {
-      setMsg("Please choose location for vaccination!");
+      setErrMsg("Please choose location for vaccination!");
       return false;
     }
-    setMsg(null);
+    setErrMsg(null);
     return true;
   }
 
@@ -138,21 +139,21 @@ const AppointmentScreen = () => {
         if (dateOfBirth) form.append('scheduled_date', formatDate(dateOfBirth));
         if (loc) form.append('location', loc);
         if (notes) form.append('notes', notes);
-        form.append('citizen', user.baseuser_ptr_id);
-        console.info(user);
+        form.append('citizen', user.id);
+        console.info(form);
         let res = await Apis.post(endpoints['appointment'], form, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
-        
         if (res.status === 201) {
-          setMsg("Appointment created successfully!");
+          setScMsg("Appointment created successfully!");
           successOpacity.value = withTiming(1, { duration: 800 });
           submitButtonScale.value = withSequence(
             withTiming(1.2, { duration: 200 }),
             withDelay(1000, withTiming(1, { duration: 200 }))
           );
+          Alert.alert('Success', 'Heading you back to the Home screen!');
           setTimeout(() => {
             nav.navigate('Home');
           }, 3000);
@@ -190,7 +191,7 @@ const AppointmentScreen = () => {
             </LinearGradient>
             <View style={commonStyles.imageContainer}>
               <Image
-                source={require('../assets/images/appointmentImage.jpg')}
+                source={require('../../assets/images/appointmentImage.jpg')}
                 style={commonStyles.image}
                 resizeMode="cover"
               />
@@ -217,7 +218,11 @@ const AppointmentScreen = () => {
                   mode="date"
                   display="default"
                   onChange={setStateDoB}
-                  minimumDate={new Date()}
+                  minimumDate={(() => {
+                    const minDate = new Date();
+                    minDate.setDate(minDate.getDate() + 2);
+                    return minDate;
+                  })()}
                   maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
                 />
               </View>
@@ -285,11 +290,15 @@ const AppointmentScreen = () => {
 
               <View style={styles.divider} />
 
-              <HelperText type="error" style={commonStyles.errorText} visible={!!msg}>
-                  {msg}
+              <HelperText type="error" style={commonStyles.errorText} visible={!!errMsg}>
+                  {errMsg}
               </HelperText>
 
-              <TouchableOpacity style={commonStyles.registerButton} onPress={handleSubmitAppointment}>
+              <HelperText type="success" style={commonStyles.successText} visible={!!scMsg}>
+                  {scMsg}
+              </HelperText>
+
+              <TouchableOpacity style={commonStyles.registerButton} disabled={loading} loading={loading} onPress={handleSubmitAppointment}>
                 <Text style={commonStyles.registerButtonText}>Schedule Appointment</Text>
               </TouchableOpacity>
             </View>

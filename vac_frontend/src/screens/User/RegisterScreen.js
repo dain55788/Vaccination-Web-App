@@ -16,10 +16,10 @@ import {
 import { Button, HelperText, TextInput } from "react-native-paper";
 import { StatusBar } from 'expo-status-bar';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState, useRef, useEffect } from "react";
-import Apis, { authApis, endpoints } from "../utils/Apis";
+import Apis, { authApis, endpoints } from "../../utils/Apis";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
 
@@ -335,8 +335,9 @@ const RegisterScreen = () => {
 
               <View style={commonStyles.divider} />
 
-              <Button mode="contained" style={styles.loginButton} disabled={loading} loading={loading}
-                contentStyle={styles.loginButtonContent} buttonColor={COLORS.primary} onPress={handleRegister}>Create Account</Button>
+              <Button mode="contained" style={commonStyles.registerButton} disabled={loading} loading={loading}
+                contentStyle={commonStyles.registerButtonText} buttonColor={COLORS.primary} onPress={handleRegister}>Create Account
+              </Button>
 
               <HelperText type="error" style={commonStyles.errorText} visible={msg}>
                 {msg}

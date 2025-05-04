@@ -13,13 +13,13 @@ import {
 
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Apis, { authApis, endpoints } from "../utils/Apis";
-import commonStyles, { COLORS, SPACING, FONT_SIZE, SHADOW, BORDER_RADIUS } from '../styles/MyStyles';
+import Apis, { authApis, endpoints } from "../../utils/Apis";
+import commonStyles, { COLORS, SPACING, FONT_SIZE, SHADOW, BORDER_RADIUS } from '../../styles/MyStyles';
 
 import Constants from 'expo-constants';
 import { Button, HelperText, TextInput, Divider } from 'react-native-paper';
 const { CLIENT_ID, CLIENT_SECRET } = Constants.expoConfig.extra;
-import { MyDispatchContext } from "../utils/MyContexts";
+import { MyDispatchContext } from "../../utils/MyContexts";
 import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = ({ navigation }) => {

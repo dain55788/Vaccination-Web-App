@@ -13,7 +13,7 @@ import {
   Keyboard
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import commonStyles, { COLORS, SPACING, FONT_SIZE, SHADOW } from '../styles/MyStyles';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, SHADOW } from '../../styles/MyStyles';
 
 const ContactScreen = ({ navigation }) => {
   const [name, setName] = useState('');

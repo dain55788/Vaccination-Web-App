@@ -7,15 +7,22 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext, useReducer } from "react";
 import MyUserReducer from "./src/reducers/MyUserReducer";
 
-import LandingScreen from './src/screens/LandingScreen';
-import LoginScreen from './src/screens/LoginScreen';
-import RegisterScreen from './src/screens/RegisterScreen';
-import HomeScreen from './src/screens/HomeScreen';
-import AppointmentScreen from './src/screens/AppointmentScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
-import AboutScreen from './src/screens/AboutScreen';
-import ContactScreen from './src/screens/ContactScreen';
-import ServicesScreen from './src/screens/ServicesScreen';
+import LandingScreen from './src/screens/Home/LandingScreen';
+import LoginScreen from './src/screens/User/LoginScreen';
+import RegisterScreen from './src/screens/User/RegisterScreen';
+import HomeScreen from './src/screens/Home/HomeScreen';
+import AppointmentScreen from './src/screens/Services/AppointmentScreen';
+import ProfileScreen from './src/screens/User/ProfileScreen';
+import AboutScreen from './src/screens/Home/AboutScreen';
+import ContactScreen from './src/screens/Services/ContactScreen';
+import ServicesScreen from './src/screens/Services/ServicesScreen';
+
+import AdminDashboardScreen from './src/screens/Admin/AdminDashboardScreen';
+import PublicCampaignManagementScreen from './src/screens/Admin/PublicCampaignManagementScreen';
+import VaccineManagementScreen from './src/screens/Admin/VaccineManagementScreen';
+
+import UserVaccinationHistoryScreen from './src/screens/Staff/UserVaccinationHistoryScreen';
+import AppointmentStatusScreen from './src/screens/Staff/AppointmentStatusScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -36,12 +43,18 @@ const AppNavigator = () => {
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
-
         <Stack.Screen name="Landing" component={LandingScreen} />
         <Stack.Screen name="Appointment" component={AppointmentScreen} />
         <Stack.Screen name="About" component={AboutScreen} />
         <Stack.Screen name="Contact" component={ContactScreen} />
         <Stack.Screen name="Services" component={ServicesScreen} />
+
+        <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+        <Stack.Screen name="CampaignManagement" component={PublicCampaignManagementScreen}/>
+        <Stack.Screen name="VaccineManagement" component={VaccineManagementScreen} />
+
+        <Stack.Screen name="UserVaccinationHistory" component={UserVaccinationHistoryScreen}/>
+        <Stack.Screen name="AppointmentStatus" component={AppointmentStatusScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )
@@ -49,16 +62,6 @@ const AppNavigator = () => {
 
 const App = () => {
   const [user, dispatch] = useReducer(MyUserReducer, null);
-  // const getUserRole = () => {
-  //   if (!user) return null;
-  //   if (user.specialty) return 'Doctor';
-  //   if (user.shift) return 'Staff';
-  //   if (user.health_note !== undefined) return 'Citizen';
-  //   return null;
-  // };
-
-  // const role = getUserRole();
-
   return (
     <SafeAreaProvider>
       <MyUserContext.Provider value={user}>

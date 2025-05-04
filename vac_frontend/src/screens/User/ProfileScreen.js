@@ -11,8 +11,8 @@ import {
   Alert
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
-import { MyDispatchContext, MyUserContext } from '../utils/MyContexts';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
+import { MyDispatchContext, MyUserContext } from '../../utils/MyContexts';
 import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }) => {
@@ -30,40 +30,6 @@ const ProfileScreen = ({ navigation }) => {
       "type": "logout"
     })
   }
-
-  const vaccinationHistory = [
-    {
-      id: '1',
-      type: 'COVID-19 (Pfizer)',
-      date: '06/12/2023',
-      location: 'Main Hospital - Downtown',
-      dose: '1st Dose'
-    },
-    {
-      id: '2',
-      type: 'COVID-19 (Pfizer)',
-      date: '07/03/2023',
-      location: 'Main Hospital - Downtown',
-      dose: '2nd Dose'
-    },
-    {
-      id: '3',
-      type: 'Influenza',
-      date: '10/15/2023',
-      location: 'Health Center - Westpark',
-      dose: 'Annual'
-    }
-  ];
-
-  const upcomingAppointments = [
-    {
-      id: '1',
-      type: 'COVID-19 (Booster)',
-      date: '01/10/2024',
-      time: '10:30 AM',
-      location: 'Community Clinic - Eastside'
-    }
-  ];
 
   const [settings, setSettings] = useState({
     notifications: true,
@@ -89,10 +55,10 @@ const ProfileScreen = ({ navigation }) => {
 
       <View style={[commonStyles.header, styles.header]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={commonStyles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>← Back</Text>
+          <Text style={commonStyles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={commonStyles.headerTitle}>Profile</Text>
         <TouchableOpacity onPress={handleEditProfile}>
@@ -102,7 +68,7 @@ const ProfileScreen = ({ navigation }) => {
 
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
 
-        <View style={styles.section}>
+        <View style={commonStyles.section}>
           <View style={styles.profileSection}>
             <View style={styles.profileImageContainer}>
                 <Image style={[commonStyles.imageContainer, styles.profileImagePlaceholder]} resizeMode="cover" source={{ uri: user.avatar }} />
@@ -132,70 +98,8 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Vaccination History</Text>
-
-          {vaccinationHistory.map((record) => (
-            <View key={record.id} style={commonStyles.card}>
-              <View style={[commonStyles.row, commonStyles.spaceBetween]}>
-                <Text style={commonStyles.cardTitle}>{record.type}</Text>
-                <Text style={styles.cardDate}>{record.date}</Text>
-              </View>
-              <View style={styles.cardBody}>
-                <Text style={commonStyles.text}>Location: {record.location}</Text>
-                <Text style={commonStyles.text}>Dose: {record.dose}</Text>
-              </View>
-              <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.viewDetailsButton]}>
-                <Text style={commonStyles.buttonOutlineText}>View Details</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-
-          <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.addRecordButton]}>
-            <Text style={commonStyles.buttonOutlineText}>+ Add External Vaccination Record</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-
-          {upcomingAppointments.length > 0 ? (
-            upcomingAppointments.map((appointment) => (
-              <View key={appointment.id} style={commonStyles.card}>
-                <View style={[commonStyles.row, commonStyles.spaceBetween]}>
-                  <Text style={commonStyles.cardTitle}>{appointment.type}</Text>
-                  <Text style={styles.cardDate}>{appointment.date}</Text>
-                </View>
-                <View style={styles.cardBody}>
-                  <Text style={commonStyles.text}>Time: {appointment.time}</Text>
-                  <Text style={commonStyles.text}>Location: {appointment.location}</Text>
-                </View>
-                <View style={styles.appointmentActions}>
-                  <TouchableOpacity style={[commonStyles.button, styles.rescheduleButton]}>
-                    <Text style={commonStyles.buttonText}>Reschedule</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[commonStyles.button, styles.cancelButton]}>
-                    <Text style={commonStyles.buttonText}>Cancel</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No upcoming appointments</Text>
-            </View>
-          )}
-
-          <TouchableOpacity
-            style={commonStyles.button}
-            onPress={() => navigation.navigate('Appointment')}
-          >
-            <Text style={commonStyles.buttonText}>Schedule New Appointment</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Settings</Text>
+        <View style={commonStyles.section}>
+          <Text style={commonStyles.sectionTitle}>Settings</Text>
 
           <View style={commonStyles.card}>
             <View style={styles.settingRow}>
@@ -254,13 +158,6 @@ const styles = {
   header: {
     justifyContent: 'space-between',
   },
-  backButton: {
-    padding: SPACING.small,
-  },
-  backButtonText: {
-    color: COLORS.primary,
-    fontSize: FONT_SIZE.medium,
-  },
   editButton: {
     color: COLORS.primary,
     fontSize: FONT_SIZE.medium,
@@ -309,16 +206,6 @@ const styles = {
     color: COLORS.text.primary,
     flex: 1,
   },
-  section: {
-    marginBottom: SPACING.large,
-  },
-  sectionTitle: {
-    fontSize: FONT_SIZE.large,
-    fontWeight: 'bold',
-    color: COLORS.text.primary,
-    marginBottom: SPACING.medium,
-
-  },
   cardDate: {
     fontSize: FONT_SIZE.medium,
     color: COLORS.text.secondary,
@@ -332,20 +219,6 @@ const styles = {
   },
   addRecordButton: {
     marginTop: SPACING.medium,
-  },
-  appointmentActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: SPACING.medium,
-  },
-  rescheduleButton: {
-    flex: 1,
-    marginRight: SPACING.small,
-  },
-  cancelButton: {
-    flex: 1,
-    marginLeft: SPACING.small,
-    backgroundColor: COLORS.danger,
   },
   emptyState: {
     padding: SPACING.large,

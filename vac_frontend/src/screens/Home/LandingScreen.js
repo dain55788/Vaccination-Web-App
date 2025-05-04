@@ -1,16 +1,15 @@
 import React, { useState, useContext } from 'react';
 import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Image, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
+import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
-import { MyUserContext, MyDispatchContext } from '../utils/MyContexts';
+import { MyUserContext, MyDispatchContext } from '../../utils/MyContexts';
 
 const LandingScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const nav = useNavigation();
   const user = useContext(MyUserContext);
   const dispatch = useContext(MyDispatchContext);
-
   const handleAppointmentNavigation = () => {
     if (user === null) {
       Alert.alert(
@@ -89,14 +88,67 @@ const LandingScreen = () => {
               }}>
               <Text style={styles.menuItemText}>Contact</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => {
-                setMenuVisible(false);
-                handleAppointmentNavigation();
-              }}>
-              <Text style={styles.menuItemText}>Make Appointment</Text>
-            </TouchableOpacity>
+            {user && (user.is_staff === true) ? (
+              <>
+                <TouchableOpacity 
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    nav.navigate('AppointmentStatus');
+                  }}
+                >
+                  <Text style={styles.menuItemText}>Track Appointment Status</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    nav.navigate('UserVaccinationHistory');
+                  }}
+                >
+                  <Text style={styles.menuItemText}>Track User Vaccination History</Text>
+                </TouchableOpacity>
+              </>
+            ) : user && (user.is_superuser === true) ? (
+              <>
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    nav.navigate('AdminDashboard');
+                  }}
+                >
+                  <Text style={styles.menuItemText}>Admin Dashboard & Statistics</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    nav.navigate('CampaignManagement');
+                  }}
+                >
+                  <Text style={styles.menuItemText}>Manage Public Campaign</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    nav.navigate('VaccineManagement');
+                  }}
+                >
+                  <Text style={styles.menuItemText}>Manage Vaccine & Vaccine Category</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  setMenuVisible(false);
+                  handleAppointmentNavigation();
+                }}>
+                <Text style={styles.menuItemText}>Make Appointment</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity style={styles.menuItem}>
               <Text style={styles.menuItemText}>Upcoming Campaigns</Text>
             </TouchableOpacity>
@@ -156,7 +208,7 @@ const LandingScreen = () => {
 
         <View style={commonStyles.imageContainer}>
           <Image
-            source={require('../assets/images/VaxServe.png')}
+            source={require('../../assets/images/VaxServe.png')}
             style={commonStyles.image}
             resizeMode="cover"
           />
@@ -181,7 +233,7 @@ const LandingScreen = () => {
               <Text style={styles.statLabel}>Patients</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>10+</Text>
+              <Text style={styles.statNumber}>15+</Text>
               <Text style={styles.statLabel}>Vaccines</Text>
             </View>
           </View>
@@ -189,7 +241,7 @@ const LandingScreen = () => {
 
         <View style={styles.imageContainer}>
           <Image
-            source={require('../assets/images/VaxServe3.jpg')}
+            source={require('../../assets/images/VaxServe3.jpg')}
             style={styles.image}
             resizeMode="cover"
           />
@@ -225,27 +277,28 @@ const LandingScreen = () => {
             <Text style={commonStyles.buttonText}>View All Services</Text>
           </TouchableOpacity>
         </View>
-
-        <View style={styles.ctaContainer}>
-          <Text style={styles.ctaTitle}>Ready to Get Vaccinated?</Text>
-          <Text style={styles.ctaText}>
-            Protect yourself and your loved ones from preventable diseases. Schedule your vaccination appointment today!
-          </Text>
-          <View style={styles.ctaButtons}>
-            <TouchableOpacity 
-              style={commonStyles.button}
-              onPress={handleAppointmentNavigation}
-            >
-              <Text style={commonStyles.buttonText}>Schedule Now</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[commonStyles.button, commonStyles.buttonOutline, styles.ctaSecondaryButton]}
-              onPress={() => nav.navigate('Contact')}
-            >
-              <Text style={commonStyles.buttonText}>Contact Us</Text>
-            </TouchableOpacity>
+        {user && user.is_superuser !== true && user.is_staff !== true && (
+          <View style={styles.ctaContainer}>
+            <Text style={styles.ctaTitle}>Ready to Get Vaccinated?</Text>
+            <Text style={styles.ctaText}>
+              Protect yourself and your loved ones from preventable diseases. Schedule your vaccination appointment today!
+            </Text>
+            <View style={styles.ctaButtons}>
+              <TouchableOpacity 
+                style={commonStyles.button}
+                onPress={handleAppointmentNavigation}
+              >
+                <Text style={commonStyles.buttonText}>Schedule Now</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[commonStyles.button, commonStyles.buttonOutline, styles.ctaSecondaryButton]}
+                onPress={() => nav.navigate('Contact')}
+              >
+                <Text style={commonStyles.buttonText}>Contact Us</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.campaignsContainer}>
           <Text style={styles.sectionTitle}>Upcoming Vaccination Campaigns</Text>
@@ -326,12 +379,12 @@ const LandingScreen = () => {
             <Text style={styles.footerHeading}>Contact</Text>
             <Text style={styles.footerText}>contact@vaxserve.com</Text>
             <Text style={styles.footerText}>(555) 123-4567</Text>
-            <Text style={styles.footerText}>123 Health Ave, Medical District</Text>
+            <Text style={styles.footerText}>97 Vo Van Tan, District 3, VaxServe Vaccination Hospital</Text>
           </View>
         </View>
         
         <View style={styles.copyright}>
-          <Text style={styles.copyrightText}>© 2023 VaxServe. All rights reserved.</Text>
+          <Text style={styles.copyrightText}>© 2025 VaxServe. All rights reserved.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -90,6 +90,27 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  appointmentActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SPACING.medium,
+  },
+  backButton: {
+    padding: SPACING.small,
+  },
+  backButtonText: {
+    color: COLORS.primary,
+    fontSize: FONT_SIZE.medium,
+  },
+  section: {
+    marginBottom: SPACING.large,
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZE.large,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+    marginBottom: SPACING.medium,
+  },
   vaccineText: {
     fontSize: FONT_SIZE.regular,
     color: COLORS.text.primary,
@@ -184,20 +205,16 @@ export const commonStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
-  headerTitle: {
-    fontSize: FONT_SIZE.extraLarge,
-    fontWeight: 'bold',
-    color: COLORS.primary,
-  },
     headerContent: {
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: FONT_SIZE.huge,
+    fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
-    color: COLORS.white,
-    marginBottom: SPACING.small,
+    color: COLORS.primary,
     textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   headerSubtitle: {
     fontSize: FONT_SIZE.medium,
@@ -205,7 +222,6 @@ export const commonStyles = StyleSheet.create({
     opacity: 1,
     textAlign: 'center',
   },
-  
   content: {
     padding: SPACING.medium,
   },
@@ -282,7 +298,16 @@ export const commonStyles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
-  
+  successText: {
+    color: COLORS.success,
+    fontSize: FONT_SIZE.medium,
+    marginTop: SPACING.tiny,
+    marginBottom: SPACING.tiny,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
   button: {
     backgroundColor: COLORS.primary,
     borderRadius: BORDER_RADIUS.small,
