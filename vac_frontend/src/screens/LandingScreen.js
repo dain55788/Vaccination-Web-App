@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Image } from 'react-native';
+import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Image, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
@@ -10,6 +10,28 @@ const LandingScreen = () => {
   const nav = useNavigation();
   const user = useContext(MyUserContext);
   const dispatch = useContext(MyDispatchContext);
+
+  const handleAppointmentNavigation = () => {
+    if (user === null) {
+      Alert.alert(
+        'Please sign in to continue',
+        'You need to log in to make an appointment.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: () => nav.navigate('Login'),
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      nav.navigate('Appointment');
+    }
+  };
 
   return (
     <SafeAreaView style={commonStyles.safeArea}>
@@ -71,7 +93,7 @@ const LandingScreen = () => {
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
-                nav.navigate(user === null ? 'Login' : 'Appointment');
+                handleAppointmentNavigation();
               }}>
               <Text style={styles.menuItemText}>Make Appointment</Text>
             </TouchableOpacity>
@@ -212,7 +234,7 @@ const LandingScreen = () => {
           <View style={styles.ctaButtons}>
             <TouchableOpacity 
               style={commonStyles.button}
-              onPress={() => nav.navigate('Appointment')}
+              onPress={handleAppointmentNavigation}
             >
               <Text style={commonStyles.buttonText}>Schedule Now</Text>
             </TouchableOpacity>

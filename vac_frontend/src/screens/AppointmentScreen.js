@@ -91,7 +91,7 @@ const AppointmentScreen = () => {
     } else if (appointment.phone_number.length < 10) {
       setMsg("Phone Number Invalid!");
       return false;
-    } else if (!appointment.location) {
+    } else if (!loc) {
       setMsg("Please choose location for vaccination!");
       return false;
     }
@@ -103,6 +103,17 @@ const AppointmentScreen = () => {
     formOpacity.value = withTiming(1, { duration: 800 });
     formTranslateY.value = withSpring(0, { damping: 15 });
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setAppointment({
+        ...appointment,
+        full_name: `${user.first_name} ${user.last_name}`.trim(),
+        email: user.email,
+        phone_number: user.phone_number
+      });
+    }
+  }, [user]);
 
   const locations = [
     "Headquarters - 97 Vo Van Tan",
@@ -127,13 +138,14 @@ const AppointmentScreen = () => {
         if (dateOfBirth) form.append('scheduled_date', formatDate(dateOfBirth));
         if (loc) form.append('location', loc);
         if (notes) form.append('notes', notes);
-        form.append('citizen_id', user.baseuser_ptr_id);
+        form.append('citizen', user.baseuser_ptr_id);
+        console.info(user);
         let res = await Apis.post(endpoints['appointment'], form, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
-  
+        
         if (res.status === 201) {
           setMsg("Appointment created successfully!");
           successOpacity.value = withTiming(1, { duration: 800 });
@@ -187,11 +199,13 @@ const AppointmentScreen = () => {
 
               {info.map(i => <View key={i.field}>
                 <Text style={commonStyles.label}> {i.label}</Text>
-                <TextInput key={i.field} style={commonStyles.input}
+                <TextInput 
+                  key={i.field} 
+                  style={commonStyles.input}
                   label={i.label}
                   secureTextEntry={i.secureTextEntry}
                   right={<TextInput.Icon icon={i.icon} />}
-                  value={appointment[i.description]} onChangeText={t => setState(t, i.field)} />
+                  value={appointment[i.field]} onChangeText={t => setState(t, i.field)} />
               </View>)}
 
               <View style={commonStyles.divider} />
