@@ -10,6 +10,7 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -25,28 +26,25 @@ import { useNavigation } from "@react-navigation/native";
 import { Button, HelperText, TextInput } from "react-native-paper";
 import Apis, { authApis, endpoints } from "../utils/Apis";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { MyDispatchContext } from "../utils/MyContexts";
+import { MyDispatchContext, MyUserContext } from '../utils/MyContexts';
 
 const AppointmentScreen = () => {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [time, setTime] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
-  const [location, setLocation] = useState('');
   const [notes, setNotes] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const formOpacity = useSharedValue(0);
   const formTranslateY = useSharedValue(50);
   const submitButtonScale = useSharedValue(1);
   const successOpacity = useSharedValue(0);
+  const user = useContext(MyUserContext);
 
   const [appointment, setAppointment] = useState({});
   const [msg, setMsg] = useState(null);
-  const [vaccineType, setVaccineType] = useState([]);
   const [loading, setLoading] = useState(false);
   const dispatch = useContext(MyDispatchContext);
-  
+  const [loc, setLocation] = useState('');
+
   const setState = (value, field) => {
     setAppointment({ ...appointment, [field]: value });
   }
@@ -54,7 +52,7 @@ const AppointmentScreen = () => {
   const setStateDoB = (event, selectedDate) => {
     setDateOfBirth(selectedDate)
     setShowDatePicker(Platform.OS === 'ios');
-    setState(formatDate(selectedDate), 'date_of_birth');
+    setState(formatDate(selectedDate), 'date');
   }
 
   const formatDate = (date) => {
@@ -93,31 +91,12 @@ const AppointmentScreen = () => {
     } else if (appointment.phone_number.length < 10) {
       setMsg("Phone Number Invalid!");
       return false;
-    } else {
-      for (let i of info) {
-        if ((appointment[i.field] === '' || appointment[i.field] === undefined)) {
-          setMsg(`${i.label} can not be empty!`);
-          return false;
-        }
-      }
+    } else if (!appointment.location) {
+      setMsg("Please choose location for vaccination!");
+      return false;
     }
     setMsg(null);
     return true;
-  }
-
-  const loadVaccineTypes = async () => {
-    try {
-        setLoading(true);
-        console.info(endpoints['vaccine'])
-        let res = await Apis.get(endpoints['lessons'](courseId));
-
-        setLessons(res.data);
-    } catch {
-
-    } finally {
-        setLoading(false);
-    }
-    
   }
 
   useEffect(() => {
@@ -126,59 +105,52 @@ const AppointmentScreen = () => {
   }, []);
 
   const locations = [
-    "Headquarters - 92 Vo Van Tan",
+    "Headquarters - 97 Vo Van Tan",
     "Branch 1 - 123 Nguyen Van Cu",
     "Branch 2 - 456 Le Loi",
     "Branch 3 - 789 Tran Hung Dao",
     "Branch 4 - 321 Nguyen Thi Minh Khai",
     "Branch 5 - 654 Pham Ngu Lao",
   ];
-
-  const vaccineTypes = [
-    "COVID-19",
-    "Influenza (Flu)",
-    "Tdap (Tetanus, Diphtheria, Pertussis)",
-    "MMR (Measles, Mumps, Rubella)",
-    "Hepatitis B",
-    "HPV (Human Papillomavirus)",
-    "Pneumococcal"
-  ];
-
+  
   const timeSlots = [
     "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", 
     "11:00 AM", "11:30 AM", "1:00 PM", "1:30 PM",
     "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
   ];
 
-  const handleSubmit = async () => {
-    if (!fullName || !email || !phone || !date || !time || !location || !vaccineType) {
-      Alert.alert('Error', 'Please fill in all required fields');
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    submitButtonScale.value = withSequence(
-      withSpring(0.95),
-      withSpring(1)
-    );
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      successOpacity.value = withSequence(
-        withTiming(1, { duration: 500 }),
-        withDelay(2000, withTiming(0, { duration: 500 }))
-      );
-
-      setTimeout(() => {
-        nav.goBack();
-      }, 3000);
-
-    } catch (error) {
-      Alert.alert('Error', 'Failed to create appointment. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+  const handleSubmitAppointment = async () => {
+    if (validate() === true) {
+      try {
+        setLoading(true);
+        let form = new FormData();
+        if (dateOfBirth) form.append('scheduled_date', formatDate(dateOfBirth));
+        if (loc) form.append('location', loc);
+        if (notes) form.append('notes', notes);
+        form.append('citizen_id', user.baseuser_ptr_id);
+        let res = await Apis.post(endpoints['appointment'], form, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+  
+        if (res.status === 201) {
+          setMsg("Appointment created successfully!");
+          successOpacity.value = withTiming(1, { duration: 800 });
+          submitButtonScale.value = withSequence(
+            withTiming(1.2, { duration: 200 }),
+            withDelay(1000, withTiming(1, { duration: 200 }))
+          );
+          setTimeout(() => {
+            nav.navigate('Home');
+          }, 3000);
+        }
+      } catch (ex) {
+        Alert.alert('Error', 'Failed to create appointment. Please try again.');
+        console.error(ex);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -204,7 +176,13 @@ const AppointmentScreen = () => {
                 </Text>
               </View>
             </LinearGradient>
-
+            <View style={commonStyles.imageContainer}>
+              <Image
+                source={require('../assets/images/appointmentImage.jpg')}
+                style={commonStyles.image}
+                resizeMode="cover"
+              />
+            </View>
             <View style={styles.formCard}>
 
               {info.map(i => <View key={i.field}>
@@ -225,7 +203,8 @@ const AppointmentScreen = () => {
                   mode="date"
                   display="default"
                   onChange={setStateDoB}
-                  maximumDate={new Date()}
+                  minimumDate={new Date()}
+                  maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() + 1))}
                 />
               </View>
 
@@ -237,7 +216,7 @@ const AppointmentScreen = () => {
                       key={index}
                       style={[
                         commonStyles.optionButton,
-                        time === slot && commonStyles.vaccineSelectedOption
+                        time === slot && commonStyles.selectedOption
                       ]}
                       onPress={() => setTime(slot)}
                     >
@@ -252,23 +231,22 @@ const AppointmentScreen = () => {
                     </TouchableOpacity>
                   ))}
                 </View>
-              </View>
-
-              <View style={commonStyles.formContainer}>
+                
+                <View style={commonStyles.inputContainer}>
                 <Text style={commonStyles.label}>Locations *</Text>
                 <View style={commonStyles.optionsContainer}>
                   {locations.map((location, index) => (
                     <TouchableOpacity
                       key={index}
                       style={[
-                        styles.vaccineButton,
-                        locations === location && commonStyles.vaccineSelectedOption
+                        commonStyles.optionButton,
+                        loc === location && commonStyles.selectedOption
                       ]}
                       onPress={() => setLocation(location)}
                     >
                       <Text style={[
                         commonStyles.vaccineText,
-                        locations === location && commonStyles.selectedOptionText
+                        loc === location && commonStyles.selectedOptionText,
                       ]}>
                         {location}
                       </Text>
@@ -276,28 +254,6 @@ const AppointmentScreen = () => {
                   ))}
                 </View>
               </View>
-
-              <View style={commonStyles.formContainer}>
-                <Text style={commonStyles.label}>Vaccine Type *</Text>
-                <View style={commonStyles.optionsContainer}>
-                  {vaccineTypes.map((vaccine, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.vaccineButton,
-                        vaccineType === vaccine && commonStyles.vaccineSelectedOption
-                      ]}
-                      onPress={() => setVaccineType(vaccine)}
-                    >
-                      <Text style={[
-                        styles.vaccineText,
-                        vaccineType === vaccine && commonStyles.selectedOptionText
-                      ]}>
-                        {vaccine}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
               </View>
 
               <View style={commonStyles.inputContainer}>
@@ -315,12 +271,13 @@ const AppointmentScreen = () => {
 
               <View style={styles.divider} />
 
-              <TouchableOpacity style={commonStyles.registerButton} onPress={handleSubmit}>
-                <Text style={commonStyles.registerButtonText}>Schedule Appointment</Text>
-              </TouchableOpacity>
-              <HelperText type="error" style={styles.fontHuge} visible={msg}>
+              <HelperText type="error" style={commonStyles.errorText} visible={!!msg}>
                   {msg}
               </HelperText>
+
+              <TouchableOpacity style={commonStyles.registerButton} onPress={handleSubmitAppointment}>
+                <Text style={commonStyles.registerButtonText}>Schedule Appointment</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>
