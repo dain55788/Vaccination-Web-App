@@ -13,12 +13,23 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../styles/MyStyles';
 import { MyDispatchContext, MyUserContext } from '../utils/MyContexts';
-import { handleLogout } from './HomeScreen.js';
+import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }) => {
   const user = useContext(MyUserContext)
   const dispatch = useContext(MyDispatchContext)
-  const {loading, setLoading} = useState(false);
+  const nav = useNavigation();
+  const { loading, setLoading } = useState(false);
+
+  const handleLogout = () => {
+    nav.reset({
+      index: 0,
+      routes: [{ name: 'Landing' }],
+    });
+    dispatch({
+      "type": "logout"
+    })
+  }
 
   const vaccinationHistory = [
     {
@@ -72,7 +83,6 @@ const ProfileScreen = ({ navigation }) => {
     Alert.alert('Edit Profile', 'This would navigate to an edit profile screen');
   };
 
-
   return (
     <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
@@ -89,15 +99,13 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.editButton}>Edit</Text>
         </TouchableOpacity>
       </View>
-      
+
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
 
-      <View style={styles.section}>
+        <View style={styles.section}>
           <View style={styles.profileSection}>
             <View style={styles.profileImageContainer}>
-              <View style={styles.profileImagePlaceholder}>
-                <Text style={styles.profileInitials}>user.avatar</Text>
-              </View>
+                <Image style={[commonStyles.imageContainer, styles.profileImagePlaceholder]} resizeMode="cover" source={{ uri: user.avatar }} />
             </View>
             <Text style={styles.profileName}>{user.username}</Text>
 
@@ -232,7 +240,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
-        <TouchableOpacity disabled={loading} loading={loading}style={styles.logoutButton} onPress={handleLogout}>
+        <TouchableOpacity disabled={loading} loading={loading} style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
 

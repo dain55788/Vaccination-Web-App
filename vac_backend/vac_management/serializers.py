@@ -18,11 +18,21 @@ class VaccineCategorySerializer(serializers.ModelSerializer):
 class BaseUserSerializer(serializers.ModelSerializer):
     avatar = serializers.FileField(required=False, allow_null=True)
 
+    # avatar = serializers.SerializerMethodField()
+
+    def get_avatar(self, obj):
+        avatar = obj.avatar
+        if hasattr(avatar, 'url'):
+            return avatar.url
+        elif isinstance(avatar, str):
+            return avatar
+        return None
+
     class Meta:
         abstract = True
         model = BaseUser
-        fields = ['first_name', 'last_name', 'username', 'password', 'avatar', 'gender', 'address', 'date_of_birth',
-                  'phone_number', 'email']
+        fields = ['id', 'first_name', 'last_name', 'username', 'password', 'avatar', 'gender', 'address',
+                  'date_of_birth', 'phone_number', 'email']
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -60,7 +70,8 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         d = super().to_representation(instance)
-        d['avatar'] = instance.avatar.url if instance.avatar else ''
+        d['avatar'] = self.get_avatar(instance)
+        # d['avatar'] = instance.avatar.url if instance.avatar else ''
         return d
 
 
@@ -89,10 +100,10 @@ class CitizenSerializer(BaseUserSerializer):
         instance.save()
         return instance
 
-    def to_representation(self, instance):
-        d = super().to_representation(instance)
-        d['avatar'] = instance.avatar.url if instance.avatar else ''
-        return d
+    # def to_representation(self, instance):
+    #     d = super().to_representation(instance)
+    #     d['avatar'] = instance.avatar.url if instance.avatar else ''
+    #     return d
 
 
 class StaffSerializer(BaseUserSerializer):
@@ -120,10 +131,10 @@ class StaffSerializer(BaseUserSerializer):
         instance.save()
         return instance
 
-    def to_representation(self, instance):
-        d = super().to_representation(instance)
-        d['avatar'] = instance.avatar.url if instance.avatar else ''
-        return d
+    # def to_representation(self, instance):
+    #     d = super().to_representation(instance)
+    #     d['avatar'] = instance.avatar.url if instance.avatar else ''
+    #     return d
 
 
 class DoctorSerializer(BaseUserSerializer):
@@ -151,10 +162,10 @@ class DoctorSerializer(BaseUserSerializer):
         instance.save()
         return instance
 
-    def to_representation(self, instance):
-        d = super().to_representation(instance)
-        d['avatar'] = instance.avatar.url if instance.avatar else ''
-        return d
+    # def to_representation(self, instance):
+    #     d = super().to_representation(instance)
+    #     d['avatar'] = instance.avatar.url if instance.avatar else ''
+    #     return d
 
 
 class VaccineSerializer(BaseSerializer):

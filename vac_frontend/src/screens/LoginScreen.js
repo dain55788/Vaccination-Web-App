@@ -80,11 +80,12 @@ const LoginScreen = ({ navigation }) => {
           });
           nav.navigate('Landing');
         } else {
-          console.error("Dispatch is undefined, cannot update user context");
+          // console.error("Dispatch is undefined, cannot update user context");
           setMsg('Fail to login. Please check your username or password.');
         }
       } catch (error) {
           console.error('Login error details:', error);
+          setMsg('Fail to login. Please check your username or password.');
       } finally {
           setLoading(false);
       }
@@ -141,7 +142,7 @@ const LoginScreen = ({ navigation }) => {
                 contentStyle={styles.loginButtonContent}
                 buttonColor={COLORS.primary}
               >
-                Đăng nhập
+                Login
               </Button>
               
               <View style={styles.registerContainer}>
