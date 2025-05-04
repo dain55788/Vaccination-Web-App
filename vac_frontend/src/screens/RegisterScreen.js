@@ -168,8 +168,14 @@ const RegisterScreen = () => {
     } else if (!user.email.includes('@') && !user.email.includes('.')) {
       setMsg("Check again your email format!");
       return false;
+    } else if (!/^[0-9]+$/.test(user.phone_number)) {
+      setMsg("Phone number only contains digit!");
+      return false;
     } else if (user.phone_number.length < 10) {
-      setMsg("Phone Number Invalid!");
+      setMsg("Phone number invalid!");
+      return false;
+    } else if (user.avatar == null) {
+      setMsg("Avatar required!");
       return false;
     } else {
       for (let i of info) {
@@ -189,7 +195,8 @@ const RegisterScreen = () => {
 
 
   const handleRegister = async () => {
-    console.info(user)
+    console.info(user.username)
+    console.info(user.avatar)
     if (validate() === true) {
       try {
         setLoading(true);
@@ -328,9 +335,8 @@ const RegisterScreen = () => {
 
               <View style={commonStyles.divider} />
 
-              <TouchableOpacity style={commonStyles.registerButton} onPress={handleRegister}>
-                <Text style={commonStyles.registerButtonText}>Create Account</Text>
-              </TouchableOpacity>
+              <Button mode="contained" style={styles.loginButton} disabled={loading} loading={loading}
+                contentStyle={styles.loginButtonContent} buttonColor={COLORS.primary} onPress={handleRegister}>Create Account</Button>
 
               <HelperText type="error" style={commonStyles.errorText} visible={msg}>
                 {msg}

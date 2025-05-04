@@ -20,9 +20,9 @@ const HomeScreen = () => {
   const user = useContext(MyUserContext); 
   const dispatch = useContext(MyDispatchContext);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     try {
-      await AsyncStorage.removeItem('token');
+      AsyncStorage.removeItem('token');
       dispatch({ type: 'logout' });
       nav.reset({
         index: 0,
