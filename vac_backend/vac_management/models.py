@@ -97,7 +97,7 @@ class Vaccine(BaseModel):
 class Appointment(BaseModel):
     citizen = models.ForeignKey(Citizen, on_delete=models.CASCADE)
     scheduled_date = models.DateField()
-    staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, null=True, blank=True)
     location = models.CharField(max_length=255)
     notes = models.TextField(null=True, blank=True)
 

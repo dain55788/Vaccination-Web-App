@@ -81,7 +81,7 @@ class CitizenAdmin(BaseUserAdmin):
     add_fieldsets = (
         ('Citizen Details', {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2',
+            'fields': ('username', 'first_name', 'last_name', 'email', 'password1', 'password2',
                        'date_of_birth', 'avatar', 'phone_number', 'address', 'gender', 'health_note'),
         }),
         ('Permissions', {
@@ -109,7 +109,7 @@ class DoctorAdmin(BaseUserAdmin):
     add_fieldsets = (
         ('Doctor Details', {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2',
+            'fields': ('username', 'first_name', 'last_name', 'email', 'password1', 'password2',
                       'date_of_birth', 'avatar', 'phone_number', 'address', 'gender',
                       'specialty', 'years_of_experience', 'medical_license'),
         }),
@@ -138,7 +138,7 @@ class StaffAdmin(BaseUserAdmin):
     add_fieldsets = (
         ('Staff Details', {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2',
+            'fields': ('username', 'first_name', 'last_name', 'email', 'password1', 'password2',
                        'date_of_birth', 'avatar', 'phone_number', 'address', 'gender',
                        'shift', 'hire_date'),
         }),
