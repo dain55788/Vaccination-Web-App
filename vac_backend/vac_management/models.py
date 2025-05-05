@@ -135,10 +135,11 @@ class Campaign(BaseModel):
         ('cancelled', 'Cancelled'),
     )
 
-    campaign_name = models.CharField(max_length=100)
+    campaign_name = models.CharField(max_length=100, unique=True)
     start_date = models.DateField()
     end_date = models.DateField()
     description = models.TextField(max_length=255)
+    location = models.CharField(max_length=255, null=True)
     image = CloudinaryField(null=True)
     target_population = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='planned')

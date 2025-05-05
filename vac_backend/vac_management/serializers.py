@@ -165,10 +165,12 @@ class AppointmentVaccineSerializer(BaseSerializer):
 
 
 class CampaignSerializer(BaseSerializer):
+    image = serializers.FileField(required=False, allow_null=True)
+
     class Meta:
         model = Campaign
-        fields = ['id', 'start_date', 'end_date',
-                  'created_date', 'updated_date', 'target_population', 'status', 'image']
+        fields = ['id', 'created_date', 'updated_date', 'campaign_name', 'description', 'start_date', 'end_date',
+                   'location', 'target_population', 'status', 'image']
 
 
 class CampaignCitizenSerializer(serializers.ModelSerializer):

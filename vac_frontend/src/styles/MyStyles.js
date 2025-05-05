@@ -90,6 +90,26 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  dateButton: {
+    backgroundColor: COLORS.background.primary,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.small,
+    padding: SPACING.medium,
+  },
+  dateButtonText: {
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.text.primary,
+  },
+  formCard: {
+    backgroundColor: COLORS.white,
+    borderTopLeftRadius: BORDER_RADIUS.large,
+    borderTopRightRadius: BORDER_RADIUS.large,
+    margin: SPACING.medium,
+    marginTop: SPACING.extraLarge,
+    padding: SPACING.large,
+    ...SHADOW.medium,
+  },
   appointmentActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -205,7 +225,7 @@ export const commonStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
-    headerContent: {
+  headerContent: {
     alignItems: 'center',
   },
   headerTitle: {
@@ -360,6 +380,18 @@ export const commonStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...SHADOW.medium,
+  },
+  imageButton: {
+    backgroundColor: COLORS.lightGray,
+    padding: SPACING.medium,
+    borderRadius: BORDER_RADIUS.regular,
+    alignItems: 'center',
+    marginVertical: SPACING.small,
+    ...SHADOW.light,
+  },
+  imageButtonText: {
+    color: COLORS.text.primary,
+    fontSize: FONT_SIZE.regular,
   },
   completed: {
     color: COLORS.status.completed,

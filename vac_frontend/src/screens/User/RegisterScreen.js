@@ -327,8 +327,8 @@ const RegisterScreen = () => {
 
               <View style={commonStyles.inputContainer}>
                 <Text style={commonStyles.label}>Avatar</Text>
-                <TouchableOpacity style={styles.dateButton} onPress={picker}>
-                  <Text style={styles.dateButtonText}>Choose your avatar</Text>
+                <TouchableOpacity style={commonStyles.dateButton} onPress={picker}>
+                  <Text style={commonStyles.dateButtonText}>Choose your avatar</Text>
                 </TouchableOpacity>
                 {user?.avatar && <Image style={[commonStyles.avatar, { marginTop: SPACING.medium }]} source={{ uri: user.avatar.uri }} />}
               </View>
@@ -482,17 +482,6 @@ const styles = {
   },
   radioLabel: {
     fontSize: FONT_SIZE.regular,
-    color: COLORS.text.primary,
-  },
-  dateButton: {
-    backgroundColor: COLORS.background.primary,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: BORDER_RADIUS.small,
-    padding: SPACING.medium,
-  },
-  dateButtonText: {
-    fontSize: FONT_SIZE.medium,
     color: COLORS.text.primary,
   },
   loginLink: {

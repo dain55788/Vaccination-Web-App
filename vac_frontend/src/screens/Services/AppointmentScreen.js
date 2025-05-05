@@ -42,7 +42,6 @@ const AppointmentScreen = () => {
   const [appointment, setAppointment] = useState({});
   const [errMsg, setErrMsg] = useState(null);
   const [loading, setLoading] = useState(false);
-  const dispatch = useContext(MyDispatchContext);
   const [loc, setLocation] = useState('');
   const [scMsg, setScMsg] = useState(null);
 
@@ -50,7 +49,7 @@ const AppointmentScreen = () => {
     setAppointment({ ...appointment, [field]: value });
   }
 
-  const setStateDoB = (event, selectedDate) => {
+  const setStateDoB = (selectedDate) => {
     setDateOfBirth(selectedDate)
     setShowDatePicker(Platform.OS === 'ios');
     setState(formatDate(selectedDate), 'date');
@@ -168,7 +167,7 @@ const AppointmentScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
+    <SafeAreaView style={[commonStyles.safeArea, commonStyles.container]}>
       <StatusBar style="light" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -212,7 +211,7 @@ const AppointmentScreen = () => {
               <View style={commonStyles.divider} />
 
               <View style={commonStyles.inputContainer}>
-                <Text style={commonStyles.label}>Date</Text>
+                <Text style={commonStyles.label}>Date *</Text>
                 <DateTimePicker
                   value={dateOfBirth}
                   mode="date"
@@ -310,15 +309,6 @@ const AppointmentScreen = () => {
 };
 
 const styles = {
-  formCard: {
-    backgroundColor: COLORS.white,
-    borderTopLeftRadius: BORDER_RADIUS.large,
-    borderTopRightRadius: BORDER_RADIUS.large,
-    margin: SPACING.medium,
-    marginTop: SPACING.extraLarge,
-    padding: SPACING.large,
-    ...SHADOW.medium,
-  },
   header: {
     paddingVertical: SPACING.huge,
     paddingHorizontal: SPACING.medium,

@@ -199,7 +199,6 @@ const ServicesScreen = () => {
           </View>
         </View>
 
-        {/* Schedule Button */}
         <TouchableOpacity 
           style={commonStyles.button}
           onPress={() => nav.navigate('Appointment')}
