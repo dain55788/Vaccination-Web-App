@@ -6,16 +6,22 @@ import { MyDispatchContext, MyUserContext } from './src/utils/MyContexts';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext, useReducer } from "react";
 import MyUserReducer from "./src/reducers/MyUserReducer";
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './config/Firebase';
 
+import HomeScreen from './src/screens/Home/HomeScreen';
 import LandingScreen from './src/screens/Home/LandingScreen';
+import AboutScreen from './src/screens/Home/AboutScreen';
+
 import LoginScreen from './src/screens/User/LoginScreen';
 import RegisterScreen from './src/screens/User/RegisterScreen';
-import HomeScreen from './src/screens/Home/HomeScreen';
-import AppointmentScreen from './src/screens/Services/AppointmentScreen';
 import ProfileScreen from './src/screens/User/ProfileScreen';
-import AboutScreen from './src/screens/Home/AboutScreen';
+
+import AppointmentScreen from './src/screens/Services/AppointmentScreen';
 import ContactScreen from './src/screens/Services/ContactScreen';
 import ServicesScreen from './src/screens/Services/ServicesScreen';
+// import ChatScreen from './src/screens/Services/ChatScreen';
+
 
 import AdminDashboardScreen from './src/screens/Admin/AdminDashboardScreen';
 import PublicCampaignManagementScreen from './src/screens/Admin/PublicCampaignManagementScreen';
@@ -48,6 +54,7 @@ const AppNavigator = () => {
         <Stack.Screen name="About" component={AboutScreen} />
         <Stack.Screen name="Contact" component={ContactScreen} />
         <Stack.Screen name="Services" component={ServicesScreen} />
+        {/* <Stack.Screen name="Chat" component={ChatScreen} /> */}
 
         <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
         <Stack.Screen name="CampaignManagement" component={PublicCampaignManagementScreen}/>

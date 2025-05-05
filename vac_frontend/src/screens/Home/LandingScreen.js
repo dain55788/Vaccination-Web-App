@@ -386,6 +386,15 @@ const LandingScreen = () => {
         <View style={styles.copyright}>
           <Text style={styles.copyrightText}>© 2025 VaxServe. All rights reserved.</Text>
         </View>
+
+        <View style={commonStyles.chatContainer}>
+            <TouchableOpacity
+                onPress={() => nav.navigate("ChatScreen")}
+                style={commonStyles.chatButton}
+            >
+                <Entypo name="chat" size={24} color={colors.lightGray} />
+            </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
