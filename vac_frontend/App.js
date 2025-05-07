@@ -6,8 +6,8 @@ import { MyDispatchContext, MyUserContext } from './src/utils/MyContexts';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext, useReducer } from "react";
 import MyUserReducer from "./src/reducers/MyUserReducer";
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './config/Firebase';
+// import { onAuthStateChanged } from 'firebase/auth';
+// import { auth } from './config/Firebase';
 
 import HomeScreen from './src/screens/Home/HomeScreen';
 import LandingScreen from './src/screens/Home/LandingScreen';

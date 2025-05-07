@@ -139,7 +139,7 @@ class Campaign(BaseModel):
     start_date = models.DateField()
     end_date = models.DateField()
     description = models.TextField(max_length=255)
-    location = models.CharField(max_length=255, null=True)
+    location = models.CharField(max_length=255, null=True, blank=True)
     image = CloudinaryField(null=True)
     target_population = models.IntegerField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='planned')

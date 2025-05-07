@@ -22,6 +22,9 @@ const { CLIENT_ID, CLIENT_SECRET } = Constants.expoConfig.extra;
 import { MyDispatchContext } from "../../utils/MyContexts";
 import { useNavigation } from "@react-navigation/native";
 
+// import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../config/Firebase";
+
 const LoginScreen = ({ navigation }) => {
   const info = [{
     label: 'Username',
@@ -55,6 +58,11 @@ const LoginScreen = ({ navigation }) => {
     return true;
   }
 
+  // Firebase login authentication
+  const onHandleLogin = (email, password) => {
+    signInWithEmailAndPassword(auth, email, password);
+  };
+
   const handleLogin = async () => {
     setMsg('');
 
@@ -78,9 +86,9 @@ const LoginScreen = ({ navigation }) => {
             "type": "login",
             "payload": u.data
           });
+          onHandleLogin(user.email, user.password);
           nav.navigate('Landing');
         } else {
-          // console.error("Dispatch is undefined, cannot update user context");
           setMsg('Fail to login. Please check your username or password.');
         }
       } catch (error) {

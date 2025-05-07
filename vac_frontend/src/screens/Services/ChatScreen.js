@@ -24,7 +24,7 @@
 //     const navigation = useNavigation();
 
 //     const onSignOut = () => {
-//         signOut(auth).catch(error => console.log('Error logging out: ', error));
+//         signOut(auth).catch(error => console.log('Error logging outp: ', error));
 //     };
 
 //     useLayoutEffect(() => {
