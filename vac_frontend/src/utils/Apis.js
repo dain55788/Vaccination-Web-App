@@ -1,6 +1,8 @@
 import axios from 'axios';
+import Constants from 'expo-constants';
 
-let API_BASE_URL = 'http://192.168.20.243:8000/';
+const { BASE_URL } = Constants.expoConfig.extra;
+let API_BASE_URL = BASE_URL;
 
 export const endpoints = {
   'login': '/o/token/',

@@ -279,7 +279,7 @@ const RegisterScreen = () => {
               {error ? <Text style={[commonStyles.errorText, styles.errorText]}>{error}</Text> : null}
 
               {info.map(i => <View key={i.field}>
-                <Text style={styles.label}> {i.label}</Text>
+                <Text style={commonStyles.formLabel}> {i.label}</Text>
                 <TextInput key={i.field} style={commonStyles.input}
                   label={i.label}
                   secureTextEntry={i.secureTextEntry}
@@ -289,7 +289,7 @@ const RegisterScreen = () => {
 
 
               <View style={commonStyles.inputContainer}>
-                <Text style={styles.label}>Gender</Text>
+                <Text style={commonStyles.formLabel}>Gender</Text>
                 <View style={styles.radioContainer}>
                   <TouchableOpacity
                     style={[styles.radioButton, gender === 'male' && styles.radioButtonSelected]}
@@ -318,7 +318,7 @@ const RegisterScreen = () => {
               </View>
 
               <View style={commonStyles.inputContainer}>
-                <Text style={styles.label}>Date of Birth</Text>
+                <Text style={commonStyles.formLabel}>Date of Birth</Text>
                 <DateTimePicker
                   value={dateOfBirth}
                   mode="date"
@@ -427,12 +427,6 @@ const styles = {
   halfWidth: {
     flex: 1,
     marginRight: SPACING.small,
-  },
-  label: {
-    fontSize: FONT_SIZE.regular,
-    color: COLORS.text.primary,
-    fontWeight: '500',
-    marginBottom: SPACING.small,
   },
   input: {
     backgroundColor: COLORS.background.primary,

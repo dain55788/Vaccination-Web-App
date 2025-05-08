@@ -1,10 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Text,
   View,
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,6 +30,44 @@ const VaccineManagementScreen = () => {
   const [vaccine, setVaccine] = useState([]);
   const vaccineEndpoint = endpoints['vaccine'];
   const availabelVaccines = vaccine;
+  const [filteredVaccine, setFilteredVaccine] = useState([]);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [selectedVaccine, setSelectedVaccine] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const [formData, setFormData] = useState({
+    vaccine_name: '',
+    dose_quantity: '',
+    instruction: '',
+    unit_price: '',
+  });
+  const [formErrors, setFormErrors] = useState({});
+
+  const info = [{
+    label: 'Vaccine Name',
+    icon: "information",
+    secureTextEntry: false,
+    field: "vaccine_name",
+    description: "Vaccine Name"
+  }, {
+    label: 'Dose Quantity',
+    icon: "information",
+    secureTextEntry: false,
+    field: "dose_quantity",
+    description: "Current dose quantity"
+  }, {
+    label: 'Instruction',
+    icon: "information",
+    secureTextEntry: false,
+    field: "instruction",
+    description: "Instruction for specified vaccine"
+  }, {
+    label: 'Unit Price',
+    icon: "currency-usd",
+    secureTextEntry: false,
+    field: "unit_price",
+    description: "Current unit price of the vaccine"
+  }];
 
   useEffect(() => {
     const fetchVaccine = async () => {
@@ -31,6 +75,7 @@ const VaccineManagementScreen = () => {
         const response = await Apis.get(vaccineEndpoint);
         const vaccines = response.data.results;
         setVaccine(vaccines);
+        setFilteredVaccine(vaccines);
       } catch (error) {
         console.error('Error fetching vaccines:', error);
       }
@@ -39,13 +84,88 @@ const VaccineManagementScreen = () => {
     fetchVaccine();
   }, []);
 
-  const filteredVaccine = vaccine.filter(vaccine => {
-    const searchLower = searchQuery.toLowerCase();
-    return (
-      vaccine.name?.toLowerCase().includes(searchLower) ||
+  const handleEditClick = (vaccine) => {
+    setSelectedVaccine(vaccine);
+    setFormData({
+      vaccine_name: vaccine.vaccine_name || '',
+      dose_quantity: vaccine.dose_quantity.toString() || '',
+      instruction: vaccine.instruction || '',
+      unit_price: vaccine.unit_price?.toString() || '',
+    });
+    setFormErrors({});
+    setIsEditModalVisible(true);
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.vaccine_name.trim()) errors.vaccine_name = 'Vaccine name is required';
+    if (!formData.dose_quantity || isNaN(formData.dose_quantity) || Number(formData.dose_quantity) < 0)
+      errors.dose_quantity = 'Valid dose quantity is required';
+    if (!formData.instruction.trim()) errors.instruction = 'Instruction is required';
+    if (!formData.unit_price || isNaN(formData.unit_price) || Number(formData.unit_price) < 0)
+      errors.unit_price = 'Valid unit price is required';
+    return errors;
+  };
+
+  const handleSave = async () => {
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    const noChanges =
+      formData.vaccine_name === (selectedVaccine.vaccine_name || '') &&
+      Number(formData.dose_quantity) === selectedVaccine.dose_quantity &&
+      formData.instruction === (selectedVaccine.instruction || '') &&
+      Number(formData.unit_price) === (selectedVaccine.unit_price || 0);
+
+    if (noChanges) {
+      setMsg('No changes were made to the vaccine information!!');
+      return;
+    }
+
+    try {
+      const response = await Apis.patch(`${vaccineEndpoint}${selectedVaccine.id}/`, {
+        vaccine_name: formData.vaccine_name,
+        dose_quantity: Number(formData.dose_quantity),
+        instruction: formData.instruction,
+        unit_price: Number(formData.unit_price),
+      });
+
+      const updatedVaccines = vaccine.map(v =>
+        v.id === selectedVaccine.id ? { ...v, ...response.data } : v
+      );
+      setVaccine(updatedVaccines);
+      setFilteredVaccine(updatedVaccines);
+      setIsEditModalVisible(false);
+      setSelectedVaccine(null);
+      setFormData({ vaccine_name: '', dose_quantity: '', instruction: '', unit_price: '' });
+      Alert.alert('Success', 'Successfully update vaccine information')
+    } catch (error) {
+      console.error('Error updating vaccine:', error);
+      setFormErrors({ general: 'Failed to update vaccine. Please try again.' });
+    }
+  };
+
+  const debounceSearch = useCallback((query) => {
+    const searchLower = query.toLowerCase();
+    const filtered = vaccine.filter(vaccine =>
+      vaccine.vaccine_name?.toLowerCase().includes(searchLower) ||
       vaccine.id.toString().includes(searchLower)
     );
-  });
+    setFilteredVaccine(filtered);
+  }, [vaccine]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      debounceSearch(searchQuery);
+    }, 1000);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery, debounceSearch]);
 
   return (
     <SafeAreaView style={commonStyles.container}>
@@ -72,16 +192,16 @@ const VaccineManagementScreen = () => {
           <Text style={commonStyles.subtitle}>Your vaccination management portal.</Text>
         </View>
 
-        <Text style={commonStyles.cardTitle}>All Available Vaccines</Text>
+        <Text style={commonStyles.title}>All Available Vaccines</Text>
         <TextInput
-            style={commonStyles.input}
-            placeholder="🔎 Search vaccines by name or ID"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
+          style={commonStyles.input}
+          placeholder="🔎 Search vaccines by name or ID"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
         {filteredVaccine.length > 0 ? (
           filteredVaccine.map((availableVaccine) => (
-            <View style={commonStyles.card}>
+            <View key={availabelVaccines.id} style={commonStyles.card}>
               <View style={styles.vaccineItem}>
                 <View style={styles.vaccineIconPlaceholder}>
                   <Text style={styles.vaccineIconText}>🦠</Text>
@@ -93,7 +213,11 @@ const VaccineManagementScreen = () => {
                 </View>
               </View>
               <View style={commonStyles.appointmentActions}>
-                <TouchableOpacity style={[commonStyles.button, styles.rescheduleButton]}>
+                <TouchableOpacity
+                  style={[commonStyles.button, styles.rescheduleButton]}
+                  onPress={() => handleEditClick(availableVaccine)}
+                  disabled={loading} loading={loading}
+                >
                   <Text style={commonStyles.buttonText}>Edit</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[commonStyles.button, styles.cancelButton]}>
@@ -111,6 +235,69 @@ const VaccineManagementScreen = () => {
           <Text style={commonStyles.buttonText}>See more Vaccines</Text>
         </TouchableOpacity>
       </ScrollView>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isEditModalVisible}
+        onRequestClose={() => setIsEditModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={commonStyles.modalContainer}
+          >
+            <View style={commonStyles.modalContent}>
+              <Text style={[commonStyles.cardTitle, { marginBottom: SPACING.large }]}>
+                Edit Vaccine Information
+              </Text>
+              {formErrors.general && (
+                <HelperText type="error" visible={true}>
+                  {formErrors.general}
+                </HelperText>
+              )}
+              {info.map(i => (
+                <View key={i.field}>
+                  <Text style={commonStyles.label}>{i.label}</Text>
+                  <TextInput
+                    style={commonStyles.input}
+                    label={i.label}
+                    secureTextEntry={i.secureTextEntry}
+                    right={<TextInput.Icon icon={i.icon} />}
+                    value={formData[i.field]}
+                    onChangeText={(text) => setFormData({ ...formData, [i.field]: text })}
+                    multiline={i.field === 'instruction'}
+                    keyboardType={i.field === 'dose_quantity' || i.field === 'unit_price' ? 'numeric' : 'default'}
+                    error={!!formErrors[i.field]}
+                  />
+                  <HelperText type="error" visible={!!formErrors[i.field]}>
+                    {formErrors[i.field]}
+                  </HelperText>
+                </View>
+              ))}
+
+              <HelperText type="error" style={commonStyles.errorText} visible={msg}>
+                {msg}
+              </HelperText>
+
+              <View style={commonStyles.appointmentActions}>
+                <TouchableOpacity
+                  style={[commonStyles.button, styles.rescheduleButton]}
+                  onPress={handleSave}
+                >
+                  <Text style={commonStyles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[commonStyles.button, styles.cancelButton]}
+                  onPress={() => setIsEditModalVisible(false)}
+                >
+                  <Text style={commonStyles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -218,7 +405,8 @@ const styles = {
   vaccineDescription: {
     fontSize: FONT_SIZE.medium,
     color: COLORS.text.secondary,
-    marginTop: 2,
+    marginTop: SPACING.regular,
+    marginBottom: SPACING.regular
   },
   viewAllButton: {
     marginTop: SPACING.small,

@@ -90,6 +90,24 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  formLabel: {
+    fontSize: FONT_SIZE.regular,
+    color: COLORS.text.primary,
+    fontWeight: '500',
+    marginBottom: SPACING.small,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: COLORS.white,
+    margin: SPACING.large,
+    padding: SPACING.large,
+    borderRadius: 12,
+    elevation: 5,
+  },
   vaccineDoseQuantity: {
     color: COLORS.danger,
   },
@@ -109,21 +127,21 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   chatButton: {
-      backgroundColor: COLORS.primary,
-      height: 50,
-      width: 50,
-      borderRadius: 25,
-      alignItems: 'center',
-      justifyContent: 'center',
-      shadowColor: COLORS.primary,
-      shadowOffset: {
-          width: 0,
-          height: 2,
-      },
-      shadowOpacity: .9,
-      shadowRadius: 8,
-      marginRight: 20,
-      marginBottom: 50,
+    backgroundColor: COLORS.primary,
+    height: 50,
+    width: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: .9,
+    shadowRadius: 8,
+    marginRight: 20,
+    marginBottom: 50,
   },
   dateButton: {
     backgroundColor: COLORS.background.primary,
@@ -254,6 +272,7 @@ export const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    textAlign: 'cener',
     paddingHorizontal: SPACING.medium,
     paddingVertical: SPACING.regular,
     backgroundColor: COLORS.background.primary,
@@ -283,7 +302,6 @@ export const commonStyles = StyleSheet.create({
   scrollViewContent: {
     padding: SPACING.medium,
   },
-  
   card: {
     backgroundColor: COLORS.background.primary,
     borderRadius: BORDER_RADIUS.medium,
@@ -292,14 +310,19 @@ export const commonStyles = StyleSheet.create({
     ...SHADOW.medium,
   },
   cardTitle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
     fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
+    color: COLORS.primary,
     marginBottom: SPACING.regular,
+    borderBottomWidth: 5,
+    borderBottomColor: COLORS.border,
   },
-  
   title: {
-    fontSize: FONT_SIZE.huge,
+    fontSize: FONT_SIZE.extraLarge,
     fontWeight: 'bold',
     color: COLORS.text.primary,
   },
@@ -436,7 +459,7 @@ export const commonStyles = StyleSheet.create({
   incomplete: {
     color: COLORS.status.incomplete,
   },
-  
+
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -444,7 +467,7 @@ export const commonStyles = StyleSheet.create({
   spaceBetween: {
     justifyContent: 'space-between',
   },
-  
+
   listItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -452,7 +475,7 @@ export const commonStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.lightGray,
   },
-  
+
   badge: {
     paddingHorizontal: SPACING.small,
     paddingVertical: SPACING.tiny,

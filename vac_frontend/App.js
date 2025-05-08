@@ -12,6 +12,7 @@ import MyUserReducer from "./src/reducers/MyUserReducer";
 import HomeScreen from './src/screens/Home/HomeScreen';
 import LandingScreen from './src/screens/Home/LandingScreen';
 import AboutScreen from './src/screens/Home/AboutScreen';
+// import WelcomeScreen from './src/screens//Home/Welcome';
 
 import LoginScreen from './src/screens/User/LoginScreen';
 import RegisterScreen from './src/screens/User/RegisterScreen';
@@ -39,6 +40,7 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName={user === null ? 'Landing' : 'Home'}
+        // initialRouteName="Welcome"
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: '#f8f9fa' },
@@ -46,14 +48,17 @@ const AppNavigator = () => {
       >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="Landing" component={LandingScreen} />
+
         <Stack.Screen name="Appointment" component={AppointmentScreen} />
-        <Stack.Screen name="About" component={AboutScreen} />
         <Stack.Screen name="Contact" component={ContactScreen} />
         <Stack.Screen name="Services" component={ServicesScreen} />
         {/* <Stack.Screen name="Chat" component={ChatScreen} /> */}
+
+        <Stack.Screen name="Home" component={HomeScreen} />
+        {/* <Stack.Screen name="Welcome" component={WelcomeScreen} /> */}
+        <Stack.Screen name="Landing" component={LandingScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
 
         <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
         <Stack.Screen name="CampaignManagement" component={PublicCampaignManagementScreen}/>
