@@ -58,10 +58,10 @@ const LoginScreen = ({ navigation }) => {
     return true;
   }
 
-  // Firebase login authentication
-  const onHandleLogin = (email, password) => {
-    signInWithEmailAndPassword(auth, email, password);
-  };
+  // // Firebase login authentication
+  // const onHandleLogin = (email, password) => {
+  //   signInWithEmailAndPassword(auth, email, password);
+  // };
 
   const handleLogin = async () => {
     setMsg('');
@@ -86,7 +86,7 @@ const LoginScreen = ({ navigation }) => {
             "type": "login",
             "payload": u.data
           });
-          onHandleLogin(user.email, user.password);
+          // onHandleLogin(user.email, user.password);
           nav.navigate('Landing');
         } else {
           setMsg('Fail to login. Please check your username or password.');

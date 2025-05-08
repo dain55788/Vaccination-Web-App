@@ -111,7 +111,6 @@ const ServicesScreen = () => {
           </View>
         </View>
 
-        {/* Special Programs */}
         <View style={commonStyles.card}>
           <Text style={styles.sectionTitle}>Special Programs</Text>
 
@@ -146,7 +145,6 @@ const ServicesScreen = () => {
           </View>
         </View>
 
-        {/* How It Works */}
         <View style={commonStyles.card}>
           <Text style={styles.sectionTitle}>How It Works</Text>
 

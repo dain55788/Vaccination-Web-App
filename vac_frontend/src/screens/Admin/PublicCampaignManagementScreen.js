@@ -90,14 +90,13 @@ const CampaignManagement = () => {
   ];
 
   const validate = () => {
-    setErrMsg('')
-    if (!campaign?.campaign_name) {
+    if (!campaign.campaign_name) {
       setErrMsg("Please enter name for this campaign!");
       return false;
-    } else if (campaign?.description.length < 20) {
+    } else if (campaign.campaign_description.length < 20) {
       setErrMsg("Description cannot be this short!");
       return false;
-    } else if (campaign?.image == null) {
+    }  else if (campaign.image == null) {
       setErrMsg("Image for the campaign required!");
       return false
     } else if (!loc) {

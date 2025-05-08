@@ -90,6 +90,18 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  vaccineDoseQuantity: {
+    color: COLORS.danger,
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: 8,
+    padding: SPACING.medium,
+    marginBottom: SPACING.medium,
+    fontSize: 16,
+    backgroundColor: COLORS.white,
+  },
   chatContainer: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -151,7 +163,7 @@ export const commonStyles = StyleSheet.create({
   sectionTitle: {
     fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
-    color: COLORS.text.primary,
+    color: COLORS.primary,
     marginBottom: SPACING.medium,
   },
   vaccineText: {
@@ -313,14 +325,13 @@ export const commonStyles = StyleSheet.create({
   textBold: {
     fontWeight: 'bold',
   },
-  
   formContainer: {
     marginBottom: SPACING.medium,
   },
   input: {
     backgroundColor: COLORS.background.primary,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: COLORS.primary,
     borderRadius: BORDER_RADIUS.regular,
     padding: SPACING.tiny,
     marginVertical: SPACING.small,
@@ -328,7 +339,7 @@ export const commonStyles = StyleSheet.create({
   },
   label: {
     fontSize: FONT_SIZE.regular,
-    color: COLORS.text.secondary,
+    color: COLORS.primary,
     marginBottom: SPACING.tiny,
   },
   errorText: {

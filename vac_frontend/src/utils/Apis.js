@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let API_BASE_URL = 'http://192.168.1.36:8000/';
+let API_BASE_URL = 'http://192.168.20.243:8000/';
 
 export const endpoints = {
   'login': '/o/token/',
@@ -8,6 +8,7 @@ export const endpoints = {
   'current-user': '/users/current-user/',
   'appointment': '/appointments/',
   'vaccinetypes': '/vaccinetypes/',
+  'appointment-bycitizen': (citizen_id) => `/appointments/by-citizen/?citizen_id=${citizen_id}`,
   'campaign': '/campaigns/',
   'vaccine': '/vaccines/',
   'appointmentvaccine': '/appointmentvaccines/',

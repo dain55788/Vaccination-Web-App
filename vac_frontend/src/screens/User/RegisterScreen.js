@@ -216,7 +216,7 @@ const RegisterScreen = () => {
             }
           }
         }
-        console.info(form)
+
         // createUserWithEmailAndPassword(auth, user?.email, user?.password)
         let res = await Apis.post(endpoints['register'], form, {
           headers: {
