@@ -18,8 +18,6 @@ class VaccineCategorySerializer(serializers.ModelSerializer):
 class BaseUserSerializer(serializers.ModelSerializer):
     avatar = serializers.FileField(required=False, allow_null=True)
 
-    # avatar = serializers.SerializerMethodField()
-
     def get_avatar(self, obj):
         avatar = obj.avatar
         if hasattr(avatar, 'url'):
@@ -78,7 +76,6 @@ class CitizenSerializer(BaseUserSerializer):
         fields = return_lists
 
     def update(self, instance, validated_data):
-        # avatar_file = validated_data.pop('avatar', None)
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
@@ -98,7 +95,6 @@ class StaffSerializer(BaseUserSerializer):
         fields = return_lists
 
     def update(self, instance, validated_data):
-        # avatar_file = validated_data.pop('avatar', None)
         if 'password' in validated_data:
             password = validated_data.pop('password')
             instance.set_password(password)
@@ -127,14 +123,17 @@ class DoctorSerializer(BaseUserSerializer):
 
 
 class VaccineSerializer(BaseSerializer):
-    category = VaccineCategorySerializer(read_only=True)
-    category_id = serializers.IntegerField(write_only=True)
-
+    category_info = VaccineCategorySerializer(source='category', read_only=True)
+    image = serializers.FileField(required=False, allow_null=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=VaccineCategory.objects.all(),
+        source='category',
+        write_only=True
+    )
     class Meta:
         model = Vaccine
-        fields = ['id', 'category', 'category_id', 'vaccine_name', 'dose_quantity', 'image', 'instruction',
+        fields = ['id', 'category_id', 'category_info', 'vaccine_name', 'dose_quantity', 'image', 'instruction',
                   'unit_price', 'created_date', 'updated_date']
-
 
 class AppointmentSerializer(BaseSerializer):
     citizen_info = CitizenSerializer(source='citizen', read_only=True)

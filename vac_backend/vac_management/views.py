@@ -7,32 +7,24 @@ from django.db.models import Count, Sum, Q
 from django.db.models.functions import TruncMonth, TruncQuarter, TruncYear
 
 
-class VaccineCategoryViewSet(viewsets.ViewSet, generics.ListAPIView):
+class VaccineCategoryViewSet(viewsets.ModelViewSet):
     queryset = VaccineCategory.objects.filter(active=True)
     serializer_class = serializers.VaccineCategorySerializer
 
 
-class VaccineViewSet(viewsets.ViewSet, generics.ListAPIView):
+class VaccineViewSet(viewsets.ModelViewSet):
     queryset = Vaccine.objects.filter(active=True)
     serializer_class = serializers.VaccineSerializer
     pagination_class = paginators.VaccinePaginator
 
     def get_queryset(self):
-        query = self.queryset
+        queryset = super().get_queryset()
 
-        q = self.request.query_params.get('q')
-        if q:
-            query = query.filter(vaccine_name__icontains=q)
+        category_id = self.request.query_params.get('category_id')
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
 
-        id = self.request.query_params.get('id')
-        if id:
-            query = query.filter(id=id)
-
-        cate_id = self.request.query_params.get('category_id')
-        if cate_id:
-            query = query.filter(category_id=cate_id)
-
-        return query
+        return queryset
 
     @action(methods=['get'], url_path='by-name/(?P<vaccine_name>[^/.]+)', detail=False)
     def get_by_name(self, request, vaccine_name=None):
@@ -151,11 +143,8 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], url_path='by-citizen', detail=False)
     def get_by_citizen(self, request):
-        """
-        Retrieve all appointments for a specific citizen
-        """
+        citizen_id = request.query_params.get('citizen_id')
         try:
-            citizen_id = request.query_params.get('citizen_id')
             if not citizen_id:
                 return Response({"detail": "Citizen ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
