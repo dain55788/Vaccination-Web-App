@@ -49,10 +49,10 @@ const AppointmentScreen = () => {
     setAppointment({ ...appointment, [field]: value });
   }
 
-  const setStateDoB = (selectedDate) => {
-    setDateOfBirth(selectedDate)
+  const setStateDoB = (event, selectedDate) => {
+    setDateOfBirth(selectedDate);
     setShowDatePicker(Platform.OS === 'ios');
-    setState(formatDate(selectedDate), 'date');
+    setState(formatDate(selectedDate), 'scheduled_date');
   }
 
   const formatDate = (date) => {
@@ -124,6 +124,24 @@ const AppointmentScreen = () => {
     "Branch 5 - 654 Pham Ngu Lao",
   ];
   
+  function extractScheduledDates(apiResponse) {
+    if (Array.isArray(apiResponse)) {
+      const scheduledDates = apiResponse.map(item => item.scheduled_date);
+      return scheduledDates;
+    } else {
+      console.error('API response is not an array');
+      return [];
+    }
+  }
+
+  function isDateAlreadyRegistered(apiResponse, chosenDate) {
+    const scheduledDates = extractScheduledDates(apiResponse.data);
+    
+    const dateAlreadyRegistered = scheduledDates.includes(chosenDate);
+    
+    return dateAlreadyRegistered;
+  }
+
   const timeSlots = [
     "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", 
     "11:00 AM", "11:30 AM", "1:00 PM", "1:30 PM",
@@ -138,6 +156,20 @@ const AppointmentScreen = () => {
         if (dateOfBirth) form.append('scheduled_date', formatDate(dateOfBirth));
         if (loc) form.append('location', loc);
         if (notes) form.append('notes', notes);
+        let resAppointment = await Apis.get(endpoints['appointment-bycitizen'](user.id));
+
+        if (resAppointment.status === 200) {
+          let dateAlreadyRegistered = false;
+
+          dateAlreadyRegistered = isDateAlreadyRegistered(resAppointment, formatDate(dateOfBirth));
+          
+          if (dateAlreadyRegistered) {
+            setErrMsg("You have registered this date, please select another date");
+            Alert.alert('Error', 'Please select another date that suites you!');
+            setLoading(false);
+            return;
+          }
+        }
         form.append('citizen', user.id);
         console.info(form);
         let res = await Apis.post(endpoints['appointment'], form, {
@@ -195,7 +227,7 @@ const AppointmentScreen = () => {
                 resizeMode="cover"
               />
             </View>
-            <View style={styles.formCard}>
+            <View style={commonStyles.formCard}>
 
               {info.map(i => <View key={i.field}>
                 <Text style={commonStyles.label}> {i.label}</Text>

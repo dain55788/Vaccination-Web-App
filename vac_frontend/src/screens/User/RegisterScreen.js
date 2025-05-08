@@ -216,7 +216,7 @@ const RegisterScreen = () => {
             }
           }
         }
-        createUserWithEmailAndPassword(auth, user?.email, user?.password)
+        // createUserWithEmailAndPassword(auth, user?.email, user?.password)
         let res = await Apis.post(endpoints['register'], form, {
           headers: {
             'Content-Type': 'multipart/form-data'

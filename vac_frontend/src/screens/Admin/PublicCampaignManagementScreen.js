@@ -64,7 +64,6 @@ const CampaignManagement = () => {
   }
 
   const formatDate = (date) => {
-    console.info('Maybe the problem rises here.')
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   };
 
@@ -90,13 +89,13 @@ const CampaignManagement = () => {
   ];
 
   const validate = () => {
-    if (!campaign?.campaign_name) {
+    if (!campaign.campaign_name) {
       setErrMsg("Please enter name for this campaign!");
       return false;
-    } else if (campaign?.campaign_description.length < 20) {
+    } else if (campaign.campaign_description.length < 20) {
       setErrMsg("Description cannot be this short!");
       return false;
-    }  else if (image == null) {
+    }  else if (campaign.image == null) {
       setErrMsg("Image for the campaign required!");
       return false
     } else if (!loc) {

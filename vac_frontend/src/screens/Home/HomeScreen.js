@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Text, 
-  View, 
-  TouchableOpacity, 
-  SafeAreaView, 
-  ScrollView
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,13 +13,15 @@ import { useNavigation } from "@react-navigation/native";
 import { MyDispatchContext, MyUserContext } from "../../utils/MyContexts";
 import { useContext } from "react";
 import Apis, { authApis, endpoints } from "../../utils/Apis";
+import { Button, HelperText, TextInput } from "react-native-paper";
 
 const HomeScreen = () => {
-  const appointmentEndpoint = endpoints['appointment'];
   const nav = useNavigation();
-  const user = useContext(MyUserContext); 
+  const user = useContext(MyUserContext);
   const dispatch = useContext(MyDispatchContext);
-  const [userUpcomingAppointments, setUserUpcomingAppointments] = useState([]); 
+  const [userUpcomingAppointments, setUserUpcomingAppointments] = useState([]);
+  const appointmentEndpoint = endpoints['appointment-bycitizen'](user.id);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const vaccinationHistory = [
     {
@@ -45,16 +47,6 @@ const HomeScreen = () => {
     }
   ];
 
-  const upcomingAppointments = [
-    {
-      id: '1',
-      type: 'COVID-19 (Booster)',
-      date: '01/10/2024',
-      time: '10:30 AM',
-      location: 'Community Clinic - Eastside'
-    }
-  ];
-
   const handleLogout = () => {
     try {
       AsyncStorage.removeItem('token');
@@ -69,27 +61,35 @@ const HomeScreen = () => {
     }
   }
 
-  // useEffect(() => {
-  //   const fetchAppointments = async () => {
-  //     try {
-  //       const response = await Apis.get(appointmentEndpoint);
-  //       const appointments = response.data;
-        
-  //       const upcoming = appointments.filter(appointment => 
-  //         appointment.citizen_id === user.id && 
-  //         new Date(appointment.scheduled_date) > new Date()
-  //       );
-      
-  //       setUserAppointments(formattedAppointments);
-  //     } catch (error) {
-  //       console.error('Error fetching appointments:', error);
-  //     }
-  //   };
-    
-  //   if (user?.id) {
-  //     fetchAppointments();
-  //   }
-  // }, [user?.id, appointmentEndpoint]);
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await Apis.get(appointmentEndpoint);
+        const appointments = response.data;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const filteredAppointments = appointments.filter(appointment => {
+          const scheduledDate = new Date(appointment.scheduled_date);
+          return scheduledDate > today;
+        });
+
+        setUserUpcomingAppointments(filteredAppointments);
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
+  const filteredAppointments = userUpcomingAppointments.filter(appointment => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      appointment.location?.toLowerCase().includes(searchLower) ||
+      appointment.id.toString().includes(searchLower)
+    );
+  });
 
   return (
     <SafeAreaView style={commonStyles.container}>
@@ -129,66 +129,73 @@ const HomeScreen = () => {
         </View>
 
         <View style={commonStyles.section}>
-                  <Text style={commonStyles.sectionTitle}>Vaccination History</Text>
-        
-                  {vaccinationHistory.map((record) => (
-                    <View key={record.id} style={commonStyles.card}>
-                      <View style={[commonStyles.row, commonStyles.spaceBetween]}>
-                        <Text style={commonStyles.cardTitle}>{record.type}</Text>
-                        <Text style={styles.cardDate}>{record.date}</Text>
-                      </View>
-                      <View style={styles.cardBody}>
-                        <Text style={commonStyles.text}>Location: {record.location}</Text>
-                        <Text style={commonStyles.text}>Dose: {record.dose}</Text>
-                      </View>
-                      <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.viewDetailsButton]}>
-                        <Text style={commonStyles.buttonOutlineText}>View Details</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-        
-                  <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.addRecordButton]}>
-                    <Text style={commonStyles.buttonOutlineText}>+ Add External Vaccination Record</Text>
+          <Text style={commonStyles.sectionTitle}>Vaccination History</Text>
+
+          {vaccinationHistory.map((record) => (
+            <View key={record.id} style={commonStyles.card}>
+              <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+                <Text style={commonStyles.cardTitle}>{record.type}</Text>
+                <Text style={styles.cardDate}>{record.date}</Text>
+              </View>
+              <View style={styles.cardBody}>
+                <Text style={commonStyles.text}>Location: {record.location}</Text>
+                <Text style={commonStyles.text}>Dose: {record.dose}</Text>
+              </View>
+              <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.viewDetailsButton]}>
+                <Text style={commonStyles.buttonOutlineText}>View Details</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+
+          <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.addRecordButton]}>
+            <Text style={commonStyles.buttonOutlineText}>+ Add External Vaccination Record</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={commonStyles.section}>
+          <Text style={commonStyles.sectionTitle}>Upcoming Appointments</Text>
+          <TextInput
+            style={commonStyles.input}
+            placeholder="🔎 Search appointments by location or ID"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+
+          {filteredAppointments.length > 0 ? (
+            filteredAppointments.map((appointment) => (
+              <View key={appointment.id} style={commonStyles.card}>
+                <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+                  <Text style={commonStyles.cardTitle}>{'COVID-19 (Booster)'}</Text>
+                  <Text style={styles.cardDate}>{appointment.scheduled_date}</Text>
+                </View>
+                <View style={styles.cardBody}>
+                  <Text style={commonStyles.text}>Appointment ID: {appointment.id}</Text>
+                  <Text style={commonStyles.text}>Notes: {appointment.notes}</Text>
+                  <Text style={commonStyles.text}>Location: {appointment.location}</Text>
+                </View>
+                <View style={commonStyles.appointmentActions}>
+                  <TouchableOpacity style={[commonStyles.button, styles.rescheduleButton]}>
+                    <Text style={commonStyles.buttonText}>Reschedule</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[commonStyles.button, styles.cancelButton]}>
+                    <Text style={commonStyles.buttonText}>Cancel</Text>
                   </TouchableOpacity>
                 </View>
-        
-                <View style={commonStyles.section}>
-                  <Text style={commonStyles.sectionTitle}>Upcoming Appointments</Text>
-        
-                  {upcomingAppointments.length > 0 ? (
-                    upcomingAppointments.map((appointment) => (
-                      <View key={appointment.id} style={commonStyles.card}>
-                        <View style={[commonStyles.row, commonStyles.spaceBetween]}>
-                          <Text style={commonStyles.cardTitle}>{appointment.type}</Text>
-                          <Text style={styles.cardDate}>{appointment.date}</Text>
-                        </View>
-                        <View style={styles.cardBody}>
-                          <Text style={commonStyles.text}>Time: {appointment.time}</Text>
-                          <Text style={commonStyles.text}>Location: {appointment.location}</Text>
-                        </View>
-                        <View style={commonStyles.appointmentActions}>
-                          <TouchableOpacity style={[commonStyles.button, styles.rescheduleButton]}>
-                            <Text style={commonStyles.buttonText}>Reschedule</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity style={[commonStyles.button, styles.cancelButton]}>
-                            <Text style={commonStyles.buttonText}>Cancel</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    ))
-                  ) : (
-                    <View style={styles.emptyState}>
-                      <Text style={styles.emptyStateText}>No upcoming appointments</Text>
-                    </View>
-                  )}
-        
-                  <TouchableOpacity
-                    style={commonStyles.button}
-                    onPress={() => nav.navigate('Appointment')}
-                  >
-                    <Text style={commonStyles.buttonText}>Schedule New Appointment</Text>
-                  </TouchableOpacity>
-                </View>
+              </View>
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={commonStyles.errorText}>No upcoming appointments</Text>
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={commonStyles.button}
+            onPress={() => nav.navigate('Appointment')}
+          >
+            <Text style={commonStyles.buttonText}>Schedule New Appointment</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={commonStyles.card}>
           <Text style={commonStyles.cardTitle}>Available Vaccines</Text>

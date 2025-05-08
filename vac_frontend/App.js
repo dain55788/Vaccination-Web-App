@@ -22,7 +22,6 @@ import ContactScreen from './src/screens/Services/ContactScreen';
 import ServicesScreen from './src/screens/Services/ServicesScreen';
 // import ChatScreen from './src/screens/Services/ChatScreen';
 
-
 import AdminDashboardScreen from './src/screens/Admin/AdminDashboardScreen';
 import PublicCampaignManagementScreen from './src/screens/Admin/PublicCampaignManagementScreen';
 import VaccineManagementScreen from './src/screens/Admin/VaccineManagementScreen';
