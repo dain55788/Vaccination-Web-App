@@ -32,7 +32,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
         abstract = True
         model = BaseUser
         fields = ['id', 'first_name', 'last_name', 'username', 'password', 'avatar', 'gender', 'address',
-                  'date_of_birth', 'phone_number', 'email', 'is_superuser', 'is_staff', 'is_active', 'groups',]
+                  'date_of_birth', 'phone_number', 'email', 'is_superuser', 'is_staff', 'is_active',]
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -44,7 +44,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
         data = validated_data.copy()
         user = BaseUser(**data)
         user.set_password(user.password)
-
+        user.is_active = True
         if avatar_file:
             upload_result = upload(avatar_file)
             user.avatar = upload_result['public_id']

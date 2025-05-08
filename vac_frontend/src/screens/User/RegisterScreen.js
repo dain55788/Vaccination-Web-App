@@ -23,7 +23,7 @@ import Apis, { authApis, endpoints } from "../../utils/Apis";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
 // import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../config/Firebase';
+// import { auth } from '../../../config/Firebase';
 
 const { width, height } = Dimensions.get('window');
 
@@ -216,7 +216,8 @@ const RegisterScreen = () => {
             }
           }
         }
-        createUserWithEmailAndPassword(auth, user?.email, user?.password)
+        console.info(form)
+        // createUserWithEmailAndPassword(auth, user?.email, user?.password)
         let res = await Apis.post(endpoints['register'], form, {
           headers: {
             'Content-Type': 'multipart/form-data'

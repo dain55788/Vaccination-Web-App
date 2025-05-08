@@ -6,9 +6,11 @@ export const endpoints = {
   'login': '/o/token/',
   'register': '/users/',
   'current-user': '/users/current-user/',
-  'appointment':'/appointments/',
-  'vaccinetypes':'/vaccinetypes/',
+  'appointment': '/appointments/',
+  'vaccinetypes': '/vaccinetypes/',
   'campaign': '/campaigns/',
+  'vaccine': '/vaccines/',
+  'appointmentvaccine': '/appointmentvaccines/',
 };
 
 export const authApis = (token) => {

@@ -13,7 +13,7 @@ router.register('citizen', views.CitizenViewSet, basename='citizen')
 router.register('staffs', views.StaffViewSet, basename='staff')
 router.register('doctors', views.DoctorViewSet, basename='doctor')
 router.register('users', views.UserViewSet, basename='baseuser')
-
+router.register('appointmentvaccines', views.AppointmentVaccineViewSet, basename='appointmentvaccine')
 urlpatterns = [
     # API endpoints provided by the router
     path('', include(router.urls)),

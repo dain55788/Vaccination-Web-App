@@ -38,6 +38,7 @@ const CampaignManagement = () => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [loc, setLocation] = useState('');
+  // const successOpacity = useSharedValue(0);
 
   const info = [{
     label: 'Campaign Name',
@@ -49,7 +50,7 @@ const CampaignManagement = () => {
     label: 'Description',
     icon: "information",
     secureTextEntry: false,
-    field: "campaign_description",
+    field: "description",
     description: "Description of the campaign"
   }, {
     label: 'Target Population',
@@ -64,20 +65,19 @@ const CampaignManagement = () => {
   }
 
   const formatDate = (date) => {
-    console.info('Maybe the problem rises here.')
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   };
 
-  const setStateStartDate = (selectedDate) => {
+  const setStateStartDate = (event, selectedDate) => {
     setStartDate(selectedDate)
     setShowDatePicker(Platform.OS === 'ios');
-    setState(formatDate(selectedDate), 'date');
+    setState(formatDate(selectedDate), 'start_date');
   }
 
-  const setStateEndDate = (selectedDate) => {
+  const setStateEndDate = (event, selectedDate) => {
     setEndDate(selectedDate)
     setShowDatePicker(Platform.OS === 'ios');
-    setState(formatDate(selectedDate), 'date');
+    setState(formatDate(selectedDate), 'end_date');
   }
 
   const locations = [
@@ -90,13 +90,14 @@ const CampaignManagement = () => {
   ];
 
   const validate = () => {
+    setErrMsg('')
     if (!campaign?.campaign_name) {
       setErrMsg("Please enter name for this campaign!");
       return false;
-    } else if (campaign?.campaign_description.length < 20) {
+    } else if (campaign?.description.length < 20) {
       setErrMsg("Description cannot be this short!");
       return false;
-    }  else if (image == null) {
+    } else if (campaign?.image == null) {
       setErrMsg("Image for the campaign required!");
       return false
     } else if (!loc) {
@@ -119,45 +120,55 @@ const CampaignManagement = () => {
       const result = await ImagePicker.launchImageLibraryAsync();
 
       if (!result.canceled)
-        setState(result.assets[0], "avatar");
+        setState(result.assets[0], 'image');
     }
   }
 
   const handleSubmitCampaign = async () => {
-      if (validate() === true) {
-        try {
-          setLoading(true);
-          let form = new FormData();
-          if (startDate) form.append('start_date', formatDate(startDate));
-          if (endDate) form.append('end_date', formatDate(endDate));
-          if (loc) form.append('location', loc);
-          form.append('status', 'planned');
-
-          console.info(form);
-          let res = await Apis.post(endpoints['campaign'], form, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
-          if (res.status === 201) {
-            setScMsg("Campaign created successfully!");
-            successOpacity.value = withTiming(1, { duration: 800 });
-            submitButtonScale.value = withSequence(
-              withTiming(1.2, { duration: 200 }),
-              withDelay(1000, withTiming(1, { duration: 200 }))
-            );
-            Alert.alert('Success', 'Heading you back to Upcoming Campaigns!');
-            setTimeout(() => {
-              nav.navigate('UpcomingCampaigns');
-            }, 3000);
+    if (validate() === true) {
+      
+      try {
+        setLoading(true);
+        let form = new FormData();
+        for (let key in campaign) {
+          if (key === 'image' && campaign?.image !== null) {
+            form.append("image", {
+              uri: campaign.image.uri,
+              name: campaign.image.fileName,
+              type: campaign.image.type
+            });
+          } else {
+            form.append(key, campaign[key]);
           }
-        } catch (ex) {
-          Alert.alert('Error', 'Failed to create campaign. Please try again.');
-          console.error(ex);
-        } finally {
-          setLoading(false);
         }
+        if (loc) form.append('location', loc);
+        form.append('status', 'planned');
+        console.info(form);
+        // console.info(campaign.image);
+        let res = await Apis.post(endpoints['campaign'], form, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        if (res.status === 201) {
+          setScMsg("Campaign created successfully!");
+          // successOpacity.value = withTiming(1, { duration: 800 });
+          // submitButtonScale.value = withSequence(
+          //   withTiming(1.2, { duration: 200 }),
+          //   withDelay(1000, withTiming(1, { duration: 200 }))
+          // );
+          Alert.alert('Success', 'Heading you back to Upcoming Campaigns!');
+          setTimeout(() => {
+            nav.navigate('Landing');
+          }, 1500);
+        }
+      } catch (ex) {
+        Alert.alert('Error', 'Failed to create campaign. Please try again.');
+        console.error(ex);
+      } finally {
+        setLoading(false);
       }
+    }
   };
 
   return (
@@ -269,11 +280,11 @@ const CampaignManagement = () => {
               <View style={commonStyles.inputContainer}>
                 <Text style={commonStyles.label}>Campaign Image</Text>
                 <TouchableOpacity style={commonStyles.dateButton} onPress={picker}>
-                  <Text style={commonStyles.dateButtonText}>Choose your avatar</Text>
+                  <Text style={commonStyles.dateButtonText}>Choose Campaign Image</Text>
                 </TouchableOpacity>
-                {campaign?.image && 
-                  <Image 
-                    style={[commonStyles.imageContainer, commonStyles.image, { marginTop: SPACING.medium }]} 
+                {campaign?.image &&
+                  <Image
+                    style={[commonStyles.imageContainer, commonStyles.image, { marginTop: SPACING.medium }]}
                     source={{ uri: campaign.image.uri }}
                   />}
               </View>
