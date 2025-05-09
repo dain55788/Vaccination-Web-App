@@ -40,7 +40,7 @@ export default {
       appId: process.env.APP_ID || "1:196595082695:web:a894522d2fd3026f0265e2",
       CLIENT_ID: process.env.CLIENT_ID || 'HxQDtnxYJjTkdRcsicafPK9QqclTYaU8l1CxOQLQ',
       CLIENT_SECRET: process.env.CLIENT_SECRET || '2C5lN4AsEqeCxo1CvSDafff0gNeEqf8FzM2pzfLbp1GOpcqIYAzeTS6Cq0yfHTArHr2QTjHRWgu607PocsfdgUmMOXPePq6P3fsBEGDwGcAnP9YtZIzZ6a3Uwzj00GgE',
-      BASE_URL: process.env.BASE_URL || 'http://192.168.1.36:8000/'
+      BASE_URL: process.env.BASE_URL || 'http://192.168.20.96:8000/'
     }
   }
 }

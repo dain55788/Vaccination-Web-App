@@ -35,6 +35,8 @@ const VaccineManagementScreen = () => {
   const [selectedVaccine, setSelectedVaccine] = useState(null);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [displayCount, setDisplayCount] = useState(4);
+  const [scMsg, setScMsg] = useState(null);
   const [formData, setFormData] = useState({
     vaccine_name: '',
     dose_quantity: '',
@@ -69,6 +71,17 @@ const VaccineManagementScreen = () => {
     description: "Current unit price of the vaccine"
   }];
 
+  const fetchVaccine = async () => {
+    try {
+      const response = await Apis.get(vaccineEndpoint);
+      const vaccines = response.data.results;
+      setVaccine(vaccines);
+      setFilteredVaccine(vaccines);
+    } catch (error) {
+      console.error('Error fetching vaccines:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchVaccine = async () => {
       try {
@@ -93,7 +106,40 @@ const VaccineManagementScreen = () => {
       unit_price: vaccine.unit_price?.toString() || '',
     });
     setFormErrors({});
+    setMsg('');
     setIsEditModalVisible(true);
+  };
+
+  const handleDeleteVaccine = (vaccine) => {
+    Alert.alert(
+      'Confirm Deletion',
+      `Are you sure you want to delete the vaccine "${vaccine.vaccine_name}"?`,
+      [
+        {
+          text: 'Sure',
+          style: 'destructive',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const response = await Apis.delete(`${vaccineEndpoint}${vaccine.id}/`);
+              if (response.status === 204 || response.status === 200) {
+                const updatedVaccines = Array.isArray(vaccine) ? vaccine.filter(v => v.id !== vaccine.id) : [];
+                await fetchVaccine();
+                Alert.alert('Success', 'Vaccine deleted successfully');
+              } else {
+                throw new Error('Unexpected response status: ' + response.status);
+              }
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
   };
 
   const validateForm = () => {
@@ -155,7 +201,12 @@ const VaccineManagementScreen = () => {
       vaccine.id.toString().includes(searchLower)
     );
     setFilteredVaccine(filtered);
+    setDisplayCount(4);
   }, [vaccine]);
+
+  const handleLoadVaccines = () => {
+    setDisplayCount(prevCount => prevCount + 4);
+  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -200,8 +251,8 @@ const VaccineManagementScreen = () => {
           onChangeText={setSearchQuery}
         />
         {filteredVaccine.length > 0 ? (
-          filteredVaccine.map((availableVaccine) => (
-            <View key={availabelVaccines.id} style={commonStyles.card}>
+          filteredVaccine.slice(0, displayCount).map((availableVaccine) => (
+            <View key={availableVaccine.id} style={commonStyles.card}>
               <View style={styles.vaccineItem}>
                 <View style={styles.vaccineIconPlaceholder}>
                   <Text style={styles.vaccineIconText}>🦠</Text>
@@ -220,7 +271,11 @@ const VaccineManagementScreen = () => {
                 >
                   <Text style={commonStyles.buttonText}>Edit</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[commonStyles.button, styles.cancelButton]}>
+                <TouchableOpacity
+                  onPress={() => handleDeleteVaccine(availableVaccine)}
+                  style={[commonStyles.button, styles.cancelButton]}
+                  labelStyle={commonStyles.buttonText}
+                >
                   <Text style={commonStyles.buttonText}>Delete</Text>
                 </TouchableOpacity>
               </View>
@@ -231,8 +286,14 @@ const VaccineManagementScreen = () => {
             <Text style={commonStyles.errorText}>No available vaccines, please create new vaccines!</Text>
           </View>
         )}
-        <TouchableOpacity style={[commonStyles.button, styles.viewAllButton]}>
+        <HelperText type="success" style={commonStyles.successText} visible={!!scMsg}>
+          {scMsg}
+        </HelperText>
+        <TouchableOpacity style={[commonStyles.button, styles.viewAllButton]} onPress={handleLoadVaccines} disabled={loading} loading={loading}>
           <Text style={commonStyles.buttonText}>See more Vaccines</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[commonStyles.button, styles.viewAllButton]}>
+          <Text style={commonStyles.buttonText}>Create new Vaccine</Text>
         </TouchableOpacity>
       </ScrollView>
       <Modal

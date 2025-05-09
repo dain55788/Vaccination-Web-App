@@ -188,7 +188,7 @@ const CampaignManagement = () => {
               <View style={styles.headerContent}>
                 <Text style={styles.headerTitle}>Create Campaign</Text>
                 <Text style={styles.headerSubtitle}>
-                  💉 Create new vaccination campaign with VaxServe
+                  💉 VaxServe Campaign Administration
                 </Text>
               </View>
             </LinearGradient>
