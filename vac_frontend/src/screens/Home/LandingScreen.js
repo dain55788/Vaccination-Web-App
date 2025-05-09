@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
 import { MyUserContext, MyDispatchContext } from '../../utils/MyContexts';
+import { Entypo } from '@expo/vector-icons';
 
 const LandingScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -392,7 +393,7 @@ const LandingScreen = () => {
                 onPress={() => nav.navigate("ChatScreen")}
                 style={commonStyles.chatButton}
             >
-                <Entypo name="chat" size={24} color={colors.lightGray} />
+                <Entypo name="chat" size={24} color={COLORS.lightGray} />
             </TouchableOpacity>
         </View> */}
       </ScrollView>

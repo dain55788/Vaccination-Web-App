@@ -6,13 +6,11 @@ import { MyDispatchContext, MyUserContext } from './src/utils/MyContexts';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext, useReducer } from "react";
 import MyUserReducer from "./src/reducers/MyUserReducer";
-// import { onAuthStateChanged } from 'firebase/auth';
-// import { auth } from './config/Firebase';
 
 import HomeScreen from './src/screens/Home/HomeScreen';
 import LandingScreen from './src/screens/Home/LandingScreen';
 import AboutScreen from './src/screens/Home/AboutScreen';
-// import WelcomeScreen from './src/screens//Home/Welcome';
+import WelcomeScreen from './src/screens//Home/Welcome';
 
 import LoginScreen from './src/screens/User/LoginScreen';
 import RegisterScreen from './src/screens/User/RegisterScreen';
@@ -39,8 +37,8 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={user === null ? 'Landing' : 'Home'}
-        // initialRouteName="Welcome"
+        // initialRouteName={user === null ? 'Landing' : 'Home'}
+        initialRouteName="Welcome"
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: '#f8f9fa' },
@@ -56,7 +54,7 @@ const AppNavigator = () => {
         {/* <Stack.Screen name="Chat" component={ChatScreen} /> */}
 
         <Stack.Screen name="Home" component={HomeScreen} />
-        {/* <Stack.Screen name="Welcome" component={WelcomeScreen} /> */}
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Landing" component={LandingScreen} />
         <Stack.Screen name="About" component={AboutScreen} />
 

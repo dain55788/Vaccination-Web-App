@@ -272,7 +272,7 @@ export const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    textAlign: 'cener',
+    textAlign: 'center',
     paddingHorizontal: SPACING.medium,
     paddingVertical: SPACING.regular,
     backgroundColor: COLORS.background.primary,

@@ -1,31 +1,22 @@
 // import { initializeApp } from "firebase/app";
 // import { getAuth } from "firebase/auth";
 // import { getFirestore } from "firebase/firestore";
-// import Constants from "expo-constants";
 // import { getReactNativePersistence, initializeAuth } from "firebase/auth";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
+// import Constants from 'expo-constants';
+// const { apiKey, authDomain, projectId, storageBucket, messagingSenderId, appID } = Constants.expoConfig.extra
 
 // const firebaseConfig = {
-//   apiKey: Constants.expoConfig.extra.apiKey,
-//   authDomain: Constants.expoConfig.extra.authDomain,
-//   projectId: Constants.expoConfig.extra.projectId,
-//   storageBucket: Constants.expoConfig.extra.storageBucket,
-//   messagingSenderId: Constants.expoConfig.extra.messagingSenderId,
-//   appId: Constants.expoConfig.extra.appId,
-//   databaseURL: Constants.expoConfig.extra.databaseURL,
+//   apiKey: apiKey,
+//   authDomain: authDomain,
+//   projectId: projectId,
+//   storageBucket: storageBucket,
+//   messagingSenderId: messagingSenderId,
+//   appId: appID,
+//   databaseURL: 'https://console.firebase.google.com/u/0/project/vaccination-realtime-chatting/firestore/databases/-default-/data',
 // };
 
-// // const app = initializeApp(firebaseConfig);
-// // export const auth = getAuth(app);
-// // export const database = getFirestore(app);
-
-// console.log('Firebase Config, nice');
 // const app = initializeApp(firebaseConfig);
-// console.log('Firebase App Initialized, nice');
-// export const auth = initializeAuth(app, {
-//     persistence: getReactNativePersistence(AsyncStorage),
-// });
-// console.log('Auth Initialized');
-// export const db = getFirestore(app);
+// export const auth = getAuth();
+// export const database = getFirestore(app);
 
-// export default app;
