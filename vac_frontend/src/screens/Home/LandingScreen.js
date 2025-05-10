@@ -1,16 +1,18 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Image, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
 import { MyUserContext, MyDispatchContext } from '../../utils/MyContexts';
 import { Entypo } from '@expo/vector-icons';
+import Animated, { useSharedValue, withTiming, Easing, runOnJS } from 'react-native-reanimated';
 
 const LandingScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const nav = useNavigation();
   const user = useContext(MyUserContext);
   const dispatch = useContext(MyDispatchContext);
+
   const handleAppointmentNavigation = () => {
     if (user === null) {
       Alert.alert(
@@ -32,6 +34,65 @@ const LandingScreen = () => {
       nav.navigate('Appointment');
     }
   };
+
+  const [locationsDisplay, setLocationsDisplay] = useState('0+');
+  const [patientsDisplay, setPatientsDisplay] = useState('0K+');
+  const [vaccinesDisplay, setVaccinesDisplay] = useState('0+');
+
+  const locationsCount = useSharedValue(0);
+  const patientsCount = useSharedValue(0);
+  const vaccinesCount = useSharedValue(0);
+
+  useEffect(() => {
+    const updateLocations = (value) => {
+      setLocationsDisplay(`${Math.floor(value)}+`);
+    };
+    const updatePatients = (value) => {
+      setPatientsDisplay(`${Math.floor(value / 1000)}K+`);
+    };
+    const updateVaccines = (value) => {
+      setVaccinesDisplay(`${Math.floor(value)}+`);
+    };
+
+    locationsCount.value = withTiming(500, {
+      duration: 4500,
+      easing: Easing.out(Easing.exp),
+    }, (finished) => {
+      if (finished) {
+        runOnJS(updateLocations)(500);
+      }
+    });
+
+    patientsCount.value = withTiming(50000, {
+      duration: 4000,
+      easing: Easing.out(Easing.exp),
+    }, (finished) => {
+      if (finished) {
+        runOnJS(updatePatients)(50000);
+      }
+    });
+
+    vaccinesCount.value = withTiming(15, {
+      duration: 3000,
+      easing: Easing.out(Easing.exp),
+    }, (finished) => {
+      if (finished) {
+        runOnJS(updateVaccines)(15);
+      }
+    });
+
+    const updateDuringAnimation = () => {
+      updateLocations(locationsCount.value);
+      updatePatients(patientsCount.value);
+      updateVaccines(vaccinesCount.value);
+    };
+
+    const interval = setInterval(() => {
+      updateDuringAnimation();
+    }, 16);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <SafeAreaView style={commonStyles.safeArea}>
@@ -216,7 +277,7 @@ const LandingScreen = () => {
         </View>
 
         <View style={styles.overviewContainer}>
-          <Text style={styles.sectionTitle}>What is VaxServe?</Text>
+          <Text style={commonStyles.sectionTitle}>What is VaxServe?</Text>
           <Text style={commonStyles.text}>
             VaxServe is a comprehensive vaccination service platform designed to make healthcare accessible to everyone.
             We provide vaccination services, appointment scheduling, and digital health records to ensure you stay protected
@@ -226,15 +287,15 @@ const LandingScreen = () => {
           
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>500+</Text>
+              <Text style={styles.statNumber}>{locationsDisplay}</Text>
               <Text style={styles.statLabel}>Locations</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>50K+</Text>
+              <Text style={styles.statNumber}>{patientsDisplay}</Text>
               <Text style={styles.statLabel}>Patients</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>15+</Text>
+              <Text style={styles.statNumber}>{vaccinesDisplay}</Text>
               <Text style={styles.statLabel}>Vaccines</Text>
             </View>
           </View>
@@ -249,7 +310,7 @@ const LandingScreen = () => {
         </View>
 
         <View style={styles.featuresContainer}>
-          <Text style={styles.sectionTitle}>Our Services</Text>
+          <Text style={commonStyles.sectionTitle}>Our Services</Text>
           
           <View style={styles.feature}>
             <Text style={styles.featureTitle}>✓ Easy Scheduling</Text>
@@ -302,7 +363,7 @@ const LandingScreen = () => {
         )}
 
         <View style={styles.campaignsContainer}>
-          <Text style={styles.sectionTitle}>Upcoming Vaccination Campaigns</Text>
+          <Text style={commonStyles.sectionTitle}>Upcoming Vaccination Campaigns</Text>
           
           <View style={commonStyles.card}>
             <View style={[commonStyles.row, commonStyles.spaceBetween]}>
@@ -331,8 +392,16 @@ const LandingScreen = () => {
           </View>
         </View>
 
+        <View style={styles.imageContainer}>
+          <Image
+            source={require('../../assets/images/VacPatients.jpg')}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        </View>
+
         <View style={styles.testimonialsContainer}>
-          <Text style={styles.sectionTitle}>What Our Patients Say</Text>
+          <Text style={commonStyles.sectionTitle}>What Our Patients Say</Text>
           
           <View style={commonStyles.card}>
             <Text style={commonStyles.text}>
@@ -349,38 +418,38 @@ const LandingScreen = () => {
           </View>
         </View>
 
-        <View style={styles.footer}>
-          <View style={styles.footerSection}>
-            <Text style={styles.footerHeading}>About VaxServe</Text>
-            <TouchableOpacity style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>Our Mission</Text>
+        <View style={commonStyles.footer}>
+          <View style={commonStyles.footerSection}>
+            <Text style={commonStyles.footerHeading}>About VaxServe</Text>
+            <TouchableOpacity style={commonStyles.footerLink}>
+              <Text style={commonStyles.footerLinkText}>Our Mission</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>Team</Text>
+            <TouchableOpacity style={commonStyles.footerLink}>
+              <Text style={commonStyles.footerLinkText}>Team</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>Careers</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={styles.footerSection}>
-            <Text style={styles.footerHeading}>Support</Text>
-            <TouchableOpacity style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>FAQs</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>Privacy Policy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>Terms of Service</Text>
+            <TouchableOpacity style={commonStyles.footerLink}>
+              <Text style={commonStyles.footerLinkText}>Careers</Text>
             </TouchableOpacity>
           </View>
           
-          <View style={styles.footerSection}>
-            <Text style={styles.footerHeading}>Contact</Text>
-            <Text style={styles.footerText}>contact@vaxserve.com</Text>
-            <Text style={styles.footerText}>(555) 123-4567</Text>
-            <Text style={styles.footerText}>97 Vo Van Tan, District 3, VaxServe Vaccination Hospital</Text>
+          <View style={commonStyles.footerSection}>
+            <Text style={commonStyles.footerHeading}>Support</Text>
+            <TouchableOpacity style={commonStyles.footerLink}>
+              <Text style={commonStyles.footerLinkText}>FAQs</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={commonStyles.footerLink}>
+              <Text style={commonStyles.footerLinkText}>Privacy Policy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={commonStyles.footerLink}>
+              <Text style={commonStyles.footerLinkText}>Terms of Service</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={commonStyles.footerSection}>
+            <Text style={commonStyles.footerHeading}>Contact</Text>
+            <Text style={commonStyles.footerText}>contact@vaxserve.com</Text>
+            <Text style={commonStyles.footerText}>(555) 123-4567</Text>
+            <Text style={commonStyles.footerText}>97 Vo Van Tan, District 3, VaxServe Vaccination Hospital</Text>
           </View>
         </View>
         
@@ -523,12 +592,6 @@ const styles = {
   overviewContainer: {
     padding: SPACING.medium,
   },
-  sectionTitle: {
-    fontSize: FONT_SIZE.large,
-    fontWeight: 'bold',
-    color: COLORS.text.primary,
-    marginBottom: SPACING.medium,
-  },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -615,36 +678,6 @@ const styles = {
     color: COLORS.text.secondary,
     textAlign: 'right',
     marginTop: SPACING.small,
-  },
-  footer: {
-    padding: SPACING.medium,
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  footerSection: {
-    width: '30%',
-    minWidth: 150,
-    marginBottom: SPACING.large,
-  },
-  footerHeading: {
-    fontSize: FONT_SIZE.medium,
-    fontWeight: 'bold',
-    color: COLORS.white,
-    marginBottom: SPACING.medium,
-  },
-  footerLink: {
-    marginBottom: SPACING.small,
-  },
-  footerLinkText: {
-    color: COLORS.lightGray,
-    fontSize: FONT_SIZE.small,
-  },
-  footerText: {
-    color: COLORS.lightGray,
-    fontSize: FONT_SIZE.small,
-    marginBottom: SPACING.small,
   },
   copyright: {
     padding: SPACING.medium,

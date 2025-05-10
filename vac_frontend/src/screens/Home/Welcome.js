@@ -80,7 +80,7 @@ const Welcome = () => {
 
         Animated.timing(fadeAnim, {
             toValue: 1,
-            duration: 3000,
+            duration: 2000,
             useNativeDriver: true,
         }).start();
 
@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
     asciiContainer: {
         alignItems: 'center',
         justifyContent: 'center',
+        textAlign: 'center',
     },
     asciiText: {
         fontFamily: 'Courier New',
