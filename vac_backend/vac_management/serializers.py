@@ -123,7 +123,6 @@ class DoctorSerializer(BaseUserSerializer):
 
 
 class VaccineSerializer(BaseSerializer):
-    category_info = VaccineCategorySerializer(source='category', read_only=True)
     image = serializers.FileField(required=False, allow_null=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=VaccineCategory.objects.all(),
@@ -132,7 +131,7 @@ class VaccineSerializer(BaseSerializer):
     )
     class Meta:
         model = Vaccine
-        fields = ['id', 'category_id', 'category_info', 'vaccine_name', 'dose_quantity', 'image', 'instruction',
+        fields = ['id', 'category_id', 'vaccine_name', 'dose_quantity', 'image', 'instruction',
                   'unit_price', 'created_date', 'updated_date']
 
 class AppointmentSerializer(BaseSerializer):
