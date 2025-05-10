@@ -20,18 +20,25 @@ import { MyDispatchContext, MyUserContext } from "../../utils/MyContexts";
 import { useContext } from "react";
 import Apis, { authApis, endpoints } from "../../utils/Apis";
 import { Button, HelperText, TextInput } from "react-native-paper";
+import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker';
 
 const VaccineManagementScreen = () => {
   const nav = useNavigation();
   const user = useContext(MyUserContext);
   const dispatch = useContext(MyDispatchContext);
-  const appointmentEndpoint = endpoints['appointment-bycitizen'](user.id);
   const [searchQuery, setSearchQuery] = useState('');
+
   const [vaccine, setVaccine] = useState([]);
+  const [vaccineCategories, setVaccineCategories] = useState([]);
+
   const vaccineEndpoint = endpoints['vaccine'];
+  const vaccineCategoryEndpoint = endpoints['vaccine-categories'];
+
   const availabelVaccines = vaccine;
   const [filteredVaccine, setFilteredVaccine] = useState([]);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [selectedVaccine, setSelectedVaccine] = useState(null);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(null);
@@ -43,9 +50,68 @@ const VaccineManagementScreen = () => {
     instruction: '',
     unit_price: '',
   });
+  const [createFormData, setCreateFormData] = useState({
+    category_id: '',
+    category_name: '',
+    vaccine_name: '',
+    dose_quantity: '',
+    instruction: '',
+    unit_price: '',
+  });
   const [formErrors, setFormErrors] = useState({});
+  const [createFormErrors, setCreateFormErrors] = useState({});
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
+
+  const setState = (value, field) => {
+    setCampaign({ ...campaign, [field]: value });
+  }
+
+  const picker = async () => {
+    let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (status !== 'granted') {
+      alert("Permissions denied!");
+    } else {
+      const result = await ImagePicker.launchImageLibraryAsync();
+
+      if (!result.canceled)
+        setState(result.assets[0], 'image');
+    }
+  }
 
   const info = [{
+    label: 'Vaccine Name',
+    icon: "information",
+    secureTextEntry: false,
+    field: "vaccine_name",
+    description: "Vaccine Name"
+  }, {
+    label: 'Dose Quantity',
+    icon: "information",
+    secureTextEntry: false,
+    field: "dose_quantity",
+    description: "Current dose quantity"
+  }, {
+    label: 'Instruction',
+    icon: "information",
+    secureTextEntry: false,
+    field: "instruction",
+    description: "Instruction for specified vaccine"
+  }, {
+    label: 'Unit Price',
+    icon: "currency-usd",
+    secureTextEntry: false,
+    field: "unit_price",
+    description: "Current unit price of the vaccine"
+  }];
+
+  const createInfo = [{
+    label: 'Category ID',
+    icon: "information",
+    secureTextEntry: false,
+    field: "category_id",
+    description: "Vaccine Category"
+  }, {
     label: 'Vaccine Name',
     icon: "information",
     secureTextEntry: false,
@@ -82,19 +148,18 @@ const VaccineManagementScreen = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchVaccine = async () => {
-      try {
-        const response = await Apis.get(vaccineEndpoint);
-        const vaccines = response.data.results;
-        setVaccine(vaccines);
-        setFilteredVaccine(vaccines);
-      } catch (error) {
-        console.error('Error fetching vaccines:', error);
-      }
-    };
+  const fetchVaccineCategories = async () => {
+    try {
+      const response = await Apis.get(vaccineCategoryEndpoint);
+      setVaccineCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching vaccine categories:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchVaccine();
+    fetchVaccineCategories();
   }, []);
 
   const handleEditClick = (vaccine) => {
@@ -142,7 +207,40 @@ const VaccineManagementScreen = () => {
     );
   };
 
-  const validateForm = () => {
+  const handleCreateVaccine = async () => {
+    const errors = validateCreateForm(createFormData, true);
+    if (Object.keys(errors).length > 0) {
+      setCreateFormErrors(errors);
+      return;
+    }
+
+    try {
+      const response = await Apis.post(vaccineEndpoint, {
+        category: createFormData.category_id,
+        vaccine_name: createFormData.vaccine_name,
+        dose_quantity: Number(createFormData.dose_quantity),
+        instruction: createFormData.instruction,
+        unit_price: Number(createFormData.unit_price),
+      });
+
+      await fetchVaccine();
+      setIsCreateModalVisible(false);
+      setCreateFormData({
+        category_id: '',
+        vaccine_name: '',
+        dose_quantity: '',
+        instruction: '',
+        unit_price: '',
+      });
+      setCreateFormErrors({});
+      Alert.alert('Success', 'Vaccine created successfully');
+    } catch (error) {
+      console.error('Error creating vaccine:', error);
+      setCreateFormErrors({ general: 'Failed to create vaccine. Please try again.' });
+    }
+  };
+
+  const validateEditForm = () => {
     const errors = {};
     if (!formData.vaccine_name.trim()) errors.vaccine_name = 'Vaccine name is required';
     if (!formData.dose_quantity || isNaN(formData.dose_quantity) || Number(formData.dose_quantity) < 0)
@@ -153,8 +251,20 @@ const VaccineManagementScreen = () => {
     return errors;
   };
 
+  const validateCreateForm = (data, isCreate = false) => {
+    const errors = {};
+    if (isCreate && !data.category_id) errors.category_id = 'Category is required';
+    if (!data.vaccine_name.trim()) errors.vaccine_name = 'Vaccine name is required';
+    if (!data.dose_quantity || isNaN(data.dose_quantity) || Number(data.dose_quantity) < 0)
+      errors.dose_quantity = 'Valid dose quantity is required';
+    if (!data.instruction.trim()) errors.instruction = 'Instruction is required';
+    if (!data.unit_price || isNaN(data.unit_price) || Number(data.unit_price) < 0)
+      errors.unit_price = 'Valid unit price is required';
+    return errors;
+  };
+
   const handleSave = async () => {
-    const errors = validateForm();
+    const errors = validateEditForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
@@ -267,7 +377,6 @@ const VaccineManagementScreen = () => {
                 <TouchableOpacity
                   style={[commonStyles.button, styles.rescheduleButton]}
                   onPress={() => handleEditClick(availableVaccine)}
-                  disabled={loading} loading={loading}
                 >
                   <Text style={commonStyles.buttonText}>Edit</Text>
                 </TouchableOpacity>
@@ -292,7 +401,20 @@ const VaccineManagementScreen = () => {
         <TouchableOpacity style={[commonStyles.button, styles.viewAllButton]} onPress={handleLoadVaccines} disabled={loading} loading={loading}>
           <Text style={commonStyles.buttonText}>See more Vaccines</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[commonStyles.button, styles.viewAllButton]}>
+        <TouchableOpacity
+          style={[commonStyles.button, styles.viewAllButton]}
+          onPress={() => {
+            setIsCreateModalVisible(true);
+            setCreateFormData({
+              category_id: '',
+              vaccine_name: '',
+              dose_quantity: '',
+              instruction: '',
+              unit_price: '',
+            });
+            setCreateFormErrors({});
+          }}
+        >
           <Text style={commonStyles.buttonText}>Create new Vaccine</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -356,6 +478,97 @@ const VaccineManagementScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </Modal>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={isCreateModalVisible}
+        onRequestClose={() => setIsCreateModalVisible(false)}
+        presentationStyle='overFullScreen'
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={commonStyles.modalContainer}
+          >
+            <ScrollView style={commonStyles.modalContent}>
+              <View style={commonStyles.modalContent}>
+                <Text style={[commonStyles.cardTitle, { marginBottom: SPACING.large }]}>
+                  Create New Vaccine
+                </Text>
+                {createFormErrors.general && (
+                  <HelperText type="error" visible={true}>
+                    {createFormErrors.general}
+                  </HelperText>
+                )}
+                <View>
+                  <Text style={commonStyles.label}>Category</Text>
+                  <View style={{ borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: 4 }}>
+                    <Picker
+                      selectedValue={createFormData.category_id}
+                      onValueChange={(value) => setCreateFormData({ ...createFormData, category_id: value })}
+                      style={{ height: 50 }}
+                    >
+                      <Picker.Item label="Select a category" value="" />
+                      {vaccineCategories.map(category => (
+                        <Picker.Item key={category.id} label={category.category_name} value={category.id} />
+                      ))}
+                    </Picker>
+                  </View>
+                  <HelperText type="error" visible={!!createFormErrors.category_id}>
+                    {createFormErrors.category_id}
+                  </HelperText>
+                </View>
+                {createInfo.filter(i => i.field !== 'category_id').map(i => (
+                  <View key={i.field}>
+                    <Text style={commonStyles.label}>{i.label}</Text>
+                    <TextInput
+                      style={commonStyles.input}
+                      label={i.label}
+                      secureTextEntry={i.secureTextEntry}
+                      right={<TextInput.Icon icon={i.icon} />}
+                      value={createFormData[i.field]}
+                      onChangeText={(text) => setCreateFormData({ ...createFormData, [i.field]: text })}
+                      multiline={i.field === 'instruction'}
+                      keyboardType={i.field === 'dose_quantity' || i.field === 'unit_price' ? 'numeric' : 'default'}
+                      error={!!createFormErrors[i.field]}
+                    />
+                    <HelperText type="error" visible={!!createFormErrors[i.field]}>
+                      {createFormErrors[i.field]}
+                    </HelperText>
+                  </View>
+                ))}
+
+                <View style={commonStyles.inputContainer}>
+                  <Text style={commonStyles.label}>Vaccine Image</Text>
+                  <TouchableOpacity style={commonStyles.dateButton} onPress={picker}>
+                    <Text style={commonStyles.dateButtonText}>Choose Vaccine Image</Text>
+                  </TouchableOpacity>
+                  {vaccine?.image &&
+                    <Image
+                      style={[commonStyles.imageContainer, commonStyles.image, { marginTop: SPACING.medium }]}
+                      source={{ uri: campaign.image.uri }}
+                    />}
+                </View>
+
+                <View style={commonStyles.appointmentActions}>
+                  <TouchableOpacity
+                    style={[commonStyles.button, styles.rescheduleButton]}
+                    onPress={handleCreateVaccine}
+                  >
+                    <Text style={commonStyles.buttonText}>Create</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[commonStyles.button, styles.cancelButton]}
+                    onPress={() => setIsCreateModalVisible(false)}
+                  >
+                    <Text style={commonStyles.buttonText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </Modal>

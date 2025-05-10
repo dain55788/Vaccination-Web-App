@@ -13,13 +13,6 @@ import {
   Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import {
-  useSharedValue,
-  withSpring,
-  withSequence,
-  withDelay,
-  withTiming,
-} from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { Button, HelperText, TextInput } from "react-native-paper";
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../../styles/MyStyles';
@@ -194,7 +187,7 @@ const CampaignManagement = () => {
             </LinearGradient>
             <View style={commonStyles.imageContainer}>
               <Image
-                source={require('../../assets/images/StarPlatinum.jpg')}
+                source={require('../../assets/images/VaccinationCampaign.png')}
                 style={commonStyles.image}
                 resizeMode="cover"
               />

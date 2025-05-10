@@ -90,6 +90,36 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  footer: {
+    padding: SPACING.medium,
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  footerSection: {
+    width: '30%',
+    minWidth: 160,
+    marginBottom: SPACING.large,
+  },
+  footerHeading: {
+    fontSize: FONT_SIZE.medium,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginBottom: SPACING.medium,
+  },
+  footerLink: {
+    marginBottom: SPACING.small,
+  },
+  footerLinkText: {
+    color: COLORS.lightGray,
+    fontSize: FONT_SIZE.small,
+  },
+  footerText: {
+    color: COLORS.lightGray,
+    fontSize: FONT_SIZE.small,
+    marginBottom: SPACING.small,
+  },
   formLabel: {
     fontSize: FONT_SIZE.regular,
     color: COLORS.text.primary,
@@ -99,7 +129,8 @@ export const commonStyles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   modalContent: {
     backgroundColor: COLORS.white,
@@ -107,8 +138,10 @@ export const commonStyles = StyleSheet.create({
     padding: SPACING.large,
     borderRadius: 12,
     elevation: 5,
+    width: '85%',
+    maxHeight: '150%',
   },
-  vaccineDoseQuantity: {
+  vaccineDoseQuantity: {  
     color: COLORS.danger,
   },
   searchInput: {
@@ -179,7 +212,7 @@ export const commonStyles = StyleSheet.create({
     marginBottom: SPACING.large,
   },
   sectionTitle: {
-    fontSize: FONT_SIZE.large,
+    fontSize: FONT_SIZE.huge,
     fontWeight: 'bold',
     color: COLORS.primary,
     marginBottom: SPACING.medium,
@@ -318,8 +351,6 @@ export const commonStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.primary,
     marginBottom: SPACING.regular,
-    borderBottomWidth: 5,
-    borderBottomColor: COLORS.border,
   },
   title: {
     fontSize: FONT_SIZE.extraLarge,
@@ -334,19 +365,7 @@ export const commonStyles = StyleSheet.create({
   text: {
     fontSize: FONT_SIZE.regular,
     color: COLORS.text.primary,
-  },
-  textSmall: {
-    fontSize: FONT_SIZE.small,
-    color: COLORS.text.secondary,
-  },
-  textLight: {
-    color: COLORS.text.light,
-  },
-  textMuted: {
-    color: COLORS.text.muted,
-  },
-  textBold: {
-    fontWeight: 'bold',
+    marginBottom: 4,
   },
   formContainer: {
     marginBottom: SPACING.medium,
@@ -475,7 +494,6 @@ export const commonStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.lightGray,
   },
-
   badge: {
     paddingHorizontal: SPACING.small,
     paddingVertical: SPACING.tiny,

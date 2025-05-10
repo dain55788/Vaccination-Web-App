@@ -10,6 +10,7 @@ export const endpoints = {
   'current-user': '/users/current-user/',
   'appointment': '/appointments/',
   'vaccinetypes': '/vaccinetypes/',
+  'vaccine-categories': '/categories/',
   'appointment-bycitizen': (citizen_id) => `/appointments/by-citizen/?citizen_id=${citizen_id}`,
   'campaign': '/campaigns/',
   'vaccine': '/vaccines/',
