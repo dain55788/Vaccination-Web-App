@@ -30,7 +30,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
         abstract = True
         model = BaseUser
         fields = ['id', 'first_name', 'last_name', 'username', 'password', 'avatar', 'gender', 'address',
-                  'date_of_birth', 'phone_number', 'email', 'is_superuser', 'is_staff', 'is_active',]
+                  'date_of_birth', 'phone_number', 'email', 'is_superuser', 'is_staff', 'is_active', ]
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -129,10 +129,12 @@ class VaccineSerializer(BaseSerializer):
         source='category',
         write_only=True
     )
+
     class Meta:
         model = Vaccine
         fields = ['id', 'category_id', 'vaccine_name', 'dose_quantity', 'image', 'instruction',
                   'unit_price', 'created_date', 'updated_date']
+
 
 class AppointmentSerializer(BaseSerializer):
     citizen_info = CitizenSerializer(source='citizen', read_only=True)
@@ -151,10 +153,11 @@ class AppointmentSerializer(BaseSerializer):
 class AppointmentVaccineSerializer(BaseSerializer):
     vaccine_info = VaccineSerializer(source='vaccine', read_only=True)
     doctor_info = DoctorSerializer(source='doctor', read_only=True)
+    appointment_info = AppointmentSerializer(source='appointment', read_only=True)
 
     class Meta:
         model = AppointmentVaccine
-        fields = ['id', 'appointment', 'vaccine', 'vaccine_info', 'doctor', 'doctor_info', 'dose_quantity_used',
+        fields = ['id', 'appointment','appointment_info', 'vaccine', 'vaccine_info', 'doctor', 'doctor_info', 'dose_quantity_used',
                   'status', 'notes', 'cost']
         extra_kwargs = {
             'vaccine': {'write_only': True},
@@ -168,7 +171,7 @@ class CampaignSerializer(BaseSerializer):
     class Meta:
         model = Campaign
         fields = ['id', 'created_date', 'updated_date', 'campaign_name', 'description', 'start_date', 'end_date',
-                   'location', 'target_population', 'status', 'image']
+                  'location', 'target_population', 'status', 'image']
 
 
 class CampaignCitizenSerializer(serializers.ModelSerializer):

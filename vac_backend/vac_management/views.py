@@ -243,6 +243,7 @@ class VaccineUsageViewSet(viewsets.ViewSet, generics.GenericAPIView):
 class AppointmentVaccineViewSet(viewsets.ModelViewSet):
     queryset = AppointmentVaccine.objects.filter(active=True)
     serializer_class = serializers.AppointmentVaccineSerializer
+    pagination_class = paginators.AppointmentVaccinesPaginator
 
     def get_queryset(self):
         queryset = super().get_queryset()

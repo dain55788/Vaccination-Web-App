@@ -16,7 +16,7 @@ const ServicesScreen = () => {
     <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
       <View style={commonStyles.header}>
-        <TouchableOpacity tại sao hot reload trong project của tôi không hoạt động
+        <TouchableOpacity 
           style={styles.backButton}
           onPress={() => nav.goBack()}
         >
