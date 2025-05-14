@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -27,42 +27,11 @@ const AppointmentStatusScreen = () => {
   const appointmentVaccineEndpoint = endpoints['appointmentvaccine'];
   const nav = useNavigation();
   const user = useContext(MyUserContext);
+
   const [appointmentVaccines, setAppointmentVaccines] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-
-  const loadAppointmentVaccines = async () => {
-    if (page > 0) {
-      let url = `${endpoints['appointmentvaccine']}?page=${page}`;
-      try {
-        setLoading(true);
-        const response = await Apis.get(url);
-        const data = response.data;
-        setAppointmentVaccines(prev => [...prev, ...data.results]);
-
-        if (!data.next) setPage(0);
-      } catch (error) {
-        console.error('Error fetching appointments vaccines:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    loadAppointmentVaccines();
-  }, []);
-  useEffect(() => {
-    setPage(1);
-  }, []);
-
-  const loadMore = () => {
-    if (!loading && page > 0)
-      setPage(page + 1);
-  }
-
-
-  const [searchQuery, setSearchQuery] = useState('');
+  const [hasMore, setHasMore] = useState(true);
   const [msg, setMsg] = useState(null);
   const [selectedData, setSelectedData] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -71,7 +40,49 @@ const AppointmentStatusScreen = () => {
     notes: '',
   });
 
-  const [formErrors, setFormErrors] = useState({});
+  const loadAppointmentVaccines = async () => {
+    if (!hasMore || loading) return;
+    try {
+      setLoading(true);
+      const url = `${endpoints['appointmentvaccine']}?page=${page}`;
+      const response = await Apis.get(url);
+      const data = response.data;
+
+      setAppointmentVaccines(prev => [...prev, ...data.results]);
+      if (!data.next) {
+        setHasMore(false);
+      } else {
+        setPage(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Error fetching appointment vaccines:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAppointmentVaccines();
+  }, [page]);
+
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchAV, setSearchAV] = useState([]);
+
+  const search = useCallback((query) => {
+    const searchLower = query.toLowerCase();
+    const filtered = appointmentVaccines.filter(av =>
+      av.vaccine_info?.vaccine_name?.toLowerCase().includes(searchLower) ||
+      av.id.toString().includes(searchLower)
+    );
+    setSearchAV(filtered);
+  }, [appointmentVaccines]);
+
   const handleEditClick = (data) => {
     setSelectedData(data);
     setFormData({
@@ -92,7 +103,7 @@ const AppointmentStatusScreen = () => {
       formData.notes === (selectedData.notes || '');
 
     if (noChanges) {
-      setMsg('No changes were made to the vaccine information!!');
+      setMsg('Nothing has to change!!');
       return;
     }
 
@@ -116,7 +127,60 @@ const AppointmentStatusScreen = () => {
       setMsg('Failed to update status. Please try again.');
     }
   };
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      search(searchQuery);
+    }, 1000);
 
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery, search]);
+
+  const renderItem = ({ item: i, index }) => (
+    <View key={i.id ? `${i.id}-${index}` : `key-${index}`} style={commonStyles.card}>
+      <Text style={[styles.textName]}>Appointment {i.id}</Text>
+      <Text style={[commonStyles.title, styles.marginBot]}>
+        Vaccine: {i.vaccine_info?.vaccine_name}
+      </Text>
+
+      <Text style={[styles.textDescription]}>
+        Doctor: {i.doctor_info?.first_name} {i.doctor_info?.last_name}
+      </Text>
+
+      <Text style={[styles.textDescription]}>
+        Location: {i.appointment_info?.location}
+      </Text>
+
+      <Text style={[styles.textDescription]}>
+        Scheduled_date: {i.appointment_info?.scheduled_date}
+      </Text>
+
+      <Text style={{ marginBottom: SPACING.small }}>
+        <Text style={styles.textDescription}>Status: </Text>
+        <Text style={
+          i.status === 'completed' ? styles.statusCompleted :
+            (i.status === 'scheduled' ? styles.statusScheduled : styles.statusCancelled)
+        }>
+          {i.status}
+        </Text>
+      </Text>
+
+      <Text style={{ marginBottom: SPACING.small }}>
+        <Text style={[styles.textDescription]}>Notes: </Text>
+        <Text style={[styles.notesValue]}>{i.notes}</Text>
+      </Text>
+
+      <View style={commonStyles.appointmentActions}>
+        <TouchableOpacity
+          style={[commonStyles.button, styles.rescheduleButton]}
+          onPress={() => handleEditClick(i)}
+        >
+          <Text style={commonStyles.buttonText}>Edit Status and Notes</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
@@ -130,109 +194,97 @@ const AppointmentStatusScreen = () => {
         <Text style={commonStyles.headerTitle}>Appointments Status</Text>
         <View style={styles.emptySpace} />
       </View>
-      <ScrollView>
-        <TextInput
-          style={commonStyles.input}
-          placeholder="🔎 Search vaccines by name or ID"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={isEditModalVisible}
-          onRequestClose={() => setIsEditModalVisible(false)}
-        >
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <TextInput
+        style={commonStyles.input}
+        placeholder="🔎 Search vaccines by name or ID"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isEditModalVisible}
+        onRequestClose={() => setIsEditModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              style={commonStyles.modalContainer}
-            >
-              <View style={commonStyles.modalContent}>
-                <Text style={[commonStyles.cardTitle, { marginBottom: SPACING.large }]}>
-                  Edit Vaccine Information
-                </Text>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={commonStyles.modalContainer}
+          >
+            <View style={commonStyles.modalContent}>
+              <Text style={[commonStyles.cardTitle, { marginBottom: SPACING.large }]}>
+                Edit Appointment's Status
+              </Text>
 
-                <View style={commonStyles.inputContainer}>
-                  <Text style={commonStyles.formLabel}>Status</Text>
-                  <View style={styles.flexCol}>
-                    <TouchableOpacity
-                      style={[styles.radioButton, styles.radioSpacing, formData['status'] === 'scheduled' && styles.radioButtonSelected]}
-                      onPress={() => setFormData({ ...formData, ['status']: 'scheduled' })}
-                    >
-                      <View style={formData['status'] === 'scheduled' ? styles.radioInnerSelected : styles.radioInner} />
-                      <Text style={styles.radioLabel}>Scheduled</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.radioButton, styles.radioSpacing, formData['status'] === 'cancelled' && styles.radioButtonSelected]}
-                      onPress={() => setFormData({ ...formData, ['status']: 'cancelled' })}
-                    >
-                      <View style={formData['status'] === 'cancelled' ? styles.radioInnerSelected : styles.radioInner} />
-                      <Text style={styles.radioLabel}>Cancelled</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={[styles.radioButton, styles.radioSpacing, formData['status'] === 'completed' && styles.radioButtonSelected]}
-                      onPress={() => setFormData({ ...formData, ['status']: 'completed' })}
-                    >
-                      <View style={formData['status'] === 'completed' ? styles.radioInnerSelected : styles.radioInner} />
-                      <Text style={styles.radioLabel}>Completed</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <TextInput
-                    style={commonStyles.input}
-                    label={'Notes'}
-                    right={<TextInput.Icon icon={'pencil'} />}
-                    value={formData['notes']}
-                    onChangeText={(text) => setFormData({ ...formData, ['notes']: text })}
-                    error={!!msg}
-                  />
-                </View>
-
-                <View style={commonStyles.appointmentActions}>
+              <View style={commonStyles.inputContainer}>
+                <Text style={commonStyles.formLabel}>Status</Text>
+                <View style={styles.flexCol}>
                   <TouchableOpacity
-                    style={[commonStyles.button, styles.rescheduleButton]}
-                    onPress={handleSave}
+                    style={[styles.radioButton, styles.radioSpacing, formData['status'] === 'scheduled' && styles.radioButtonSelected]}
+                    onPress={() => setFormData({ ...formData, ['status']: 'scheduled' })}
                   >
-                    <Text style={commonStyles.buttonText}>Save</Text>
+                    <View style={formData['status'] === 'scheduled' ? styles.radioInnerSelected : styles.radioInner} />
+                    <Text style={styles.radioLabel}>Scheduled</Text>
                   </TouchableOpacity>
+
                   <TouchableOpacity
-                    style={[commonStyles.button, styles.cancelButton]}
-                    onPress={() => setIsEditModalVisible(false)}
+                    style={[styles.radioButton, styles.radioSpacing, formData['status'] === 'cancelled' && styles.radioButtonSelected]}
+                    onPress={() => setFormData({ ...formData, ['status']: 'cancelled' })}
                   >
-                    <Text style={commonStyles.buttonText}>Cancel</Text>
+                    <View style={formData['status'] === 'cancelled' ? styles.radioInnerSelected : styles.radioInner} />
+                    <Text style={styles.radioLabel}>Cancelled</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.radioButton, styles.radioSpacing, formData['status'] === 'completed' && styles.radioButtonSelected]}
+                    onPress={() => setFormData({ ...formData, ['status']: 'completed' })}
+                  >
+                    <View style={formData['status'] === 'completed' ? styles.radioInnerSelected : styles.radioInner} />
+                    <Text style={styles.radioLabel}>Completed</Text>
                   </TouchableOpacity>
                 </View>
+                <TextInput
+                  style={commonStyles.input}
+                  label={'Notes'}
+                  right={<TextInput.Icon icon={'pencil'} />}
+                  value={formData['notes']}
+                  onChangeText={(text) => setFormData({ ...formData, ['notes']: text })}
+                  error={!!msg}
+                />
+
+                <HelperText type="error" style={commonStyles.errorText} visible={msg}>
+                  {msg}
+                </HelperText>
+
               </View>
-            </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
-        </Modal>
-        {appointmentVaccines?.length > 0 ? (
-          appointmentVaccines.map((i, index) => (
-            <View key={i.id ? `${i.id}-${index}` : `key-${index}`} style={commonStyles.card}>
-              <Text style={[commonStyles.title]}>Appointment {i.id}</Text>
-              <Text>Vaccine: {i.vaccine_info?.vaccine_name} </Text>
-              <Text>Doctor: {i.doctor_info?.first_name} {i.doctor_info?.last_name}</Text>
-              <Text>Location: {i.appointment_info?.location}</Text>
-              <Text>Scheduled_date: {i.appointment_info?.scheduled_date}</Text>
-              <Text>Status: {i.status}</Text>
-              <Text style={commonStyles.formLabel}>Notes: {i.notes}</Text>
+
               <View style={commonStyles.appointmentActions}>
                 <TouchableOpacity
                   style={[commonStyles.button, styles.rescheduleButton]}
-                  onPress={() => handleEditClick(i)}
+                  onPress={handleSave}
                 >
-                  <Text style={commonStyles.buttonText}>Edit Status and Notes</Text>
+                  <Text style={commonStyles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[commonStyles.button, styles.cancelButton]}
+                  onPress={() => setIsEditModalVisible(false)}
+                >
+                  <Text style={commonStyles.buttonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          )
-          )) : (
-          <Text style={styles.emptyText}>Không có dữ liệu lịch khám</Text>
-        )}
-      </ScrollView>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      <FlatList
+        onEndReached={loadMore} ListFooterComponent={loading && <ActivityIndicator />}
+        data={searchAV}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => item.id ? `${item.id}-${index}` : `key-${index}`}
+        ListEmptyComponent={<Text style={styles.emptyText}>No appointmentVaccines data</Text>}
+      />
     </SafeAreaView>
   );
 };
@@ -304,6 +356,48 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.small,
     marginTop: -10,
     backgroundColor: COLORS.danger,
+  },
+  textName: {
+    fontSize: FONT_SIZE.large,
+    marginTop: SPACING.small,
+    marginBottom: SPACING.medium,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  textDescription: {
+    fontSize: FONT_SIZE.large,
+    color: COLORS.text.secondary,
+    marginBottom: SPACING.small,
+  },
+  statusScheduled: {
+    fontSize: FONT_SIZE.large,
+    color: '#66B2FF',
+    marginBottom: SPACING.small,
+    fontWeight: 'bold',
+    marginBottom: SPACING.small,
+  },
+  statusCompleted: {
+    fontSize: FONT_SIZE.large,
+    color: '#28A745',
+    marginBottom: SPACING.small,
+    fontWeight: 'bold',
+    marginBottom: SPACING.small,
+  },
+  statusCancelled: {
+    fontSize: FONT_SIZE.large,
+    color: '#DC3545',
+    marginBottom: SPACING.small,
+    fontWeight: 'bold',
+    marginBottom: SPACING.small,
+  },
+  notesValue: {
+    fontSize: FONT_SIZE.large,
+    color: 'black',
+    fontWeight: 'bold',
+    marginBottom: SPACING.small,
+  },
+  marginBot: {
+    marginBottom: SPACING.small,
   },
 });
 
