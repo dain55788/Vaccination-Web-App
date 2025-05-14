@@ -117,8 +117,9 @@ const CampaignManagement = () => {
   }
 
   const handleSubmitCampaign = async () => {
+    console.info('Validating the data!');
     if (validate() === true) {
-      
+      console.info('Done validating!');
       try {
         setLoading(true);
         let form = new FormData();
@@ -293,7 +294,6 @@ const CampaignManagement = () => {
 
               <TouchableOpacity
                 style={[commonStyles.registerButton, loading && commonStyles.buttonDisabled]}
-                disabled={loading}
                 onPress={handleSubmitCampaign}
               >
                 <Text style={commonStyles.registerButtonText}>

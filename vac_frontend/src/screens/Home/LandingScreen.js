@@ -55,7 +55,7 @@ const LandingScreen = () => {
     };
 
     locationsCount.value = withTiming(500, {
-      duration: 4500,
+      duration: 5500,
       easing: Easing.out(Easing.exp),
     }, (finished) => {
       if (finished) {
@@ -64,7 +64,7 @@ const LandingScreen = () => {
     });
 
     patientsCount.value = withTiming(50000, {
-      duration: 4000,
+      duration: 4500,
       easing: Easing.out(Easing.exp),
     }, (finished) => {
       if (finished) {
@@ -73,7 +73,7 @@ const LandingScreen = () => {
     });
 
     vaccinesCount.value = withTiming(15, {
-      duration: 3000,
+      duration: 3500,
       easing: Easing.out(Easing.exp),
     }, (finished) => {
       if (finished) {
