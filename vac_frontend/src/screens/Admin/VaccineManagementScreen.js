@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  Image
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -50,20 +51,13 @@ const VaccineManagementScreen = () => {
     instruction: '',
     unit_price: '',
   });
-  const [createFormData, setCreateFormData] = useState({
-    category_id: '',
-    category_name: '',
-    vaccine_name: '',
-    dose_quantity: '',
-    instruction: '',
-    unit_price: '',
-  });
+  const [createVaccine, setCreateVaccine] = useState({});
   const [formErrors, setFormErrors] = useState({});
   const [createFormErrors, setCreateFormErrors] = useState({});
   const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
 
   const setState = (value, field) => {
-    setCampaign({ ...campaign, [field]: value });
+    setCreateVaccine({ ...createVaccine, [field]: value });
   }
 
   const picker = async () => {
@@ -208,24 +202,38 @@ const VaccineManagementScreen = () => {
   };
 
   const handleCreateVaccine = async () => {
-    const errors = validateCreateForm(createFormData, true);
+    const errors = validateCreateForm(createVaccine, true);
+    setMsg('');
     if (Object.keys(errors).length > 0) {
       setCreateFormErrors(errors);
       return;
     }
 
     try {
-      const response = await Apis.post(vaccineEndpoint, {
-        category: createFormData.category_id,
-        vaccine_name: createFormData.vaccine_name,
-        dose_quantity: Number(createFormData.dose_quantity),
-        instruction: createFormData.instruction,
-        unit_price: Number(createFormData.unit_price),
+      setLoading(true);
+      let form = new FormData();
+      for (let key in createVaccine) {
+        if (key === 'image' && createVaccine?.image !== null) {
+          form.append("image", {
+            uri: createVaccine.image.uri,
+            name: createVaccine.image.fileName,
+            type: createVaccine.image.type
+          });
+        } else {
+          form.append(key, createVaccine[key]);
+        }
+      }
+      const response = await Apis.post(vaccineEndpoint, form, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
+
+      console.info(response.data);
 
       await fetchVaccine();
       setIsCreateModalVisible(false);
-      setCreateFormData({
+      setCreateVaccine({
         category_id: '',
         vaccine_name: '',
         dose_quantity: '',
@@ -405,7 +413,7 @@ const VaccineManagementScreen = () => {
           style={[commonStyles.button, styles.viewAllButton]}
           onPress={() => {
             setIsCreateModalVisible(true);
-            setCreateFormData({
+            setCreateVaccine({
               category_id: '',
               vaccine_name: '',
               dose_quantity: '',
@@ -486,14 +494,13 @@ const VaccineManagementScreen = () => {
         transparent={true}
         visible={isCreateModalVisible}
         onRequestClose={() => setIsCreateModalVisible(false)}
-        presentationStyle='overFullScreen'
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={commonStyles.modalContainer}
           >
-            <ScrollView style={commonStyles.modalContent}>
+            <ScrollView style={commonStyles.formCard}>
               <View style={commonStyles.modalContent}>
                 <Text style={[commonStyles.cardTitle, { marginBottom: SPACING.large }]}>
                   Create New Vaccine
@@ -507,8 +514,8 @@ const VaccineManagementScreen = () => {
                   <Text style={commonStyles.label}>Category</Text>
                   <View style={{ borderWidth: 1, borderColor: COLORS.lightGray, borderRadius: 4 }}>
                     <Picker
-                      selectedValue={createFormData.category_id}
-                      onValueChange={(value) => setCreateFormData({ ...createFormData, category_id: value })}
+                      selectedValue={createVaccine.category_id}
+                      onValueChange={(value) => setCreateVaccine({ ...createVaccine, category_id: value })}
                       style={{ height: 50 }}
                     >
                       <Picker.Item label="Select a category" value="" />
@@ -529,8 +536,8 @@ const VaccineManagementScreen = () => {
                       label={i.label}
                       secureTextEntry={i.secureTextEntry}
                       right={<TextInput.Icon icon={i.icon} />}
-                      value={createFormData[i.field]}
-                      onChangeText={(text) => setCreateFormData({ ...createFormData, [i.field]: text })}
+                      value={createVaccine[i.field]}
+                      onChangeText={(text) => setCreateVaccine({ ...createVaccine, [i.field]: text })}
                       multiline={i.field === 'instruction'}
                       keyboardType={i.field === 'dose_quantity' || i.field === 'unit_price' ? 'numeric' : 'default'}
                       error={!!createFormErrors[i.field]}
@@ -546,12 +553,16 @@ const VaccineManagementScreen = () => {
                   <TouchableOpacity style={commonStyles.dateButton} onPress={picker}>
                     <Text style={commonStyles.dateButtonText}>Choose Vaccine Image</Text>
                   </TouchableOpacity>
-                  {vaccine?.image &&
+                  {createVaccine?.image &&
                     <Image
                       style={[commonStyles.imageContainer, commonStyles.image, { marginTop: SPACING.medium }]}
-                      source={{ uri: campaign.image.uri }}
+                      source={{ uri: createVaccine.image.uri }}
                     />}
                 </View>
+
+                <HelperText type="error" style={commonStyles.errorText} visible={msg}>
+                  {msg}
+                </HelperText>
 
                 <View style={commonStyles.appointmentActions}>
                   <TouchableOpacity
@@ -593,64 +604,6 @@ const styles = {
   },
   welcomeSection: {
     marginBottom: SPACING.extraLarge,
-  },
-  statusItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.small,
-    paddingBottom: SPACING.small,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
-  },
-  statusLabel: {
-    fontSize: 16,
-    color: COLORS.text.primary,
-  },
-  statusValue: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  appointment: {
-    flexDirection: 'row',
-    marginBottom: SPACING.medium,
-  },
-  appointmentDate: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 8,
-    padding: SPACING.small,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 50,
-    height: 50,
-    marginRight: SPACING.medium,
-  },
-  appointmentMonth: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  appointmentDay: {
-    color: COLORS.white,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  appointmentDetails: {
-    flex: 1,
-  },
-  appointmentTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.text.primary,
-  },
-  appointmentLocation: {
-    fontSize: 14,
-    color: COLORS.text.secondary,
-    marginTop: 2,
-  },
-  appointmentTime: {
-    fontSize: 14,
-    color: COLORS.primary,
-    marginTop: 2,
   },
   vaccineItem: {
     flexDirection: 'row',

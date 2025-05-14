@@ -90,6 +90,15 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  loginButton: {
+    marginTop: SPACING.medium,
+    marginBottom: SPACING.medium,
+    borderRadius: BORDER_RADIUS.small,
+  },
+  loginButtonContent: {
+    paddingVertical: SPACING.small,
+    fontSize: FONT_SIZE.enormous,
+  },
   footer: {
     padding: SPACING.medium,
     backgroundColor: COLORS.primary,
@@ -138,7 +147,7 @@ export const commonStyles = StyleSheet.create({
     padding: SPACING.large,
     borderRadius: 12,
     elevation: 5,
-    width: '85%',
+    width: '90%',
     maxHeight: '150%',
   },
   vaccineDoseQuantity: {  
@@ -191,6 +200,8 @@ export const commonStyles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderTopLeftRadius: BORDER_RADIUS.large,
     borderTopRightRadius: BORDER_RADIUS.large,
+    borderBottomLeftRadius: BORDER_RADIUS.large,
+    borderBottomRightRadius: BORDER_RADIUS.large,
     margin: SPACING.medium,
     marginTop: SPACING.extraLarge,
     padding: SPACING.large,
@@ -446,6 +457,9 @@ export const commonStyles = StyleSheet.create({
   image: {
     height: 200,
     width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
     borderRadius: BORDER_RADIUS.medium,
     ...SHADOW.medium,
   },
