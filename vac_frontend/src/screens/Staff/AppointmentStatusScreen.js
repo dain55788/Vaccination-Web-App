@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.danger,
   },
   textName: {
-    fontSize: FONT_SIZE.large,
+    fontSize: FONT_SIZE.enormous,
     marginTop: SPACING.small,
     marginBottom: SPACING.medium,
     fontWeight: 'bold',

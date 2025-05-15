@@ -38,6 +38,7 @@ const LoginScreen = ({ navigation }) => {
     field: "password"
   }];
 
+  const [showPassword, setShowPassword] = useState(true);
   const [user, setUser] = useState({});
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -45,7 +46,7 @@ const LoginScreen = ({ navigation }) => {
   const dispatch = useContext(MyDispatchContext);
 
   const setState = (value, field) => {
-    setUser({...user, [field]: value});
+    setUser({ ...user, [field]: value });
   }
 
   const validate = () => {
@@ -92,18 +93,18 @@ const LoginScreen = ({ navigation }) => {
           setMsg('Fail to login. Please check your username or password.');
         }
       } catch (error) {
-          console.error('Login error details:', error);
-          setMsg('Fail to login. Please check your username or password.');
+        console.error('Login error details:', error);
+        setMsg('Fail to login. Please check your username or password.');
       } finally {
-          setLoading(false);
+        setLoading(false);
       }
     }
   }
-  
+
   return (
     <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
       <StatusBar style="light" />
-      
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingView}
@@ -116,7 +117,7 @@ const LoginScreen = ({ navigation }) => {
                   <Text style={styles.logoText}>VS</Text>
                 </View>
               </View>
-              
+
               <Text style={styles.welcomeTitle}>Welcome to VaxServe</Text>
               <Text style={styles.welcomeSubtitle}>Sign in to manage your vaccination records</Text>
             </View>
@@ -124,14 +125,23 @@ const LoginScreen = ({ navigation }) => {
             <View style={styles.formCard}>
 
               {info.map(i => (
-                <TextInput 
+                <TextInput
                   value={user[i.field]}
-                  onChangeText={t => setState(t, i.field)} 
-                  style={styles.textInput} 
-                  key={i.field} 
+                  onChangeText={t => setState(t, i.field)}
+                  style={styles.textInput}
+                  key={i.field}
                   label={i.label}
-                  secureTextEntry={i.secureTextEntry} 
-                  right={<TextInput.Icon icon={i.icon} />}
+                  secureTextEntry={i.field === "password" ? showPassword : i.secureTextEntry}
+                  right={i.field === "password" ? (
+                    <TextInput.Icon
+                      icon={showPassword ? "eye" : "eye-off"}
+                      onPress={() => {
+                        setShowPassword(!showPassword);
+                      }}
+                    />
+                  ) : (
+                    <TextInput.Icon icon={i.icon} />
+                  )}
                   mode="outlined"
                   outlineColor={COLORS.border}
                   activeOutlineColor={COLORS.primary}
@@ -140,10 +150,10 @@ const LoginScreen = ({ navigation }) => {
               ))}
 
               {msg && <HelperText type="error" style={styles.errorText}>{msg}</HelperText>}
-              
-              <Button 
-                disabled={loading} 
-                loading={loading} 
+
+              <Button
+                disabled={loading}
+                loading={loading}
                 onPress={handleLogin}
                 mode="contained"
                 style={commonStyles.loginButton}
@@ -152,16 +162,16 @@ const LoginScreen = ({ navigation }) => {
               >
                 Login
               </Button>
-              
+
               <View style={styles.registerContainer}>
                 <Text style={styles.registerText}>Don't have an account? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Register')}>
                   <Text style={styles.registerLink}>Create Account</Text>
                 </TouchableOpacity>
               </View>
-              
+
               <Divider style={styles.divider} />
-              
+
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>

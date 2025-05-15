@@ -8,6 +8,7 @@ export const endpoints = {
   'login': '/o/token/',
   'register': '/users/',
   'current-user': '/users/current-user/',
+  'get-users': '/users/get-users/',
   'appointment': '/appointments/',
   'vaccine-categories': '/categories/',
   'appointment-bycitizen': (citizen_id) => `/appointments/by-citizen/?citizen_id=${citizen_id}`,

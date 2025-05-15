@@ -5,7 +5,6 @@ export default (current, action) => {
         case "login":
             return action.payload;
         case "logout":
-            //bỏ await trong reducer và nếu cần thiết thì chỉ nên gọi xóa token ở logout handle
             AsyncStorage.removeItem("token");
             return null;
     }

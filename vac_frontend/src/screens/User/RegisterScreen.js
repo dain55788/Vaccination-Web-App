@@ -123,7 +123,7 @@ const RegisterScreen = () => {
   const [gender, setGender] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(true);
   const [error, setError] = useState('');
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
@@ -282,8 +282,16 @@ const RegisterScreen = () => {
                 <Text style={commonStyles.formLabel}> {i.label}</Text>
                 <TextInput key={i.field} style={commonStyles.input}
                   label={i.label}
-                  secureTextEntry={i.secureTextEntry}
-                  right={<TextInput.Icon icon={i.icon} />}
+                  secureTextEntry={i.field === "password" || i.field === "confirm" ? showPassword : i.secureTextEntry}
+                  right={i.field === "password" || i.field === "confirm" ? (
+                    <TextInput.Icon
+                      icon={i.icon}
+                      onPress={() => {
+                        setShowPassword(!showPassword);
+                      }} />
+                  ) : (
+                    <TextInput.Icon icon={i.icon} />
+                  )}
                   value={user[i.description]} onChangeText={t => setState(t, i.field)} />
               </View>)}
 
@@ -328,12 +336,12 @@ const RegisterScreen = () => {
                 />
               </View>
 
-              <View style={commonStyles.inputContainer}>
+              <View style={commonStyles.profileImagePlaceholder}>
                 <Text style={commonStyles.label}>Avatar</Text>
                 <TouchableOpacity style={commonStyles.dateButton} onPress={picker}>
                   <Text style={commonStyles.dateButtonText}>Choose your avatar</Text>
                 </TouchableOpacity>
-                {user?.avatar && <Image style={[commonStyles.avatar, { marginTop: SPACING.medium }]} source={{ uri: user.avatar.uri }} />}
+                {user?.avatar && <Image style={[commonStyles.image, { marginTop: SPACING.medium, }]} source={{ uri: user.avatar.uri }} />}
               </View>
 
               <View style={commonStyles.divider} />

@@ -277,10 +277,10 @@ class CitizenViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAP
         if self.request.method in ['PUT', 'PATCH']:
             return [perms.OwnerPerms()]
         return [permissions.AllowAny()]
-    
+
     def perform_create(self, serializer):
         serializer.save()
-    
+
     def perform_update(self, serializer):
         serializer.save()
 
@@ -302,10 +302,10 @@ class StaffViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIV
             queryset = queryset.filter(shift=shift)
 
         return queryset
-    
+
     def perform_create(self, serializer):
         serializer.save()
-    
+
     def perform_update(self, serializer):
         serializer.save()
 
@@ -327,10 +327,10 @@ class DoctorViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPI
             queryset = queryset.filter(specialty__icontains=specialty)
 
         return queryset
-    
+
     def perform_create(self, serializer):
         serializer.save()
-    
+
     def perform_update(self, serializer):
         serializer.save()
 
@@ -338,16 +338,23 @@ class DoctorViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPI
     def get_current_user(self, request):
         return Response(serializers.DoctorSerializer(request.user).data)
 
+
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIView):
     queryset = BaseUser.objects.filter(is_active=True)
     serializer_class = serializers.BaseUserSerializer
     parser_classes = [parsers.MultiPartParser]
+    pagination_class = paginators.UsersPaginator
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH']:
             return [perms.OwnerPerms()]
-
+        if self.action == 'get_users':
+            return [perms.IsStaffPermission()]
         return [permissions.AllowAny()]
+
+    @action(methods=['get'], url_path='get-users', detail=False, permission_classes=[perms.IsStaffPermission])
+    def get_users(self, request):
+        return Response(serializers.BaseUserSerializer(BaseUser.objects.all(), many=True).data)
 
     @action(methods=['get'], url_path='current-user', detail=False, permission_classes=[permissions.IsAuthenticated])
     def get_current_user(self, request):

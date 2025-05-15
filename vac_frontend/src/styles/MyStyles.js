@@ -451,7 +451,6 @@ export const commonStyles = StyleSheet.create({
   },
   imageContainer: {
     marginBottom: SPACING.small,
-    paddingHorizontal: SPACING.medium,
     marginVertical: SPACING.huge,
   },
   image: {
