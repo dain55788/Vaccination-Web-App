@@ -29,47 +29,48 @@ const UserVaccinationHistory = () => {
   const [usersdata, setUsersData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [msg, setMsg] = useState(null);
 
   const loadUsersData = async () => {
-    if (!hasMore || loading) return;
-    try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('token');
+    if (page > 0) {
+      try {
+        setLoading(true);
+        const token = await AsyncStorage.getItem('token');
+        const url = `${endpoints['get-users']}?page=${page}`;
+        const response = await Apis.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
 
-      const url = `${endpoints['get-users']}?page=${page}`;
-      const response = await Apis.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+        const data = response.data;
+        if (data?.results) { setUsersData([...usersdata, ...data.results]); }
+        else { setUsersData([...usersdata, ...data]); }
 
-      const data = response.data;
-      if (data?.results) { setUsersData(prev => [...prev, ...data.results]); }
-      else { setUsersData(prev => [...prev, ...data]); }
+        if (data.next === null) { setPage(0); }
 
-      if (!data.next) {
-        setHasMore(false);
-      } else {
-        setPage(prev => prev + 1);
+      } catch (error) {
+        console.error('Error fetching users data:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching users data:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadUsersData();
+    let timer = setTimeout(() => {
+      loadUsersData();
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [page]);
 
   const loadMore = () => {
-    if (!loading && hasMore) {
-      setPage(prev => prev + 1);
+    if (!loading && page > 0) {
+      setLoading(true);
+      setPage(page + 1);
     }
-  };
+  }
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchData, setSearchData] = useState([]);
@@ -97,7 +98,6 @@ const UserVaccinationHistory = () => {
   const renderItem = ({ item, index }) => (
 
     <View key={item?.id ? `${item.id}-${index}` : `key-${index}`} style={[commonStyles.card, { flex: 1, flexDirection: 'row', }]}>
-
       <View>
         <Image style={[commonStyles.imageContainer, styles.profileImagePlaceholder]} resizeMode="cover" source={{ uri: item.avatar }} />
       </View>
@@ -108,6 +108,12 @@ const UserVaccinationHistory = () => {
         <Text style={[styles.textDescription]}>
           Appointments: {item?.appointment_info?.scheduled_date}
         </Text>
+        <TouchableOpacity style={commonStyles.button}
+          onPress={() => nav.navigate("UserAppointmentDetail", { "userId": item.id })}>
+          <Text style={styles.seeAppointments}>
+            See Appointments
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -133,12 +139,13 @@ const UserVaccinationHistory = () => {
       />
 
       <FlatList
+        ListFooterComponent={loading && <ActivityIndicator />}
         onEndReached={loadMore}
         data={searchData}
         renderItem={renderItem}
         keyExtractor={(item, index) => item.id ? `${item.id}-${index}` : `key-${index}`}
-        ListFooterComponent={loading && <ActivityIndicator />}
         ListEmptyComponent={!loading && <Text style={styles.emptyText}>No Users Data</Text>}
+
       />
     </SafeAreaView>
   );
@@ -182,6 +189,13 @@ const styles = StyleSheet.create({
   userDetail: {
     marginLeft: SPACING.large,
     marginTop: SPACING.enormous,
+  },
+  seeAppointments: {
+    width: 200,
+    textAlign: 'center',
+    color: 'black',
+    fontSize: FONT_SIZE.medium,
+    fontWeight: 'bold',
   },
 });
 

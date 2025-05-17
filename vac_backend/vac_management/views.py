@@ -354,7 +354,13 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIVi
 
     @action(methods=['get'], url_path='get-users', detail=False, permission_classes=[perms.IsStaffPermission])
     def get_users(self, request):
-        return Response(serializers.BaseUserSerializer(BaseUser.objects.all(), many=True).data)
+        queryset = self.queryset
+        user_id = request.query_params.get('id')
+        if user_id:
+            queryset = queryset.filter(id=user_id)
+        paginator = self.pagination_class()
+        paginated_queryset = paginator.paginate_queryset(queryset, request, view=self)
+        return paginator.get_paginated_response(serializers.BaseUserSerializer(paginated_queryset, many=True).data)
 
     @action(methods=['get'], url_path='current-user', detail=False, permission_classes=[permissions.IsAuthenticated])
     def get_current_user(self, request):

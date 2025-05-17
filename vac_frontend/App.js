@@ -27,6 +27,7 @@ import VaccineManagementScreen from './src/screens/Admin/VaccineManagementScreen
 
 import UserVaccinationHistoryScreen from './src/screens/Staff/UserVaccinationHistoryScreen';
 import AppointmentStatusScreen from './src/screens/Staff/AppointmentStatusScreen';
+import UserAppointmentDetailScreen from './src/screens/Staff/UserAppointmentDetailScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -64,6 +65,8 @@ const AppNavigator = () => {
 
         <Stack.Screen name="UserVaccinationHistory" component={UserVaccinationHistoryScreen}/>
         <Stack.Screen name="AppointmentStatus" component={AppointmentStatusScreen} />
+        <Stack.Screen name="UserAppointmentDetail" component={UserAppointmentDetailScreen} />
+       
       </Stack.Navigator>
     </NavigationContainer>
   )
