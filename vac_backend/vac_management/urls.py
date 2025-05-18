@@ -14,6 +14,7 @@ router.register('staffs', views.StaffViewSet, basename='staff')
 router.register('doctors', views.DoctorViewSet, basename='doctor')
 router.register('users', views.UserViewSet, basename='baseuser')
 router.register('appointmentvaccines', views.AppointmentVaccineViewSet, basename='appointmentvaccine')
+router.register('vaccineusages', views.VaccineUsageViewSet, basename='vaccineusage')
 urlpatterns = [
     # API endpoints provided by the router
     path('', include(router.urls)),

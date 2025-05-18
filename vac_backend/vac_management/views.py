@@ -166,6 +166,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             completion_rate = 0
 
         result = {
+            'total_appointments': total_appointments,
             'total_scheduled': total_scheduled,
             'total_completed': total_completed,
             'total_cancelled': total_cancelled,

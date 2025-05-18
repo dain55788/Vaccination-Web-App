@@ -15,6 +15,7 @@ export const endpoints = {
   'campaign': '/campaigns/',
   'vaccine': '/vaccines/',
   'appointmentvaccine': '/appointmentvaccines/',
+  'vaccineusage': '/vaccineusages/vaccine-types-by-time/',
 };
 
 export const authApis = (token) => {

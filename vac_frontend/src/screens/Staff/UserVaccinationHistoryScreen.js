@@ -27,7 +27,7 @@ const UserVaccinationHistory = () => {
   const user = useContext(MyUserContext);
 
   const [usersdata, setUsersData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [msg, setMsg] = useState(null);
 
@@ -58,11 +58,11 @@ const UserVaccinationHistory = () => {
   };
 
   useEffect(() => {
-    let timer = setTimeout(() => {
-      loadUsersData();
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    // let timer = setTimeout(() => {
+    //   loadUsersData();
+    // }, 1000);
+    // return () => clearTimeout(timer);
+    loadUsersData();
   }, [page]);
 
   const loadMore = () => {
@@ -88,7 +88,7 @@ const UserVaccinationHistory = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       search(searchQuery);
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timer);
@@ -106,7 +106,7 @@ const UserVaccinationHistory = () => {
           Citizen: {item?.first_name} {item?.last_name}
         </Text>
         <Text style={[styles.textDescription]}>
-          Appointments: {item?.appointment_info?.scheduled_date}
+          Heath Note: {item?.health_note}
         </Text>
         <TouchableOpacity style={commonStyles.button}
           onPress={() => nav.navigate("UserAppointmentDetail", { "userId": item.id })}>
