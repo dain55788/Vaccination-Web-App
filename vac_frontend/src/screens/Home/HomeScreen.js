@@ -306,7 +306,7 @@ const HomeScreen = () => {
         setUserUpcomingAppointments(filteredAppointments);
 
         const vaccineResponse = await Apis.get(appointmentVaccineEndpoint);
-        const appointmentVaccines = vaccineResponse.data;
+        const appointmentVaccines = vaccineResponse.data.results || vaccineResponse.data;
 
         const vaccinesResponse = await Apis.get(vaccineEndpoint);
         const vaccines = vaccinesResponse.data.results || vaccinesResponse.data;
@@ -336,7 +336,7 @@ const HomeScreen = () => {
                   vaccine.dose_quantity_used && vaccine.vaccine_info?.dose_quantity
                     ? `${vaccine.dose_quantity_used}`
                     : vaccine.dose_quantity_used,
-                notes: matchingAppointment.notes,
+                notes: vaccine.notes,
                 cost: vaccine.cost ? `$${vaccine.cost.toFixed(2)}` : 'Unknown Cost'
               };
             }
