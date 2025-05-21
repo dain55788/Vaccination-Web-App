@@ -86,7 +86,7 @@ const CampaignManagement = () => {
     if (!campaign.campaign_name) {
       setErrMsg("Please enter name for this campaign!");
       return false;
-    } else if (campaign.campaign_description.length < 20) {
+    } else if (campaign.description.length < 20) {
       setErrMsg("Description cannot be this short!");
       return false;
     }  else if (campaign.image == null) {
@@ -117,9 +117,7 @@ const CampaignManagement = () => {
   }
 
   const handleSubmitCampaign = async () => {
-    console.info('Validating the data!');
     if (validate() === true) {
-      console.info('Done validating!');
       try {
         setLoading(true);
         let form = new FormData();
