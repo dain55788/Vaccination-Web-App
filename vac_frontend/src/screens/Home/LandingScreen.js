@@ -1,17 +1,22 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Image, Alert } from 'react-native';
+import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Image, Alert, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
-import { useNavigation } from "@react-navigation/native";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 import { MyUserContext, MyDispatchContext } from '../../utils/MyContexts';
 import { Entypo } from '@expo/vector-icons';
 import Animated, { useSharedValue, withTiming, Easing, runOnJS } from 'react-native-reanimated';
+import Constants from 'expo-constants';
+const { GEMINI_API_KEY } = Constants.expoConfig.extra;
+import { Button, HelperText, TextInput } from "react-native-paper";
 
 const LandingScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const nav = useNavigation();
   const user = useContext(MyUserContext);
-  const dispatch = useContext(MyDispatchContext);
+  const [chatVisible, setChatVisible] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [messages, setMessages] = useState([]);
 
   const handleAppointmentNavigation = () => {
     if (user === null) {
@@ -34,6 +39,51 @@ const LandingScreen = () => {
       nav.navigate('Appointment');
     }
   };
+
+  const handleChatButtonClick = async () => {
+    if (!msg.trim()) return;
+
+    const userMessage = { text: msg, sender: 'user' };
+    setMessages(prevMessages => [userMessage, ...prevMessages]);
+    setMsg('');
+
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: msg },
+              ],
+            },
+          ],
+        }),
+      });
+
+      const data = await response.json();
+      const content = data.candidates?.[0]?.content;
+      const reply = content?.parts?.[0]?.text || 'No response';
+
+      const geminiMessage = { text: reply, sender: 'gemini' };
+      setMessages(prevMessages => [geminiMessage, ...prevMessages]);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage = { text: 'Error occurred', sender: 'gemini' };
+      setMessages(prevMessages => [errorMessage, ...prevMessages]);
+    }
+  };
+
+  const renderMessage = ({ item }) => (
+    <View style={[commonStyles.message, item.sender === 'user' ? commonStyles.userMessage : commonStyles.geminiMessage]}>
+      <Text style={[commonStyles.messageText, item.sender === 'user' ? commonStyles.userMessageText : commonStyles.geminiMessageText]}>
+        {item.text}
+      </Text>
+    </View>
+  );
 
   const [locationsDisplay, setLocationsDisplay] = useState('0+');
   const [patientsDisplay, setPatientsDisplay] = useState('0K+');
@@ -97,12 +147,12 @@ const LandingScreen = () => {
   return (
     <SafeAreaView style={commonStyles.safeArea}>
       <StatusBar style="dark" />
-      
+
       <View style={styles.navbar}>
         <Text style={styles.navLogo}>VaxServe</Text>
         <View style={styles.navLinksContainer}>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.menuButton}
           onPress={() => setMenuVisible(true)}
         >
@@ -124,7 +174,7 @@ const LandingScreen = () => {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
@@ -133,7 +183,7 @@ const LandingScreen = () => {
             >
               <Text style={styles.menuItemText}>Services</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
@@ -142,7 +192,7 @@ const LandingScreen = () => {
             >
               <Text style={styles.menuItemText}>About</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 setMenuVisible(false);
@@ -152,7 +202,7 @@ const LandingScreen = () => {
             </TouchableOpacity>
             {user && (user.is_staff === true) ? (
               <>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => {
                     setMenuVisible(false);
@@ -161,7 +211,7 @@ const LandingScreen = () => {
                 >
                   <Text style={styles.menuItemText}>Track Appointment Status</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => {
                     setMenuVisible(false);
@@ -182,7 +232,7 @@ const LandingScreen = () => {
                 >
                   <Text style={styles.menuItemText}>Admin Dashboard & Statistics</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => {
                     setMenuVisible(false);
@@ -191,7 +241,7 @@ const LandingScreen = () => {
                 >
                   <Text style={styles.menuItemText}>Manage Public Campaign</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => {
                     setMenuVisible(false);
@@ -211,12 +261,17 @@ const LandingScreen = () => {
                 <Text style={styles.menuItemText}>Make Appointment</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity style={styles.menuItem}>
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => {
+                nav.navigate('UpcomingCampaigns');
+              }}>
+
               <Text style={styles.menuItemText}>Upcoming Campaigns</Text>
             </TouchableOpacity>
             {user === null ? (
               <>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => {
                     setMenuVisible(false);
@@ -225,7 +280,7 @@ const LandingScreen = () => {
                 >
                   <Text style={styles.menuItemText}>Sign In</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => {
                     setMenuVisible(false);
@@ -237,24 +292,24 @@ const LandingScreen = () => {
               </>
             ) : (
               <>
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  nav.navigate('Profile');
-                }}
-              >
-                <Text style={styles.menuItemText}>Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => {
-                  setMenuVisible(false);
-                  nav.navigate('Home');
-                }}
-              >
-                <Text style={styles.menuItemText}>Home</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    nav.navigate('Profile');
+                  }}
+                >
+                  <Text style={styles.menuItemText}>Profile</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    nav.navigate('Home');
+                  }}
+                >
+                  <Text style={styles.menuItemText}>Home</Text>
+                </TouchableOpacity>
               </>
             )
             }
@@ -262,202 +317,252 @@ const LandingScreen = () => {
         </View>
       </Modal>
 
-      <ScrollView>
-        <View style={styles.header}>
-          <Text style={styles.title}>VaxServe</Text>
-          <Text style={styles.subtitle}>Fast, Safe, Reliable Vaccination</Text>
-        </View>
-
-        <View style={commonStyles.imageContainer}>
-          <Image
-            source={require('../../assets/images/VaxServe.png')}
-            style={commonStyles.image}
-            resizeMode="cover"
-          />
-        </View>
-
-        <View style={styles.overviewContainer}>
-          <Text style={commonStyles.sectionTitle}>What is VaxServe?</Text>
-          <Text style={commonStyles.text}>
-            VaxServe is a comprehensive vaccination service platform designed to make healthcare accessible to everyone.
-            We provide vaccination services, appointment scheduling, and digital health records to ensure you stay protected
-            against preventable diseases. Our team of healthcare professionals is dedicated to ensuring your safety and comfort
-            throughout the vaccination process.
-          </Text>
-          
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{locationsDisplay}</Text>
-              <Text style={styles.statLabel}>Locations</Text>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={chatVisible}
+        onRequestClose={() => setChatVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={commonStyles.chatModalContainer}>
+            <View style={commonStyles.chatModal}>
+              <View style={commonStyles.chatHeader}>
+                <Text style={commonStyles.chatTitle}>VaxServe AI Chat Assistant</Text>
+                <TouchableOpacity onPress={() => setChatVisible(false)}>
+                  <Text style={styles.closeButton}>✕</Text>
+                </TouchableOpacity>
+              </View>
+              {messages.length === 0 && msg === '' && (
+                <View style={commonStyles.helpLabelContainer}>
+                  <Text style={commonStyles.helpLabel}>What can we help with?</Text>
+                </View>
+              )}
+              <FlatList
+                data={messages}
+                renderItem={renderMessage}
+                keyExtractor={(item, index) => index.toString()}
+                contentContainerStyle={commonStyles.messagesContainer}
+                inverted
+              />
+              <View style={commonStyles.inputView}>
+                <TextInput
+                  style={commonStyles.input}
+                  placeholder="Ask anything about VaxServe..."
+                  value={msg}
+                  onChangeText={setMsg}
+                  multiline={true}
+                  numberOfLines={3}
+                  placeholderTextColor={COLORS.text.secondary}
+                />
+                <TouchableOpacity style={commonStyles.sendButton} onPress={handleChatButtonClick}>
+                  <Text style={commonStyles.sendButtonText}>Send</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{patientsDisplay}</Text>
-              <Text style={styles.statLabel}>Patients</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{vaccinesDisplay}</Text>
-              <Text style={styles.statLabel}>Vaccines</Text>
-            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
-        <View style={styles.imageContainer}>
-          <Image
-            source={require('../../assets/images/VaxServe3.jpg')}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        </View>
+      <View style={commonStyles.scrollContainer}>
+        <ScrollView>
+          <View style={styles.header}>
+            <Text style={styles.title}>VaxServe</Text>
+            <Text style={styles.subtitle}>Fast, Safe, Reliable Vaccination</Text>
+          </View>
 
-        <View style={styles.featuresContainer}>
-          <Text style={commonStyles.sectionTitle}>Our Services</Text>
-          
-          <View style={styles.feature}>
-            <Text style={styles.featureTitle}>✓ Easy Scheduling</Text>
-            <Text style={commonStyles.text}>Book your vaccination appointment with just a few taps</Text>
+          <View style={commonStyles.imageContainer}>
+            <Image
+              source={require('../../assets/images/VaxServe.png')}
+              style={commonStyles.image}
+              resizeMode="cover"
+            />
           </View>
-          
-          <View style={styles.feature}>
-            <Text style={styles.featureTitle}>✓ Multiple Vaccines</Text>
-            <Text style={commonStyles.text}>COVID-19, Flu, HPV, and many other essential vaccines</Text>
-          </View>
-          
-          <View style={styles.feature}>
-            <Text style={styles.featureTitle}>✓ Digital Records</Text>
-            <Text style={commonStyles.text}>Access your vaccination history anytime, anywhere</Text>
-          </View>
-          
-          <View style={styles.feature}>
-            <Text style={styles.featureTitle}>✓ Expert Care</Text>
-            <Text style={commonStyles.text}>Administered by certified healthcare professionals</Text>
-          </View>
-          
-          <TouchableOpacity 
-            style={commonStyles.button}
-            onPress={() => nav.navigate('Services')}
-          >
-            <Text style={commonStyles.buttonText}>View All Services</Text>
-          </TouchableOpacity>
-        </View>
-        {user && user.is_superuser !== true && user.is_staff !== true && (
-          <View style={styles.ctaContainer}>
-            <Text style={styles.ctaTitle}>Ready to Get Vaccinated?</Text>
-            <Text style={styles.ctaText}>
-              Protect yourself and your loved ones from preventable diseases. Schedule your vaccination appointment today!
+
+          <View style={styles.overviewContainer}>
+            <Text style={commonStyles.sectionTitle}>What is VaxServe?</Text>
+            <Text style={commonStyles.text}>
+              VaxServe is a comprehensive vaccination service platform designed to make healthcare accessible to everyone.
+              We provide vaccination services, appointment scheduling, and digital health records to ensure you stay protected
+              against preventable diseases. Our team of healthcare professionals is dedicated to ensuring your safety and comfort
+              throughout the vaccination process.
             </Text>
-            <View style={styles.ctaButtons}>
-              <TouchableOpacity 
-                style={commonStyles.button}
-                onPress={handleAppointmentNavigation}
-              >
-                <Text style={commonStyles.buttonText}>Schedule Now</Text>
+
+            <View style={styles.statsContainer}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{locationsDisplay}</Text>
+                <Text style={styles.statLabel}>Locations</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{patientsDisplay}</Text>
+                <Text style={styles.statLabel}>Patients</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{vaccinesDisplay}</Text>
+                <Text style={styles.statLabel}>Vaccines</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={commonStyles.imageContainer}>
+            <Image
+              source={require('../../assets/images/VaxServe3.jpg')}
+              style={commonStyles.image}
+              resizeMode="cover"
+            />
+          </View>
+
+          <View style={styles.featuresContainer}>
+            <Text style={commonStyles.sectionTitle}>Our Services</Text>
+
+            <View style={styles.feature}>
+              <Text style={styles.featureTitle}>✓ Easy Scheduling</Text>
+              <Text style={commonStyles.text}>Book your vaccination appointment with just a few taps</Text>
+            </View>
+
+            <View style={styles.feature}>
+              <Text style={styles.featureTitle}>✓ Multiple Vaccines</Text>
+              <Text style={commonStyles.text}>COVID-19, Flu, HPV, and many other essential vaccines</Text>
+            </View>
+
+            <View style={styles.feature}>
+              <Text style={styles.featureTitle}>✓ Digital Records</Text>
+              <Text style={commonStyles.text}>Access your vaccination history anytime, anywhere</Text>
+            </View>
+
+            <View style={styles.feature}>
+              <Text style={styles.featureTitle}>✓ Expert Care</Text>
+              <Text style={commonStyles.text}>Administered by certified healthcare professionals</Text>
+            </View>
+
+            <TouchableOpacity
+              style={commonStyles.button}
+              onPress={() => nav.navigate('Services')}
+            >
+              <Text style={commonStyles.buttonText}>View All Services</Text>
+            </TouchableOpacity>
+          </View>
+          {user && user.is_superuser !== true && user.is_staff !== true && (
+            <View style={styles.ctaContainer}>
+              <Text style={styles.ctaTitle}>Ready to Get Vaccinated?</Text>
+              <Text style={styles.ctaText}>
+                Protect yourself and your loved ones from preventable diseases. Schedule your vaccination appointment today!
+              </Text>
+              <View style={styles.ctaButtons}>
+                <TouchableOpacity
+                  style={commonStyles.button}
+                  onPress={handleAppointmentNavigation}
+                >
+                  <Text style={commonStyles.buttonText}>Schedule Now</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[commonStyles.button, commonStyles.buttonOutline, styles.ctaSecondaryButton]}
+                  onPress={() => nav.navigate('Contact')}
+                >
+                  <Text style={commonStyles.buttonText}>Contact Us</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          <View style={styles.campaignsContainer}>
+            <Text style={commonStyles.sectionTitle}>Upcoming Vaccination Campaigns</Text>
+
+            <View style={commonStyles.card}>
+              <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+                <Text style={styles.campaignTitle}>Flu Season Preparation</Text>
+                <Text style={styles.campaignDate}>Oct 15 - Nov 30</Text>
+              </View>
+              <Text style={commonStyles.text}>
+                Get your annual flu shot before the winter season. Special discounts for families and seniors.
+              </Text>
+              <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.campaignButton]}>
+                <Text style={commonStyles.buttonOutlineText}>Learn More</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={[commonStyles.button, commonStyles.buttonOutline, styles.ctaSecondaryButton]}
-                onPress={() => nav.navigate('Contact')}
-              >
-                <Text style={commonStyles.buttonText}>Contact Us</Text>
+            </View>
+
+            <View style={commonStyles.card}>
+              <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+                <Text style={styles.campaignTitle}>Back-to-School Immunizations</Text>
+                <Text style={styles.campaignDate}>Aug 1 - Sep 15</Text>
+              </View>
+              <Text style={commonStyles.text}>
+                Ensure your children have all required immunizations before the school year starts.
+              </Text>
+              <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.campaignButton]}>
+                <Text style={commonStyles.buttonOutlineText}>Learn More</Text>
               </TouchableOpacity>
             </View>
           </View>
-        )}
 
-        <View style={styles.campaignsContainer}>
-          <Text style={commonStyles.sectionTitle}>Upcoming Vaccination Campaigns</Text>
-          
-          <View style={commonStyles.card}>
-            <View style={[commonStyles.row, commonStyles.spaceBetween]}>
-              <Text style={styles.campaignTitle}>Flu Season Preparation</Text>
-              <Text style={styles.campaignDate}>Oct 15 - Nov 30</Text>
+          <View style={commonStyles.imageContainer}>
+            <Image
+              source={require('../../assets/images/VacPatients.jpg')}
+              style={commonStyles.image}
+              resizeMode="cover"
+            />
+          </View>
+
+          <View style={styles.testimonialsContainer}>
+            <Text style={commonStyles.sectionTitle}>What Our Patients Say</Text>
+
+            <View style={commonStyles.card}>
+              <Text style={commonStyles.text}>
+                "The staff was friendly and professional. I was in and out in less than 20 minutes. Highly recommended!"
+              </Text>
+              <Text style={styles.testimonialAuthor}>- Sarah J.</Text>
             </View>
-            <Text style={commonStyles.text}>
-              Get your annual flu shot before the winter season. Special discounts for families and seniors.
-            </Text>
-            <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.campaignButton]}>
-              <Text style={commonStyles.buttonOutlineText}>Learn More</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={commonStyles.card}>
-            <View style={[commonStyles.row, commonStyles.spaceBetween]}>
-              <Text style={styles.campaignTitle}>Back-to-School Immunizations</Text>
-              <Text style={styles.campaignDate}>Aug 1 - Sep 15</Text>
+
+            <View style={commonStyles.card}>
+              <Text style={commonStyles.text}>
+                "As someone with a fear of needles, I appreciated how patient and understanding the nurse was during my vaccination."
+              </Text>
+              <Text style={styles.testimonialAuthor}>- Michael T.</Text>
             </View>
-            <Text style={commonStyles.text}>
-              Ensure your children have all required immunizations before the school year starts.
-            </Text>
-            <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.campaignButton]}>
-              <Text style={commonStyles.buttonOutlineText}>Learn More</Text>
-            </TouchableOpacity>
           </View>
-        </View>
 
-        <View style={styles.imageContainer}>
-          <Image
-            source={require('../../assets/images/VacPatients.jpg')}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        </View>
+          <View style={commonStyles.footer}>
+            <View style={commonStyles.footerSection}>
+              <Text style={commonStyles.footerHeading}>About VaxServe</Text>
+              <TouchableOpacity style={commonStyles.footerLink}>
+                <Text style={commonStyles.footerLinkText}>Our Mission</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={commonStyles.footerLink}>
+                <Text style={commonStyles.footerLinkText}>Team</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={commonStyles.footerLink}>
+                <Text style={commonStyles.footerLinkText}>Careers</Text>
+              </TouchableOpacity>
+            </View>
 
-        <View style={styles.testimonialsContainer}>
-          <Text style={commonStyles.sectionTitle}>What Our Patients Say</Text>
-          
-          <View style={commonStyles.card}>
-            <Text style={commonStyles.text}>
-              "The staff was friendly and professional. I was in and out in less than 20 minutes. Highly recommended!"
-            </Text>
-            <Text style={styles.testimonialAuthor}>- Sarah J.</Text>
-          </View>
-          
-          <View style={commonStyles.card}>
-            <Text style={commonStyles.text}>
-              "As someone with a fear of needles, I appreciated how patient and understanding the nurse was during my vaccination."
-            </Text>
-            <Text style={styles.testimonialAuthor}>- Michael T.</Text>
-          </View>
-        </View>
+            <View style={commonStyles.footerSection}>
+              <Text style={commonStyles.footerHeading}>Support</Text>
+              <TouchableOpacity style={commonStyles.footerLink}>
+                <Text style={commonStyles.footerLinkText}>FAQs</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={commonStyles.footerLink}>
+                <Text style={commonStyles.footerLinkText}>Privacy Policy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={commonStyles.footerLink}>
+                <Text style={commonStyles.footerLinkText}>Terms of Service</Text>
+              </TouchableOpacity>
+            </View>
 
-        <View style={commonStyles.footer}>
-          <View style={commonStyles.footerSection}>
-            <Text style={commonStyles.footerHeading}>About VaxServe</Text>
-            <TouchableOpacity style={commonStyles.footerLink}>
-              <Text style={commonStyles.footerLinkText}>Our Mission</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={commonStyles.footerLink}>
-              <Text style={commonStyles.footerLinkText}>Team</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={commonStyles.footerLink}>
-              <Text style={commonStyles.footerLinkText}>Careers</Text>
-            </TouchableOpacity>
+            <View style={commonStyles.footerSection}>
+              <Text style={commonStyles.footerHeading}>Contact</Text>
+              <Text style={commonStyles.footerText}>contact@vaxserve.com</Text>
+              <Text style={commonStyles.footerText}>(555) 123-4567</Text>
+              <Text style={commonStyles.footerText}>97 Vo Van Tan, District 3, VaxServe Vaccination Hospital</Text>
+            </View>
           </View>
-          
-          <View style={commonStyles.footerSection}>
-            <Text style={commonStyles.footerHeading}>Support</Text>
-            <TouchableOpacity style={commonStyles.footerLink}>
-              <Text style={commonStyles.footerLinkText}>FAQs</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={commonStyles.footerLink}>
-              <Text style={commonStyles.footerLinkText}>Privacy Policy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={commonStyles.footerLink}>
-              <Text style={commonStyles.footerLinkText}>Terms of Service</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <View style={commonStyles.footerSection}>
-            <Text style={commonStyles.footerHeading}>Contact</Text>
-            <Text style={commonStyles.footerText}>contact@vaxserve.com</Text>
-            <Text style={commonStyles.footerText}>(555) 123-4567</Text>
-            <Text style={commonStyles.footerText}>97 Vo Van Tan, District 3, VaxServe Vaccination Hospital</Text>
-          </View>
-        </View>
-        
-        <View style={styles.copyright}>
-          <Text style={styles.copyrightText}>© 2025 VaxServe. All rights reserved.</Text>
-        </View>
 
-        {/* <View style={commonStyles.chatContainer}>
+          <View style={styles.copyright}>
+            <Text style={styles.copyrightText}>© 2025 VaxServe. All rights reserved.</Text>
+          </View>
+
+          {/* <View style={commonStyles.chatContainer}>
             <TouchableOpacity
                 onPress={() => nav.navigate("ChatScreen")}
                 style={commonStyles.chatButton}
@@ -465,7 +570,18 @@ const LandingScreen = () => {
                 <Entypo name="chat" size={24} color={COLORS.lightGray} />
             </TouchableOpacity>
         </View> */}
-      </ScrollView>
+
+        </ScrollView>
+
+      </View>
+      <View style={commonStyles.chatButtonContainer}>
+        <TouchableOpacity
+          onPress={() => setChatVisible(true)}
+          style={[commonStyles.chatButton, commonStyles.largerChatButton]}
+        >
+          <Entypo name="chat" size={32} color={COLORS.lightGray} />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -566,24 +682,6 @@ const styles = {
     fontSize: FONT_SIZE.large,
     color: COLORS.white,
     fontWeight: '500',
-  },
-  imageContainer: {
-    paddingHorizontal: SPACING.medium,
-    marginVertical: SPACING.large,
-  },
-  image: {
-    height: 200,
-    width: '100%',
-    borderRadius: BORDER_RADIUS.medium,
-    ...SHADOW.medium,
-  },
-  imagePlaceholder: {
-    height: 200,
-    backgroundColor: COLORS.lightGray,
-    borderRadius: BORDER_RADIUS.medium,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...SHADOW.medium,
   },
   placeholderText: {
     fontSize: FONT_SIZE.medium,

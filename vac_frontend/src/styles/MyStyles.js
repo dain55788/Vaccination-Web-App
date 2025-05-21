@@ -90,6 +90,112 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  chatModalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  chatModal: {
+    backgroundColor: COLORS.background.primary,
+    borderTopLeftRadius: BORDER_RADIUS.medium,
+    borderTopRightRadius: BORDER_RADIUS.medium,
+    padding: SPACING.medium,
+    height: '80%',
+    ...SHADOW.dark,
+  },
+  chatHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.medium,
+  },
+  chatTitle: {
+    fontSize: FONT_SIZE.large,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  messagesContainer: {
+    padding: SPACING.small,
+  },
+  message: {
+    maxWidth: '75%',
+    padding: SPACING.small,
+    borderRadius: BORDER_RADIUS.small,
+    marginBottom: SPACING.small,
+  },
+  userMessage: {
+    backgroundColor: COLORS.primary,
+    alignSelf: 'flex-end',
+  },
+  geminiMessage: {
+    backgroundColor: COLORS.background.secondary,
+    alignSelf: 'flex-start',
+  },
+  messageText: {
+    fontSize: FONT_SIZE.medium,
+  },
+  userMessageText: {
+    color: COLORS.white,
+  },
+  geminiMessageText: {
+    color: COLORS.text.primary,
+  },
+  inputView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.medium,
+    backgroundColor: COLORS.background.primary,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.medium,
+    paddingVertical: SPACING.small,
+    paddingHorizontal: SPACING.medium,
+    marginRight: SPACING.medium,
+    color: COLORS.text.primary,
+    fontSize: FONT_SIZE.medium,
+  },
+  sendButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.small,
+    paddingVertical: SPACING.small,
+    paddingHorizontal: SPACING.medium,
+    marginLeft: SPACING.tiny,
+    shadowColor: COLORS.primary,
+    marginRight: SPACING.small,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sendButtonText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: FONT_SIZE.medium,
+  },
+  largerChatButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  helpLabelContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  helpLabel: {
+    fontSize: FONT_SIZE.large,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
+    marginBottom: SPACING.medium,
+  },
   loginButton: {
     marginTop: SPACING.medium,
     marginBottom: SPACING.medium,
@@ -168,11 +274,17 @@ export const commonStyles = StyleSheet.create({
     alignItems: 'flex-end',
     backgroundColor: "#fff",
   },
+  chatButtonContainer: {
+    position: 'absolute',
+    bottom: SPACING.large,
+    right: SPACING.large,
+    zIndex: 1000,
+  },
   chatButton: {
     backgroundColor: COLORS.primary,
-    height: 50,
-    width: 50,
-    borderRadius: 25,
+    height: 70,
+    width: 70,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: COLORS.primary,

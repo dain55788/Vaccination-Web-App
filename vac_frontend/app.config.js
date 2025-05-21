@@ -40,7 +40,8 @@ export default {
       appId: process.env.APP_ID,
       CLIENT_ID: process.env.CLIENT_ID,
       CLIENT_SECRET: process.env.CLIENT_SECRET,
-      BASE_URL: process.env.BASE_URL
+      BASE_URL: process.env.BASE_URL,
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     }
   }
 }

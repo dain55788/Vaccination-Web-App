@@ -20,6 +20,7 @@ import AppointmentScreen from './src/screens/Services/AppointmentScreen';
 import ContactScreen from './src/screens/Services/ContactScreen';
 import ServicesScreen from './src/screens/Services/ServicesScreen';
 // import ChatScreen from './src/screens/Services/ChatScreen';
+import UpcomingCampaignsScreen from './src/screens/Services/UpcomingCampaignsScreen';
 
 import AdminDashboardScreen from './src/screens/Admin/AdminDashboardScreen';
 import PublicCampaignManagementScreen from './src/screens/Admin/PublicCampaignManagementScreen';
@@ -53,7 +54,8 @@ const AppNavigator = () => {
         <Stack.Screen name="Contact" component={ContactScreen} />
         <Stack.Screen name="Services" component={ServicesScreen} />
         {/* <Stack.Screen name="Chat" component={ChatScreen} /> */}
-
+        <Stack.Screen name="UpcomingCampaigns" component={UpcomingCampaignsScreen} />
+        
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Landing" component={LandingScreen} />
