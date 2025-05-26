@@ -129,10 +129,11 @@ class VaccineSerializer(BaseSerializer):
         source='category',
         write_only=True
     )
+    category_name = serializers.ReadOnlyField(source='category.category_name')
 
     class Meta:
         model = Vaccine
-        fields = ['id', 'category_id', 'vaccine_name', 'dose_quantity', 'image', 'instruction',
+        fields = ['id', 'category_id', 'category_name', 'vaccine_name', 'dose_quantity', 'image', 'instruction',
                   'unit_price', 'created_date', 'updated_date']
 
 
@@ -157,7 +158,8 @@ class AppointmentVaccineSerializer(BaseSerializer):
 
     class Meta:
         model = AppointmentVaccine
-        fields = ['id', 'appointment','appointment_info', 'vaccine', 'vaccine_info', 'doctor', 'doctor_info', 'dose_quantity_used',
+        fields = ['id', 'appointment', 'appointment_info', 'vaccine', 'vaccine_info', 'doctor', 'doctor_info',
+                  'dose_quantity_used',
                   'status', 'notes', 'cost']
         extra_kwargs = {
             'vaccine': {'write_only': True},

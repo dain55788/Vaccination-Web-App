@@ -155,47 +155,92 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], url_path='completion-rate', detail=False)
     def completion_rate(self, request):
-        total_scheduled = AppointmentVaccine.objects.filter(status='scheduled').count()
+        period = request.query_params.get('period', 'month')  # month, quarter, year
+        if period == 'month':
+            truncate_func = TruncMonth
+        elif period == 'quarter':
+            truncate_func = TruncQuarter
+        elif period == 'year':
+            truncate_func = TruncYear
         total_completed = AppointmentVaccine.objects.filter(status='completed').count()
         total_cancelled = AppointmentVaccine.objects.filter(status='cancelled').count()
+        queryset = (
+            AppointmentVaccine.objects.filter(active=True)
+            .annotate(period=truncate_func('appointment__scheduled_date'))
+            .values('period', 'status')
+            .annotate(count=Count('id'))
+        )
 
-        total_appointments = total_scheduled + total_completed + total_cancelled
-        if total_appointments > 0:
-            completion_rate = (total_completed / total_appointments * 100)
-        else:
-            completion_rate = 0
+        summary = {}
+        for item in queryset:
+            period = item['period'].isoformat()
+            status = item['status']
+            count = item['count']
 
-        result = {
-            'total_appointments': total_appointments,
-            'total_scheduled': total_scheduled,
-            'total_completed': total_completed,
-            'total_cancelled': total_cancelled,
-            'completion_rate_percent': round(completion_rate, 2)
-        }
+            if period not in summary:
+                summary[period] = {
+                    'total_completed': 0,
+                    'total_cancelled': 0,
+                    'total_appointments': 0,
+                    'completion_rate_percent': 0,
+                }
+
+            if status == 'completed':
+                summary[period]['total_completed'] += count
+            elif status == 'cancelled':
+                summary[period]['total_cancelled'] += count
+
+            summary[period]['total_appointments'] += count
+
+        # Tính tỷ lệ hoàn thành (%)
+        for stats in summary.values():
+            total = stats['total_appointments']
+            if total > 0:
+                stats['completion_rate_percent'] = round(stats['total_completed'] / total * 100, 2)
+
+        result = [
+            {
+                'period': period,
+                **stats
+            }
+            for period, stats in sorted(summary.items())
+        ]
+
         return Response(result)
 
     @action(methods=['get'], url_path='people-completed', detail=False)
     def people_completed(self, request):
+        period_type = request.query_params.get('period', 'month')
 
-        p = Appointment.objects.filter(active=True)
-        data = Appointment.objects.filter(active=True)
+        if period_type == 'month':
+            truncate_func = TruncMonth
+        elif period_type == 'quarter':
+            truncate_func = TruncQuarter
+        elif period_type == 'year':
+            truncate_func = TruncYear
 
-        date_year = self.request.query_params.get('year')
-        if date_year:
-            data = data.filter(scheduled_date__year=date_year)
-            p = p.filter(scheduled_date__year=date_year)
+        appointments = (
+            Appointment.objects
+            .filter(active=True)
+            .annotate(period=truncate_func('scheduled_date'))
+            .values('period', 'citizen_id')
+            .distinct()
+        )
 
-        date = self.request.query_params.get('date')
-        if date:
-            data = data.filter(scheduled_date=date)
-            p = p.filter(scheduled_date=date)
+        grouped = {}
+        for item in appointments:
+            period = item['period'].isoformat()
+            grouped.setdefault(period, set()).add(item['citizen_id'])
 
-        p = p.values('citizen__id').distinct().count()
-        serializer = serializers.AppointmentSerializer(data, many=True)
-        return Response({
-            'people': p,
-            'people_completed': serializer.data
-        })
+        result = [
+            {
+                'period': period,
+                'people_completed_count': len(citizen_ids)
+            }
+            for period, citizen_ids in sorted(grouped.items())
+        ]
+
+        return Response(result)
 
 
 class VaccineUsageViewSet(viewsets.ViewSet, generics.GenericAPIView):
@@ -206,38 +251,45 @@ class VaccineUsageViewSet(viewsets.ViewSet, generics.GenericAPIView):
             truncate_func = TruncMonth
         elif period == 'quarter':
             truncate_func = TruncQuarter
-        else:
+        elif period == 'year':
             truncate_func = TruncYear
 
-        appointment_vaccines = (AppointmentVaccine.objects
-                                .filter(status='completed')
-                                .annotate(period=truncate_func('appointment__scheduled_date'))
-                                .values('period', 'vaccine__vaccine_name')
-                                .distinct())
+        appointment_usage = (
+            AppointmentVaccine.objects
+            .filter(status='completed')
+            .annotate(period=truncate_func('appointment__scheduled_date'))
+            .values('period', 'vaccine__category__category_name')
+            .annotate(usage=Sum('dose_quantity_used'))
+            .values('period','vaccine__category__category_name', 'dose_quantity_used')
+        )
 
-        campaign_vaccines = (CampaignVaccine.objects
-                             .annotate(period=truncate_func('campaign__start_date'))
-                             .values('period', 'vaccine__vaccine_name')
-                             .distinct())
+        campaign_usage = (
+            CampaignVaccine.objects
+            .annotate(period=truncate_func('campaign__start_date'))
+            .values('period', 'vaccine__category__category_name')
+            .annotate(usage=Sum('dose_quantity_used'))
+            .values('period','vaccine__category__category_name', 'dose_quantity_used')
+        )
 
-        combined_vaccines = {}
-        for vaccine in appointment_vaccines:
-            period = vaccine['period'].isoformat()
-            combined_vaccines.setdefault(period, set()).add(vaccine['vaccine__vaccine_name'])
+        combined = {}
+        for item in appointment_usage:
+            key = (item['period'].isoformat(), item['vaccine__category__category_name'])
+            combined[key] = combined.get(key, 0) + item['dose_quantity_used']
 
-        for vaccine in campaign_vaccines:
-            period = vaccine['period'].isoformat()
-            combined_vaccines.setdefault(period, set()).add(vaccine['vaccine__vaccine_name'])
+        for item in campaign_usage:
+            key = (item['period'].isoformat(), item['vaccine__category__category_name'])
+            combined[key] = combined.get(key, 0) + item['dose_quantity_used']
 
         result = [
             {
                 'period': period,
-                'vaccine_types': list(vaccines)
+                'category_name': category_name,
+                'dose_quantity_used': dose_quantity_used,
             }
-            for period, vaccines in combined_vaccines.items()
+            for (period, category_name), dose_quantity_used in combined.items()
         ]
 
-        result = sorted(result, key=lambda x: x['period'])
+        result = sorted(result, key=lambda x: (x['period'], x['category_name']))
         return Response(result)
 
 
