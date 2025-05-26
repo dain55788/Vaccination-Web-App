@@ -22,6 +22,8 @@ import { TextInput } from "react-native-paper";
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../../config/Firebase';
 
 const HomeScreen = () => {
   const nav = useNavigation();
@@ -45,6 +47,7 @@ const HomeScreen = () => {
         index: 0,
         routes: [{ name: 'Landing' }],
       });
+      signOut(auth).catch(error => console.log('Error logging out: ', error));
       console.info('Successfully log user out!!');
     } catch (error) {
       console.error('Error during logout:', error);

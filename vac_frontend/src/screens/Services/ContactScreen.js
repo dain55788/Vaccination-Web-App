@@ -52,10 +52,10 @@ const ContactScreen = ({ navigation }) => {
       
       <View style={commonStyles.header}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={commonStyles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={commonStyles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={commonStyles.headerTitle}>Contact Us</Text>
         <View style={styles.emptySpace} />
@@ -169,13 +169,6 @@ const ContactScreen = ({ navigation }) => {
 
 // Additional styles specific to ContactScreen
 const styles = {
-  backButton: {
-    marginRight: SPACING.medium,
-  },
-  backButtonText: {
-    fontSize: FONT_SIZE.huge,
-    color: COLORS.primary,
-  },
   emptySpace: {
     width: 40, // To balance the header since we have a back button on the left
   },

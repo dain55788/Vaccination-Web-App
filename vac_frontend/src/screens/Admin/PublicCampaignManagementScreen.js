@@ -150,7 +150,7 @@ const CampaignManagement = () => {
           // );
           Alert.alert('Success', 'Heading you back to Upcoming Campaigns!');
           setTimeout(() => {
-            nav.navigate('Landing');
+            nav.navigate('UpcomingCampaigns');
           }, 1500);
         }
       } catch (ex) {

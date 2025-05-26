@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  // ActivityIndicator
 } from 'react-native';
 
 import { StatusBar } from 'expo-status-bar';
@@ -22,8 +23,19 @@ const { CLIENT_ID, CLIENT_SECRET } = Constants.expoConfig.extra;
 import { MyDispatchContext } from "../../utils/MyContexts";
 import { useNavigation } from "@react-navigation/native";
 
-// import { signInWithEmailAndPassword } from "firebase/auth";
+// Google Login
+// import * as WebBrowser from "expo-web-browser";
+// import * as Google from "expo-auth-session/providers/google";
+// import {
+//   GoogleAuthProvider,
+//   onAuthStateChanged,
+//   signInWithCredential,
+// } from "firebase/auth";
+
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../config/Firebase";
+
+// WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = ({ navigation }) => {
   const info = [{
@@ -60,9 +72,11 @@ const LoginScreen = ({ navigation }) => {
   }
 
   // // Firebase login authentication
-  // const onHandleLogin = (email, password) => {
-  //   signInWithEmailAndPassword(auth, email, password);
-  // };
+  const onHandleLogin = (email, password) => {
+    signInWithEmailAndPassword(auth, email, password)
+    .then(() => console.log("Login success"))
+    .catch((err) => Alert.alert("Login error", err.message));
+  };
 
   const handleLogin = async () => {
     setMsg('');
@@ -87,7 +101,7 @@ const LoginScreen = ({ navigation }) => {
             "type": "login",
             "payload": u.data
           });
-          // onHandleLogin(user.email, user.password);
+          onHandleLogin(user.email, user.password);
           nav.navigate('Landing');
         } else {
           setMsg('Fail to login. Please check your username or password.');

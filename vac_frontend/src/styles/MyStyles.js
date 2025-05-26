@@ -90,6 +90,67 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  backButton: {
+    marginRight: SPACING.medium,
+  },
+  backButtonText: {
+    fontSize: FONT_SIZE.extraLarge,
+    color: COLORS.primary,
+  },
+  closeButton: {
+    fontSize: FONT_SIZE.extraLarge,
+    color: COLORS.text.secondary,
+  },
+  chatOptionsModalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.large,
+  },
+  chatOptionsModal: {
+    backgroundColor: COLORS.background.primary,
+    borderRadius: BORDER_RADIUS.medium,
+    padding: SPACING.large,
+    width: '100%',
+    maxWidth: 400,
+    ...SHADOW.dark,
+  },
+  chatOptionsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.large,
+  },
+  chatOptionsTitle: {
+    fontSize: FONT_SIZE.large,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+  },
+  chatOptionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.medium,
+    borderRadius: BORDER_RADIUS.small,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: SPACING.medium,
+    backgroundColor: COLORS.background.secondary,
+  },
+  chatOptionContent: {
+    marginLeft: SPACING.medium,
+    flex: 1,
+  },
+  chatOptionTitle: {
+    fontSize: FONT_SIZE.medium,
+    fontWeight: 'bold',
+    color: COLORS.text.primary,
+    marginBottom: SPACING.tiny,
+  },
+  chatOptionDescription: {
+    fontSize: FONT_SIZE.small,
+    color: COLORS.text.secondary,
+  },
   scrollContainer: {
     flex: 1,
     position: 'relative',
@@ -147,20 +208,18 @@ export const commonStyles = StyleSheet.create({
   inputView: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: SPACING.medium,
-    backgroundColor: COLORS.background.primary,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    padding: SPACING.small,
+    backgroundColor: COLORS.background.secondary,
+    borderRadius: BORDER_RADIUS.medium,
+    marginTop: SPACING.medium,
   },
   input: {
     flex: 1,
-    backgroundColor: COLORS.white,
-    borderRadius: BORDER_RADIUS.medium,
-    paddingVertical: SPACING.small,
-    paddingHorizontal: SPACING.medium,
-    marginRight: SPACING.medium,
-    color: COLORS.text.primary,
+    backgroundColor: COLORS.background.primary,
+    borderRadius: BORDER_RADIUS.small,
+    padding: SPACING.small,
     fontSize: FONT_SIZE.medium,
+    color: COLORS.text.primary,
   },
   sendButton: {
     backgroundColor: COLORS.primary,
@@ -323,13 +382,6 @@ export const commonStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: SPACING.medium,
-  },
-  backButton: {
-    padding: SPACING.small,
-  },
-  backButtonText: {
-    color: COLORS.primary,
-    fontSize: FONT_SIZE.medium,
   },
   section: {
     marginBottom: SPACING.large,
