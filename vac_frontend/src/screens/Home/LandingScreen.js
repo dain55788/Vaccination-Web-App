@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import { MyUserContext, MyDispatchContext } from '../../utils/MyContexts';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import Animated, { useSharedValue, withTiming, Easing, runOnJS } from 'react-native-reanimated';
 import Constants from 'expo-constants';
 const { GEMINI_API_KEY } = Constants.expoConfig.extra;
@@ -17,6 +17,7 @@ const LandingScreen = () => {
   const [chatVisible, setChatVisible] = useState(false);
   const [msg, setMsg] = useState('');
   const [messages, setMessages] = useState([]);
+  const [chatOptionsVisible, setChatOptionsVisible] = useState(false);
 
   const handleAppointmentNavigation = () => {
     if (user === null) {
@@ -37,6 +38,28 @@ const LandingScreen = () => {
       );
     } else {
       nav.navigate('Appointment');
+    }
+  };
+
+  const handleChatNavigation = () => {
+    if (user === null) {
+      Alert.alert(
+        'Please sign in to continue',
+        'You need to log in to chat with our expert.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: () => nav.navigate('Login'),
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      nav.navigate('Chat');
     }
   };
 
@@ -74,6 +97,15 @@ const LandingScreen = () => {
       console.error('Error:', error);
       const errorMessage = { text: 'Error occurred', sender: 'gemini' };
       setMessages(prevMessages => [errorMessage, ...prevMessages]);
+    }
+  };
+
+  const handleChatOptionSelect = (option) => {
+    setChatOptionsVisible(false);
+    if (option === 'ai') {
+      setChatVisible(true);
+    } else if (option === 'experts') {
+      handleChatNavigation();
     }
   };
 
@@ -171,7 +203,7 @@ const LandingScreen = () => {
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Menu</Text>
               <TouchableOpacity onPress={() => setMenuVisible(false)}>
-                <Text style={styles.closeButton}>✕</Text>
+                <Text style={commonStyles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
             <TouchableOpacity
@@ -261,7 +293,7 @@ const LandingScreen = () => {
                 <Text style={styles.menuItemText}>Make Appointment</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
                 nav.navigate('UpcomingCampaigns');
@@ -317,6 +349,46 @@ const LandingScreen = () => {
         </View>
       </Modal>
 
+    <Modal
+        animationType="fade"
+        transparent={true}
+        visible={chatOptionsVisible}
+        onRequestClose={() => setChatOptionsVisible(false)}
+      >
+        <View style={commonStyles.chatOptionsModalContainer}>
+          <View style={commonStyles.chatOptionsModal}>
+            <View style={commonStyles.chatOptionsHeader}>
+              <Text style={commonStyles.chatOptionsTitle}>Choose Chat Option</Text>
+              <TouchableOpacity onPress={() => setChatOptionsVisible(false)}>
+                <Text style={commonStyles.closeButton}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <TouchableOpacity
+              style={commonStyles.chatOptionButton}
+              onPress={() => handleChatOptionSelect('ai')}
+            >
+              <MaterialCommunityIcons name="robot" size={32} color={COLORS.primary} />
+              <View style={commonStyles.chatOptionContent}>
+                <Text style={commonStyles.chatOptionTitle}>Chat With VaxServe AI</Text>
+                <Text style={commonStyles.chatOptionDescription}>Get instant answers about vaccines and services</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={commonStyles.chatOptionButton}
+              onPress={() => handleChatOptionSelect('experts')}
+            >
+              <MaterialCommunityIcons name="account-group" size={32} color={COLORS.secondary} />
+              <View style={commonStyles.chatOptionContent}>
+                <Text style={commonStyles.chatOptionTitle}>Chat With Our Experts</Text>
+                <Text style={commonStyles.chatOptionDescription}>Connect with healthcare professionals</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -330,9 +402,10 @@ const LandingScreen = () => {
           <View style={commonStyles.chatModalContainer}>
             <View style={commonStyles.chatModal}>
               <View style={commonStyles.chatHeader}>
+                <MaterialCommunityIcons name="robot" size={32} color={COLORS.primary} style={styles.aiIcon} />
                 <Text style={commonStyles.chatTitle}>VaxServe AI Chat Assistant</Text>
                 <TouchableOpacity onPress={() => setChatVisible(false)}>
-                  <Text style={styles.closeButton}>✕</Text>
+                  <Text style={commonStyles.closeButton}>✕</Text>
                 </TouchableOpacity>
               </View>
               {messages.length === 0 && msg === '' && (
@@ -479,7 +552,9 @@ const LandingScreen = () => {
                 Get your annual flu shot before the winter season. Special discounts for families and seniors.
               </Text>
               <TouchableOpacity style={[commonStyles.button, commonStyles.buttonOutline, styles.campaignButton]}>
-                <Text style={commonStyles.buttonOutlineText}>Learn More</Text>
+                <Text style={commonStyles.buttonOutlineText}
+                  onPress={() => nav.navigate('UpcomingCampaigns')}
+                >Learn More</Text>
               </TouchableOpacity>
             </View>
 
@@ -562,21 +637,12 @@ const LandingScreen = () => {
             <Text style={styles.copyrightText}>© 2025 VaxServe. All rights reserved.</Text>
           </View>
 
-          {/* <View style={commonStyles.chatContainer}>
-            <TouchableOpacity
-                onPress={() => nav.navigate("ChatScreen")}
-                style={commonStyles.chatButton}
-            >
-                <Entypo name="chat" size={24} color={COLORS.lightGray} />
-            </TouchableOpacity>
-        </View> */}
-
         </ScrollView>
 
       </View>
       <View style={commonStyles.chatButtonContainer}>
         <TouchableOpacity
-          onPress={() => setChatVisible(true)}
+          onPress={() => setChatOptionsVisible(true)}
           style={[commonStyles.chatButton, commonStyles.largerChatButton]}
         >
           <Entypo name="chat" size={32} color={COLORS.lightGray} />
@@ -653,10 +719,6 @@ const styles = {
     fontSize: FONT_SIZE.large,
     fontWeight: 'bold',
     color: COLORS.text.primary,
-  },
-  closeButton: {
-    fontSize: FONT_SIZE.extraLarge,
-    color: COLORS.text.secondary,
   },
   menuItem: {
     paddingVertical: SPACING.medium,

@@ -15,6 +15,8 @@ export default {
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      // "googleServicesFile": "./GoogleService-Info.plist",
+      // "bundleIdentifier": "com.mycorp.myapp",
       "supportsTablet": true,
       "infoPlist": {
         "NSAppTransportSecurity": {
@@ -23,6 +25,8 @@ export default {
       }
     },
     "android": {
+      // "googleServicesFile": "./google-services.json",
+      // "package": "com.mycorp.myapp",
       "adaptiveIcon": {
         "foregroundImage": "./assets/dirty-hand.png",
         "backgroundColor": "#ffffff"
@@ -31,6 +35,18 @@ export default {
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ]
+    ],
     extra: {
       apiKey: process.env.API_KEY, 
       authDomain: process.env.AUTH_DOMAIN, 
@@ -42,8 +58,12 @@ export default {
       CLIENT_SECRET: process.env.CLIENT_SECRET,
       BASE_URL: process.env.BASE_URL,
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+<<<<<<< HEAD
       STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
       STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+=======
+      GOOGLE_WEB_CLIENT_ID: process.env.GOOGLE_WEB_CLIENT_ID,
+>>>>>>> 94842c0ac6bd493d3472991ec9e34dba83816de6
     }
   }
 }

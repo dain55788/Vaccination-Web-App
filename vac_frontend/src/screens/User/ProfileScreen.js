@@ -14,6 +14,8 @@ import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
 import { MyDispatchContext, MyUserContext } from '../../utils/MyContexts';
 import { useNavigation } from '@react-navigation/native';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../../config/Firebase';
 
 const ProfileScreen = ({ navigation }) => {
   const user = useContext(MyUserContext)
@@ -29,6 +31,7 @@ const ProfileScreen = ({ navigation }) => {
     dispatch({
       "type": "logout"
     })
+    signOut(auth).catch(error => console.log('Error logging out: ', error));
   }
 
   const [settings, setSettings] = useState({

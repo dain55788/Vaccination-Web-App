@@ -1,7 +1,5 @@
 /venv
-Note.txt
 
-vac_management/test.py
 .env
 
 .idea/
@@ -10,8 +8,4 @@ airflow/logs
 
 ..logs/
 
-email_sender/Note.txt
-
-email_sender/log.txt
-
-email_sender/test.py
+airflow/data

@@ -2,9 +2,10 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { MyDispatchContext, MyUserContext } from './src/utils/MyContexts';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useContext, useReducer } from "react";
+import { MyUserContext, MyDispatchContext, AuthenticatedUserContext } from './src/utils/MyContexts';
+
 import MyUserReducer from "./src/reducers/MyUserReducer";
 
 import HomeScreen from './src/screens/Home/HomeScreen';
@@ -19,7 +20,7 @@ import ProfileScreen from './src/screens/User/ProfileScreen';
 import AppointmentScreen from './src/screens/Services/AppointmentScreen';
 import ContactScreen from './src/screens/Services/ContactScreen';
 import ServicesScreen from './src/screens/Services/ServicesScreen';
-// import ChatScreen from './src/screens/Services/ChatScreen';
+import ChatScreen from './src/screens/Services/ChatScreen';
 import UpcomingCampaignsScreen from './src/screens/Services/UpcomingCampaignsScreen';
 
 import AdminDashboardScreen from './src/screens/Admin/AdminDashboardScreen';
@@ -34,12 +35,10 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const AppNavigator = () => {
-  const user = useContext(MyUserContext);
 
   return (
     <NavigationContainer>
       <Stack.Navigator
-        // initialRouteName={user === null ? 'Landing' : 'Home'}
         initialRouteName="Welcome"
         screenOptions={{
           headerShown: false,
@@ -53,7 +52,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Appointment" component={AppointmentScreen} />
         <Stack.Screen name="Contact" component={ContactScreen} />
         <Stack.Screen name="Services" component={ServicesScreen} />
-        {/* <Stack.Screen name="Chat" component={ChatScreen} /> */}
+        <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="UpcomingCampaigns" component={UpcomingCampaignsScreen} />
         
         <Stack.Screen name="Home" component={HomeScreen} />
@@ -80,7 +79,7 @@ const App = () => {
     <SafeAreaProvider>
       <MyUserContext.Provider value={user}>
         <MyDispatchContext.Provider value={dispatch}>
-          <AppNavigator />
+          <AppNavigator/>
         </MyDispatchContext.Provider>
       </MyUserContext.Provider>
       <StatusBar style="auto" />
