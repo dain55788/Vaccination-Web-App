@@ -22,14 +22,14 @@ def email(app, to_mail):
         message = Mail(
             from_email='dainnguyen1307@gmail.com',
             to_emails=to_mail,
-            subject='Nhắc Nhở Lịch Tiêm Chủng',
-            html_content='<img src="https://static.vecteezy.com/system/resources/previews/019/956/427/non_2x/healthy-food-logo-premium-vector.jpg"'
+            subject='Nhắc Nhở Lịch Tiêm Chủng Từ VaxServe',
+            html_content='<img src="https://schaeffer.usc.edu/wp-content/uploads/2024/10/covid-vaccine-web-2.png"'
                          'style="width:300px; height:auto;">'
                          '<h1> Nhắc nhở lịch tiêm chủng </h1>'
                          f'<br>Tên bệnh nhân: <b>{app["patient_name"]}</b><br>'
                          f'<br>Số điện thoại: <b>{app["phone"]}</b><br>'
                          f'<br>Ngày hẹn tiêm: <b>{app["scheduled_date"]}</b><br>'
-                         f'<br>Địa điểm: Khách hàng vui lòng đến địa chỉ này nhé: <b>{app["location"]}</b><br>'
+                         f'<br>Địa điểm: Khách hàng vui lòng đến địa chỉ này: <b>{app["location"]}</b><br>'
                          f'<br>Ghi chú: {app["notes"]}<br>'
                          f'<br>Lưu ý: Nhớ mang theo <b>CĂN CƯỚC CÔNG DÂN</b> và <b>BẢO HIỂM Y TẾ</b> bạn nhé!!<br>'
         )
@@ -66,6 +66,3 @@ def send_emails():
                 print(f"Error sending email to {patient_email}: {str(e)}")
     except Exception as e:
         print(f"Error in send_emails function: {str(e)}")
-
-# Execution
-send_emails()
