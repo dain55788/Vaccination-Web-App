@@ -18,4 +18,5 @@ router.register('vaccineusages', views.VaccineUsageViewSet, basename='vaccineusa
 urlpatterns = [
     # API endpoints provided by the router
     path('', include(router.urls)),
+    path('payment-sheet/', views.payment_sheet, name='payment-sheet'),
 ]

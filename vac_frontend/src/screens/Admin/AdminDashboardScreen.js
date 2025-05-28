@@ -279,7 +279,7 @@ const AdminDashboard = () => {
 
   const ppcdata = useMemo(() => {
     const dt = getPPC();
-
+    if (!dt || dt.length === 0) return [];
     const data = dt.map(item => {
       let label = '';
       if (selected === 'month' || selected === 'quarter') {

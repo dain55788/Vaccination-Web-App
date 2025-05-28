@@ -14,6 +14,7 @@ import {
   Platform,
   Alert
 } from 'react-native';
+import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../../styles/MyStyles';
 import Apis, { authApis, endpoints } from "../../utils/Apis";
@@ -22,53 +23,147 @@ import { MyDispatchContext, MyUserContext } from "../../utils/MyContexts";
 import { useContext } from "react";
 import { ActivityIndicator, HelperText, List, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
-
+import { StripeProvider, usePaymentSheet } from '@stripe/stripe-react-native';
+const { STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, BASE_URL } = Constants.expoConfig.extra;
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const AppointmentStatusScreen = () => {
   const appointmentVaccineEndpoint = endpoints['appointmentvaccine'];
   const nav = useNavigation();
   const user = useContext(MyUserContext);
 
   const [appointmentVaccines, setAppointmentVaccines] = useState([]);
+  const [vaccines, setVaccines] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [msg, setMsg] = useState(null);
   const [selectedData, setSelectedData] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isEditVacModalVisible, setIsEditVacModalVisible] = useState(false);
   const [formData, setFormData] = useState({
     status: '',
     notes: '',
   });
+  const [selectedVacData, setSelectedVacData] = useState(null);
+  const [vaccinePatch, setVaccinePatch] = useState({
+    id: '',
+  });
 
-  const loadAppointmentVaccines = async () => {
-    if (!hasMore || loading) return;
-    try {
-      setLoading(true);
-      const url = `${endpoints['appointmentvaccine']}?page=${page}`;
-      const response = await Apis.get(url);
-      const data = response.data;
+  const { initPaymentSheet, presentPaymentSheet } = usePaymentSheet();
 
-      setAppointmentVaccines(prev => [...prev, ...data.results]);
-      if (!data.next) {
-        setHasMore(false);
-      } else {
-        setPage(prev => prev + 1);
-      }
-    } catch (error) {
-      console.error('Error fetching appointment vaccines:', error);
-    } finally {
-      setLoading(false);
+  async function handlePayClick(data) {
+    const { error } = await presentPaymentSheet();
+    if (error) {
+      Alert.alert(`Error code:${error.code}`, error.message);
+      console.log(error.message);
+    } else {
+      Alert.alert('Success', 'The Payment was comfirmed successfully');
+    }
+    setSelectedVacData(data);
+    setMsg('');
+  };
+  const fetchPaymentSheetParams = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await fetch(`${BASE_URL}/payment-sheet/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    const { paymentIntent, ephemeralKey, customer } = await response.json();
+    return {
+      paymentIntent,
+      ephemeralKey,
+      customer,
+    };
+  };
+  const openPaymentSheet = async () => {
+    const { error } = await presentPaymentSheet();
+    if (error) {
+      alert(`Pay Error: ${error.message}`);
+      console.log(error.message);
+    } else {
+      Alert.alert('Pay Successfully!', 'Hold this screen and show to Staff to proof that you paid');
     }
   };
+
+  const initializePaymentSheet = async () => {
+    try {
+      const {
+        paymentIntent,
+        ephemeralKey,
+        customer,
+      } = await fetchPaymentSheetParams();
+
+      const { error } = await initPaymentSheet({
+        customerId: customer,
+        customerEphemeralKeySecret: ephemeralKey,
+        paymentIntentClientSecret: paymentIntent,
+        returnURL: 'stripe-example://stripe-redirect',
+      });
+
+      if (!error) {
+        console.log('Payment sheet initialized');
+      } else {
+        console.log('Init error:', error.message);
+      }
+    } catch (e) {
+      console.log('Init failed:', e);
+    }
+  };
+
+  const loadAppointmentVaccines = async () => {
+    if (page > 0) {
+      try {
+        setLoading(true);
+        const url = `${endpoints['appointmentvaccine']}?page=${page}`;
+        const response = await Apis.get(url);
+        const data = response.data;
+
+        if (data?.results) { setAppointmentVaccines([...appointmentVaccines, ...data.results]); }
+        else { setAppointmentVaccines([...appointmentVaccines, ...data]); }
+
+        if (data.next === null) { setPage(0); }
+        else if (data?.results.next === null) { setPage(0); }
+
+      } catch (error) {
+        console.error('Error fetching appointment vaccines:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const loadVaccines = async () => {
+    try {
+      const response = await Apis.get(endpoints['vaccine']);
+      setVaccines(response.data.results);
+    } catch (error) {
+      console.error('Error fetching vaccine categories:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadVaccines();
+    initializePaymentSheet();
+  }, []);
 
   useEffect(() => {
     loadAppointmentVaccines();
   }, [page]);
 
   const loadMore = () => {
-    if (!loading && hasMore) {
-      setPage(prev => prev + 1);
-    }
+    let timer = setTimeout(() => {
+      if (!loading && page > 0) {
+        setLoading(true);
+        setPage(page + 1);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+    // if (!loading && page > 0) {
+    //   setLoading(true);
+    //   setPage(page + 1);
+    // }
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -92,6 +187,16 @@ const AppointmentStatusScreen = () => {
     setMsg('');
     setIsEditModalVisible(true);
   };
+
+  const handleEditVacClick = (data) => {
+    setSelectedVacData(data);
+    setVaccinePatch({
+      vaccine_name: data.vaccine_info?.vaccine_name || '',
+    });
+    setMsg('');
+    setIsEditVacModalVisible(true);
+  };
+
   const handleSave = async () => {
     if (!formData.status) {
       setMsg('Status is required');
@@ -127,6 +232,38 @@ const AppointmentStatusScreen = () => {
       setMsg('Failed to update status. Please try again.');
     }
   };
+
+  const handleVacSave = async () => {
+    console.info("AppoimentVac ID: ", selectedVacData.id, "VaccineID: ", selectedVacData?.vaccine_info.id);
+    console.info("Change to: ", vaccinePatch.id);
+    if (!vaccinePatch.id) {
+      setMsg('Please chose vaccine to update!');
+      return;
+    }
+    else if (selectedVacData?.vaccine_info.id === vaccinePatch.id) {
+      setMsg('Nothing has to change!!');
+      return;
+    }
+
+    try {
+      const response = await Apis.patch(`${endpoints['appointmentvaccine']}${selectedVacData.id}/`, {
+        vaccine: vaccinePatch.id,
+      });
+
+      const updateVac = appointmentVaccines.map(v =>
+        v.id === selectedVacData.id ? { ...v, ...response.data } : v
+      );
+
+      setAppointmentVaccines(updateVac);
+      setIsEditVacModalVisible(false);
+      setSelectedVacData(null);
+      setVaccinePatch({ vaccine_name: '' });
+      Alert.alert('Success', 'Successfully update vaccine')
+    } catch (error) {
+      console.error('Error updating vaccine:', error);
+      setMsg('Failed to update. Please try again.');
+    }
+  };
   useEffect(() => {
     const handler = setTimeout(() => {
       search(searchQuery);
@@ -151,7 +288,9 @@ const AppointmentStatusScreen = () => {
       <Text style={[styles.textDescription]}>
         Location: {i.appointment_info?.location}
       </Text>
-
+      <Text style={[styles.textDescription]}>
+        Cost: ${i?.cost}
+      </Text>
       <Text style={[styles.textDescription]}>
         Scheduled_date: {i.appointment_info?.scheduled_date}
       </Text>
@@ -173,11 +312,26 @@ const AppointmentStatusScreen = () => {
 
       <View style={commonStyles.appointmentActions}>
         <TouchableOpacity
-          style={[commonStyles.button, styles.rescheduleButton]}
-          onPress={() => handleEditClick(i)}
-        >
-          <Text style={commonStyles.buttonText}>Edit Status and Notes</Text>
+          style={[styles.button, styles.rescheduleButton, { backgroundColor: COLORS.info }]}
+          onPress={() => handleEditClick(i)}>
+          <Text style={styles.buttonText}>Edit Status and Notes</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, styles.rescheduleButton, { backgroundColor: COLORS.warning }]}
+          onPress={() => handleEditVacClick(i)}>
+          <Text style={styles.buttonText}>Edit Vaccine</Text>
+        </TouchableOpacity>
+        <StripeProvider
+          publishableKey={STRIPE_PUBLISHABLE_KEY}
+          urlScheme="stripe-example">
+          <TouchableOpacity
+            // onPress={() => handlePayClick(i)}
+            onPress={openPaymentSheet}
+            style={[styles.button, styles.rescheduleButton, { backgroundColor: COLORS.danger }]}>
+            <Text style={styles.buttonText}>Pay</Text>
+          </TouchableOpacity>
+        </StripeProvider>
       </View>
     </View>
   );
@@ -204,8 +358,7 @@ const AppointmentStatusScreen = () => {
         animationType="slide"
         transparent={true}
         visible={isEditModalVisible}
-        onRequestClose={() => setIsEditModalVisible(false)}
-      >
+        onRequestClose={() => setIsEditModalVisible(false)}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
           <KeyboardAvoidingView
@@ -277,9 +430,61 @@ const AppointmentStatusScreen = () => {
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isEditVacModalVisible}
+        onRequestClose={() => setIsEditVacModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={commonStyles.modalContainer}
+          >
+            <View style={commonStyles.modalContent}>
+              <Text style={[commonStyles.cardTitle, { marginBottom: SPACING.large }]}>
+                Edit Appointment's Vaccine
+              </Text>
+
+              <View style={commonStyles.inputContainer}>
+                <View>
+                  <Picker
+                    selectedValue={vaccinePatch.id}
+                    onValueChange={(value) => setVaccinePatch({ id: value })}
+                    style={{ height: 200 }}>
+                    <Picker.Item label="Select Vaccine" value="" />
+                    {vaccines.map(vaccine => (
+                      <Picker.Item key={vaccine.id} label={vaccine.vaccine_name} value={vaccine.id} />
+                    ))}
+                  </Picker>
+                </View>
+
+                <HelperText type="error" style={commonStyles.errorText} visible={msg}>
+                  {msg}
+                </HelperText>
+
+              </View>
+
+              <View style={commonStyles.appointmentActions}>
+                <TouchableOpacity
+                  style={[commonStyles.button, styles.rescheduleButton]}
+                  onPress={handleVacSave}>
+                  <Text style={commonStyles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[commonStyles.button, styles.cancelButton]}
+                  onPress={() => setIsEditVacModalVisible(false)}>
+                  <Text style={commonStyles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </Modal>
       <FlatList
-        onEndReached={loadMore} ListFooterComponent={loading && <ActivityIndicator />}
+        onEndReached={loadMore}
+        ListFooterComponent={page === 0 ? loading : !loading && <ActivityIndicator />}
         data={searchAV}
         renderItem={renderItem}
         keyExtractor={(item, index) => item.id ? `${item.id}-${index}` : `key-${index}`}
@@ -398,6 +603,18 @@ const styles = StyleSheet.create({
   },
   marginBot: {
     marginBottom: SPACING.small,
+  },
+  buttonText: {
+    color: COLORS.white,
+    fontSize: FONT_SIZE.regular,
+    fontWeight: '500',
+  },
+  button: {
+    borderRadius: BORDER_RADIUS.small,
+    padding: SPACING.regular,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: SPACING.small,
   },
 });
 

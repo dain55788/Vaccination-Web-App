@@ -260,7 +260,7 @@ class VaccineUsageViewSet(viewsets.ViewSet, generics.GenericAPIView):
             .annotate(period=truncate_func('appointment__scheduled_date'))
             .values('period', 'vaccine__category__category_name')
             .annotate(usage=Sum('dose_quantity_used'))
-            .values('period','vaccine__category__category_name', 'dose_quantity_used')
+            .values('period', 'vaccine__category__category_name', 'dose_quantity_used')
         )
 
         campaign_usage = (
@@ -268,7 +268,7 @@ class VaccineUsageViewSet(viewsets.ViewSet, generics.GenericAPIView):
             .annotate(period=truncate_func('campaign__start_date'))
             .values('period', 'vaccine__category__category_name')
             .annotate(usage=Sum('dose_quantity_used'))
-            .values('period','vaccine__category__category_name', 'dose_quantity_used')
+            .values('period', 'vaccine__category__category_name', 'dose_quantity_used')
         )
 
         combined = {}
@@ -418,3 +418,42 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIVi
     @action(methods=['get'], url_path='current-user', detail=False, permission_classes=[permissions.IsAuthenticated])
     def get_current_user(self, request):
         return Response(serializers.BaseUserSerializer(request.user).data)
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import stripe, os
+
+STRIPE_API_VERSION = f"{os.getenv('STRIPE_API_VERSION')}"
+STRIPE_SECRET_KEY = f"{os.getenv('STRIPE_SECRET_KEY')}"
+stripe.api_version = STRIPE_API_VERSION
+stripe.api_key = STRIPE_SECRET_KEY
+
+
+@csrf_exempt
+def payment_sheet(request):
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    try:
+        customer = stripe.Customer.create()
+
+        ephemeral_key = stripe.EphemeralKey.create(
+            customer=customer.id,
+            stripe_version=STRIPE_API_VERSION
+        )
+
+        payment_intent = stripe.PaymentIntent.create(
+            amount=2000,
+            currency='usd',
+            customer=customer.id,
+            automatic_payment_methods={"enabled": True},
+        )
+
+        return JsonResponse({
+            'paymentIntent': payment_intent.client_secret,
+            'ephemeralKey': ephemeral_key.secret,
+            'customer': customer.id
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

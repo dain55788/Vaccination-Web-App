@@ -173,7 +173,7 @@ const UserAppointmentDetail = ({ route }) => {
         data={searchData}
         renderItem={renderItem}
         keyExtractor={(item, index) => item.id ? `${item.id}-${index}` : `key-${index}`}
-        ListEmptyComponent={<Text style={styles.emptyText}>No appointmentVaccines data</Text>}
+        ListEmptyComponent={<Text style={styles.noData}>No Appointment data</Text>}
       />
     </SafeAreaView>
   );
@@ -232,6 +232,14 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.small,
     fontWeight: 'bold',
     marginBottom: SPACING.small,
+  },
+  noData: {
+    fontSize: FONT_SIZE.enormous,
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    padding: 5,
+    margin: 8,
+    color: 'red',
   },
 });
 

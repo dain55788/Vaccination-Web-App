@@ -58,18 +58,21 @@ const UserVaccinationHistory = () => {
   };
 
   useEffect(() => {
-    // let timer = setTimeout(() => {
-    //   loadUsersData();
-    // }, 1000);
-    // return () => clearTimeout(timer);
     loadUsersData();
   }, [page]);
 
   const loadMore = () => {
-    if (!loading && page > 0) {
-      setLoading(true);
-      setPage(page + 1);
-    }
+    let timer = setTimeout(() => {
+      if (!loading && page > 0) {
+        setLoading(true);
+        setPage(page + 1);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+    // if (!loading && page > 0) {
+    //   setLoading(true);
+    //   setPage(page + 1);
+    // }
   }
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -139,7 +142,7 @@ const UserVaccinationHistory = () => {
       />
 
       <FlatList
-        ListFooterComponent={loading && <ActivityIndicator />}
+        ListFooterComponent={page === 0 ? loading : !loading && <ActivityIndicator />}
         onEndReached={loadMore}
         data={searchData}
         renderItem={renderItem}
