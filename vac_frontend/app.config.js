@@ -62,11 +62,8 @@ export default {
       STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
       STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
       GOOGLE_WEB_CLIENT_ID: process.env.GOOGLE_WEB_CLIENT_ID,
-<<<<<<< HEAD
-=======
       STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
       STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
->>>>>>> 021f4b0928bf7c437c81b34da1aa2abcf63d5b06
     }
   }
 }
