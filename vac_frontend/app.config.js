@@ -48,22 +48,19 @@ export default {
       ]
     ],
     extra: {
-      apiKey: process.env.API_KEY, 
-      authDomain: process.env.AUTH_DOMAIN, 
-      projectId: process.env.PROJECT_ID, 
-      storageBucket: process.env.STORAGE_BUCKET, 
-      messagingSenderId: process.env.MESSAGING_SENDER_ID, 
+      apiKey: process.env.API_KEY,
+      authDomain: process.env.AUTH_DOMAIN,
+      projectId: process.env.PROJECT_ID,
+      storageBucket: process.env.STORAGE_BUCKET,
+      messagingSenderId: process.env.MESSAGING_SENDER_ID,
       appId: process.env.APP_ID,
       CLIENT_ID: process.env.CLIENT_ID,
       CLIENT_SECRET: process.env.CLIENT_SECRET,
       BASE_URL: process.env.BASE_URL,
       GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-<<<<<<< HEAD
       STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
       STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-=======
       GOOGLE_WEB_CLIENT_ID: process.env.GOOGLE_WEB_CLIENT_ID,
->>>>>>> 94842c0ac6bd493d3472991ec9e34dba83816de6
     }
   }
 }
