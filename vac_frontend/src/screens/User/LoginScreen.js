@@ -137,12 +137,11 @@ const LoginScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.formCard}>
-
               {info.map(i => (
                 <TextInput
                   value={user[i.field]}
                   onChangeText={t => setState(t, i.field)}
-                  style={styles.textInput}
+                  style={commonStyles.textInput}
                   key={i.field}
                   label={i.label}
                   secureTextEntry={i.field === "password" ? showPassword : i.secureTextEntry}
@@ -248,10 +247,6 @@ const styles = {
     paddingTop: SPACING.extraLarge,
     flex: 1,
     ...SHADOW.medium,
-  },
-  textInput: {
-    marginBottom: SPACING.medium,
-    backgroundColor: COLORS.background.primary,
   },
   errorText: {
     fontSize: FONT_SIZE.medium,

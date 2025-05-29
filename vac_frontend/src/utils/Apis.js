@@ -14,7 +14,9 @@ export const endpoints = {
   'appointment-bycitizen': (citizen_id) => `/appointments/by-citizen/?citizen_id=${citizen_id}`,
   'campaign': '/campaigns/',
   'vaccine': '/vaccines/',
-  'appointmentvaccine': '/appointmentvaccines/',
+  'appointmentvaccine': '/appointmentvaccine/',
+  'campaignvaccine': '/campaignvaccine/',
+  'campaigncitizen': '/campaigncitizen/',
   'vaccineusage': '/vaccineusages/vaccine-types-by-time/',
   'people-completed': '/appointments/people-completed/',
 };

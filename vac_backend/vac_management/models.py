@@ -154,7 +154,8 @@ class Campaign(BaseModel):
 class CampaignCitizen(BaseModel):
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     citizen = models.ForeignKey(Citizen, on_delete=models.CASCADE)
-    injection_date = models.DateField()
+    injection_date = models.DateField(blank=True)
+    notes = models.TextField(null=True, blank=True)
 
 
 class CampaignVaccine(BaseModel):

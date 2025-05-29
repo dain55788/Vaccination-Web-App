@@ -65,7 +65,7 @@ def get_valid_appointments():
 
     try:
         today = datetime.now().date()
-        next_day = today + timedelta(days=3)
+        next_day = today + timedelta(days=1)
         print(f"Filtering appointments for date: {next_day}")
 
         sql_query = """

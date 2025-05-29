@@ -65,11 +65,13 @@ class CampaignViewSet(viewsets.ModelViewSet):
 class CampaignVaccineViewSet(viewsets.ModelViewSet):
     queryset = CampaignVaccine.objects.filter(active=True)
     serializer_class = serializers.CampaignVaccineSerializer
+    pagination_class = paginators.CampaignPaginator
 
 
 class CampaignCitizenViewSet(viewsets.ModelViewSet):
     queryset = CampaignCitizen.objects.filter(active=True)
     serializer_class = serializers.CampaignCitizenSerializer
+    pagination_class = paginators.CampaignPaginator
 
     @action(methods=['get'], url_path='stats-by-campaign', detail=False)
     def stats_by_campaign(self, request):

@@ -24,12 +24,15 @@ import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../config/Firebase';
+import { Ionicons } from '@expo/vector-icons';
 
 const HomeScreen = () => {
   const nav = useNavigation();
   const user = useContext(MyUserContext);
   const dispatch = useContext(MyDispatchContext);
   const [userUpcomingAppointments, setUserUpcomingAppointments] = useState([]);
+  const [userRegisteredCampaigns, setUserRegisteredCampaigns] = useState([]);
+  const [campaignSearchQuery, setCampaignSearchQuery] = useState('');
   const appointmentEndpoint = endpoints['appointment-bycitizen'](user.id);
   const [searchQuery, setSearchQuery] = useState('');
   const appointmentVaccineEndpoint = endpoints['appointmentvaccine'];
@@ -213,10 +216,10 @@ const HomeScreen = () => {
               <p>Issued to: <strong>${user.username}</strong></p>
               <p>Certificate ID: <strong>${record.id}</strong></p>
               <p>Issued on: <strong>${new Date().toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              })}</strong></p>
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    })}</strong></p>
             </div>
             <hr class="hr-decor" />
             <h2>Vaccination Details</h2>
@@ -295,8 +298,9 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
-    const fetchAppointmentsAndVaccines = async () => {
+    const fetchAppointmentsVaccinesAndCampaigns = async () => {
       try {
+        // Fetch appointments
         const appointmentResponse = await Apis.get(appointmentEndpoint);
         const appointments = appointmentResponse.data;
 
@@ -308,6 +312,7 @@ const HomeScreen = () => {
         });
         setUserUpcomingAppointments(filteredAppointments);
 
+        // Fetch vaccination history
         const vaccineResponse = await Apis.get(appointmentVaccineEndpoint);
         const appointmentVaccines = vaccineResponse.data.results || vaccineResponse.data;
 
@@ -348,12 +353,48 @@ const HomeScreen = () => {
           .filter(item => item !== null);
 
         setVaccinationHistory(history);
+
+        const campaignCitizenResponse = await Apis.get(endpoints['campaigncitizen']);
+        const campaignCitizenData = campaignCitizenResponse.data.results || campaignCitizenResponse.data;
+        
+        const userCampaignRegistrations = campaignCitizenData.filter(
+          registration => registration.citizen_id === user.id
+        );
+
+        const campaignsResponse = await Apis.get(endpoints['campaign']);
+        const allCampaigns = campaignsResponse.data.results || campaignsResponse.data;
+
+        const registeredCampaigns = userCampaignRegistrations
+          .map(registration => {
+            const campaign = allCampaigns.find(
+              camp => camp.id === registration.campaign_id
+            );
+            
+            if (campaign) {
+              const endDate = new Date(campaign.end_date);
+              const currentDate = new Date();
+              
+              if (endDate >= currentDate) {
+                return {
+                  ...campaign,
+                  registration_id: registration.id,
+                  registration_notes: registration.notes,
+                  registered_date: registration.created_date || registration.created_at
+                };
+              }
+            }
+            return null;
+          })
+          .filter(item => item !== null);
+
+        setUserRegisteredCampaigns(registeredCampaigns);
+
       } catch (error) {
-        console.error('Error fetching appointments or vaccines:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchAppointmentsAndVaccines();
+    fetchAppointmentsVaccinesAndCampaigns();
   }, []);
 
   const filteredAppointments = userUpcomingAppointments.filter(appointment => {
@@ -361,6 +402,15 @@ const HomeScreen = () => {
     return (
       appointment.location?.toLowerCase().includes(searchLower) ||
       appointment.id.toString().includes(searchLower)
+    );
+  });
+
+  const filteredCampaigns = userRegisteredCampaigns.filter(campaign => {
+    const searchLower = campaignSearchQuery.toLowerCase();
+    return (
+      campaign.campaign_name?.toLowerCase().includes(searchLower) ||
+      campaign.location?.toLowerCase().includes(searchLower) ||
+      campaign.id.toString().includes(searchLower)
     );
   });
 
@@ -375,9 +425,16 @@ const HomeScreen = () => {
           <Text style={commonStyles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={commonStyles.headerTitle}>Home</Text>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={{ color: COLORS.primary, fontWeight: '500' }}>Logout</Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            style={styles.notificationButton}
+          >
+            <Ionicons name="notifications-outline" size={24} color={COLORS.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={{ color: COLORS.primary, fontWeight: '500' }}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <ScrollView contentContainerStyle={commonStyles.scrollViewContent}>
         <View style={styles.welcomeSection}>
@@ -475,6 +532,58 @@ const HomeScreen = () => {
             onPress={() => nav.navigate('Appointment')}
           >
             <Text style={commonStyles.buttonText}>Schedule New Appointment</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={commonStyles.section}>
+          <Text style={commonStyles.sectionTitle}>Registered Campaigns</Text>
+          <TextInput
+            style={commonStyles.input}
+            placeholder="🔎 Search campaigns by name, location or ID"
+            value={campaignSearchQuery}
+            onChangeText={setCampaignSearchQuery}
+          />
+
+          {filteredCampaigns.length > 0 ? (
+            filteredCampaigns.map((campaign) => (
+              <View key={campaign.id} style={commonStyles.card}>
+                <View style={[commonStyles.row, commonStyles.spaceBetween]}>
+                  <Text style={commonStyles.cardTitle}>{campaign.campaign_name}</Text>
+                  <Text style={styles.cardDate}>
+                    {new Date(campaign.start_date).toLocaleDateString()} - {new Date(campaign.end_date).toLocaleDateString()}
+                  </Text>
+                </View>
+                <View style={styles.cardBody}>
+                  <Text style={commonStyles.text}>Campaign ID: {campaign.id}</Text>
+                  <Text style={commonStyles.text}>Location: {campaign.location}</Text>
+                  <Text style={commonStyles.text}>Description: {campaign.description}</Text>
+                  {campaign.notes && (
+                    <Text style={commonStyles.text}>Notes: {campaign.notes}</Text>
+                  )}
+                </View>
+                <View style={commonStyles.appointmentActions}>
+                  <TouchableOpacity
+                    style={[commonStyles.button, styles.rescheduleButton]}
+                    onPress={() => nav.navigate('CampaignDetail', { campaign })}
+                  >
+                    <Text style={commonStyles.buttonText}>View Details</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[commonStyles.button, styles.cancelButton]}>
+                    <Text style={commonStyles.buttonText}>Unregister</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={commonStyles.errorText}>No registered campaigns found</Text>
+            </View>
+          )}
+          <TouchableOpacity
+            style={commonStyles.button}
+            onPress={() => nav.navigate('UpcomingCampaigns')}
+          >
+            <Text style={commonStyles.buttonText}>Browse Available Campaigns</Text>
           </TouchableOpacity>
         </View>
 
@@ -662,6 +771,14 @@ const styles = {
   },
   viewAllButton: {
     marginTop: SPACING.small,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  notificationButton: {
+    padding: SPACING.small,
+    marginRight: SPACING.small,
   },
 };
 
