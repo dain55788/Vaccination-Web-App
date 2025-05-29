@@ -90,6 +90,10 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  textInput: {
+    marginBottom: SPACING.medium,
+    backgroundColor: COLORS.background.primary,
+  },
   backButton: {
     marginRight: SPACING.medium,
   },
@@ -475,6 +479,18 @@ export const commonStyles = StyleSheet.create({
     color: COLORS.white,
     fontSize: FONT_SIZE.medium,
     fontWeight: 'bold',
+  },
+  campaignRegisterButton: {
+    marginTop: SPACING.medium,
+    marginHorizontal: 0,
+  },
+  registerButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  registerIcon: {
+    marginRight: SPACING.small,
   },
   header: {
     flexDirection: 'row',

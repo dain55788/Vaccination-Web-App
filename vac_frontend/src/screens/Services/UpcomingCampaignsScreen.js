@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, FlatList, ActivityIndicator, StyleSheet, SafeAreaView, Animated } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, Image, FlatList, ActivityIndicator, StyleSheet, SafeAreaView, Animated, TouchableOpacity, Alert } from 'react-native';
 import { commonStyles, COLORS, SPACING, FONT_SIZE, BORDER_RADIUS } from '../../styles/MyStyles';
 import Apis, { endpoints } from '../../utils/Apis';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useNavigation } from "@react-navigation/native";
+import { MyUserContext } from '../../utils/MyContexts';
 
 const UpcomingCampaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -11,6 +13,30 @@ const UpcomingCampaigns = () => {
   const [error, setError] = useState(null);
   const currentDate = new Date();
   const [fadeAnim] = useState(new Animated.Value(0));
+  const nav = useNavigation();
+  const user = useContext(MyUserContext);
+
+  const handleRegisterCampaign = (campaign) => {
+    if (user === null) {
+      Alert.alert(
+        'Please sign in to continue',
+        'You need to log in to register our Campaigns.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Sign In',
+            onPress: () => nav.navigate('Login'),
+          },
+        ],
+        { cancelable: true }
+      );
+    } else {
+      nav.navigate('RegisterCampaign', { campaign });
+    }
+  };
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -66,6 +92,15 @@ const UpcomingCampaigns = () => {
           {new Date(item.end_date).toLocaleDateString()}
         </Text>
       </View>
+      <TouchableOpacity 
+        style={[commonStyles.registerButton, commonStyles.campaignRegisterButton]}
+        onPress={() => handleRegisterCampaign(item)}
+      >
+        <View style={commonStyles.registerButtonContent}>
+          <Ionicons name="person-add-outline" size={20} color={COLORS.white} style={commonStyles.registerIcon} />
+          <Text style={commonStyles.registerButtonText}>Register for Campaign</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 

@@ -176,13 +176,27 @@ class CampaignSerializer(BaseSerializer):
                   'location', 'target_population', 'status', 'image']
 
 
-class CampaignCitizenSerializer(serializers.ModelSerializer):
+class CampaignCitizenSerializer(BaseSerializer):
+    campaign_info = CampaignSerializer(source='campaign', read_only=True)
+    citizen_info = CitizenSerializer(source='citizen', read_only=True)
+
     class Meta:
         model = CampaignCitizen
-        fields = ['id', 'injection_date', 'campaign_id', 'citizen_id']
+        fields = ['id', 'campaign', 'campaign_info', 'citizen', 'citizen_info', 'injection_date', 'notes']
+        extra_kwargs = {
+            'campaign': {'write_only': True},
+            'citizen': {'write_only': True}
+        }
 
 
-class CampaignVaccineSerializer(serializers.ModelSerializer):
+class CampaignVaccineSerializer(BaseSerializer):
+    vaccine_info = VaccineSerializer(source='vaccine', read_only=True)
+    campaign_info = CampaignSerializer(source='campaign', read_only=True)
+
     class Meta:
         model = CampaignVaccine
-        fields = ['id', 'dose_quantity_used', 'campaign_id', 'vaccine_id']
+        fields = ['id', 'dose_quantity_used', 'campaign_info', 'vaccine_info']
+        extra_kwargs = {
+            'campaign': {'write_only': True},
+            'vaccine': {'write_only': True}
+        }

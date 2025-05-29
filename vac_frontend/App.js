@@ -3,7 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { useContext, useReducer } from "react";
+import { useContext, useReducer, useEffect } from "react";
 import { MyUserContext, MyDispatchContext, AuthenticatedUserContext } from './src/utils/MyContexts';
 
 import MyUserReducer from "./src/reducers/MyUserReducer";
@@ -22,6 +22,7 @@ import ContactScreen from './src/screens/Services/ContactScreen';
 import ServicesScreen from './src/screens/Services/ServicesScreen';
 import ChatScreen from './src/screens/Services/ChatScreen';
 import UpcomingCampaignsScreen from './src/screens/Services/UpcomingCampaignsScreen';
+import RegisterCampaignScreen from './src/screens/Services/RegisterCampaignScreen';
 
 import AdminDashboardScreen from './src/screens/Admin/AdminDashboardScreen';
 import PublicCampaignManagementScreen from './src/screens/Admin/PublicCampaignManagementScreen';
@@ -54,7 +55,8 @@ const AppNavigator = () => {
         <Stack.Screen name="Services" component={ServicesScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="UpcomingCampaigns" component={UpcomingCampaignsScreen} />
-        
+        <Stack.Screen name="RegisterCampaign" component={RegisterCampaignScreen} />
+
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="Landing" component={LandingScreen} />
