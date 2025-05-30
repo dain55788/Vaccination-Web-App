@@ -59,7 +59,7 @@ const LandingScreen = () => {
         { cancelable: true }
       );
     } else {
-      nav.navigate('Chat');
+      nav.navigate('Chats');
     }
   };
 

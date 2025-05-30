@@ -9,7 +9,6 @@ export default {
     "icon": "./assets/dirty-hand.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "projectId": "1e5a330e-ee4c-4491-b76e-24d8ec8c8c39",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -64,6 +63,9 @@ export default {
       GOOGLE_WEB_CLIENT_ID: process.env.GOOGLE_WEB_CLIENT_ID,
       STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
       STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
+      eas: {
+        projectId: process.env.EAS_PROJECT_ID,
+      },
     }
   }
 }

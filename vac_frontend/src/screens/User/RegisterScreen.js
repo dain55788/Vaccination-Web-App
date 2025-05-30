@@ -22,8 +22,9 @@ import { useState, useRef, useEffect } from "react";
 import Apis, { authApis, endpoints } from "../../utils/Apis";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from 'expo-image-picker';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../config/Firebase';
+import { updateProfile, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, database } from '../../../config/Firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const { width, height } = Dimensions.get('window');
 
@@ -130,6 +131,47 @@ const RegisterScreen = () => {
   const [msg, setMsg] = useState(null);
   const nav = useNavigation();
 
+  // const onHandleSignup = (auth, username, email, password) => {
+  //   if (email !== '' && password !== '') {
+  //     createUserWithEmailAndPassword(auth, email, password)
+  //       .then((cred) => {
+  //         updateProfile(cred.user, { displayName: username }).then(() => {
+  //           setDoc(doc(database, 'users', cred.user.email), {
+  //             id: cred.user.uid,
+  //             email: cred.user.email,
+  //             name: cred.user.displayName,
+  //             about: 'Available',
+  //           });
+  //         });
+  //         console.log(`Signup success: ${cred.user.email}`);
+  //       })
+  //       .catch((err) => Alert.alert('Signup error', err.message));
+  //   }
+  // };
+  
+  const onHandleSignup = async (auth, username, email, password) => {
+    if (email !== '' && password !== '') {
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: username });
+        await setDoc(doc(database, 'users', cred.user.uid), {
+          id: cred.user.uid,
+          email: cred.user.email,
+          name: username,
+          about: 'Available',
+          createdAt: Date.now(),
+        });
+        
+        console.log(`Signup success: ${cred.user.email}`);
+        Alert.alert('Success', 'Account created successfully!');
+        
+      } catch (err) {
+        console.error('Firebase signup error:', err);
+        Alert.alert('Signup error', err.message);
+      }
+    }
+  };
+
   const setState = (value, field) => {
     setUser({ ...user, [field]: value });
   }
@@ -216,7 +258,6 @@ const RegisterScreen = () => {
             }
           }
         }
-
         
         let res = await Apis.post(endpoints['register'], form, {
           headers: {
@@ -225,7 +266,7 @@ const RegisterScreen = () => {
         });
 
         if (res.status === 201) {
-          createUserWithEmailAndPassword(auth, user?.email, user?.password)
+          onHandleSignup(auth, user.username, user.email, user.password)
           nav.navigate("Login");
         }
       } catch (ex) {
@@ -237,7 +278,7 @@ const RegisterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[commonStyles.safeArea, styles.container]}>
+    <SafeAreaView style={[commonStyles.safeArea, commonStyles.container]}>
       <StatusBar style="light" />
       <View style={styles.syringeAnimationContainer}>
         {syringes.map((syringe) => (
@@ -257,7 +298,7 @@ const RegisterScreen = () => {
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingView}
+        style={commonStyles.keyboardAvoidingView}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -372,13 +413,6 @@ const RegisterScreen = () => {
 };
 
 const styles = {
-  container: {
-    backgroundColor: COLORS.background.secondary,
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-    zIndex: 1,
-  },
   scrollContainer: {
     flexGrow: 1,
   },

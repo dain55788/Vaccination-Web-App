@@ -20,8 +20,8 @@ import commonStyles, { COLORS, SPACING, FONT_SIZE, SHADOW, BORDER_RADIUS } from 
 import Constants from 'expo-constants';
 import { Button, HelperText, TextInput, Divider } from 'react-native-paper';
 const { CLIENT_ID, CLIENT_SECRET } = Constants.expoConfig.extra;
-import { MyDispatchContext } from "../../utils/MyContexts";
 import { useNavigation } from "@react-navigation/native";
+import { MyDispatchContext, MyUserContext } from "../../utils/MyContexts";
 
 // Google Login
 // import * as WebBrowser from "expo-web-browser";
@@ -56,6 +56,7 @@ const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const nav = useNavigation();
   const dispatch = useContext(MyDispatchContext);
+  const currentUser = useContext(MyUserContext);
 
   const setState = (value, field) => {
     setUser({ ...user, [field]: value });
@@ -74,7 +75,7 @@ const LoginScreen = ({ navigation }) => {
   // // Firebase login authentication
   const onHandleLogin = (email, password) => {
     signInWithEmailAndPassword(auth, email, password)
-    .then(() => console.log("Login success"))
+    .then(() => console.log("Firebase login success"))
     .catch((err) => Alert.alert("Login error", err.message));
   };
 
@@ -101,7 +102,7 @@ const LoginScreen = ({ navigation }) => {
             "type": "login",
             "payload": u.data
           });
-          onHandleLogin(user.email, user.password);
+          onHandleLogin(currentUser.email, user.password);
           nav.navigate('Landing');
         } else {
           setMsg('Fail to login. Please check your username or password.');

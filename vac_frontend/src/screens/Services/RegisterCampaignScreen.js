@@ -192,7 +192,7 @@ const RegisterCampaignScreen = ({ route }) => {
 
                     <TouchableOpacity
                         style={[commonStyles.button, commonStyles.buttonOutline, { marginTop: SPACING.medium }]}
-                        onPress={() => navigation.goBack()}
+                        onPress={() => nav.goBack()}
                     >
                         <Text style={[commonStyles.buttonText, commonStyles.buttonOutlineText]}>Cancel</Text>
                     </TouchableOpacity>

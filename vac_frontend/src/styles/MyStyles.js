@@ -17,6 +17,8 @@ const COLORS = {
   gray: '#666666',
   lightGray: '#f0f0f0',
   mediumGray: '#999999',
+  teal: '#26A69A',
+  grey: '#BDBDBD',
   border: '#eee',
   text: {
     primary: '#333333',
@@ -90,6 +92,10 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+    zIndex: 1,
+  },
   textInput: {
     marginBottom: SPACING.medium,
     backgroundColor: COLORS.background.primary,
