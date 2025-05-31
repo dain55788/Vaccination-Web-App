@@ -131,24 +131,6 @@ const RegisterScreen = () => {
   const [msg, setMsg] = useState(null);
   const nav = useNavigation();
 
-  // const onHandleSignup = (auth, username, email, password) => {
-  //   if (email !== '' && password !== '') {
-  //     createUserWithEmailAndPassword(auth, email, password)
-  //       .then((cred) => {
-  //         updateProfile(cred.user, { displayName: username }).then(() => {
-  //           setDoc(doc(database, 'users', cred.user.email), {
-  //             id: cred.user.uid,
-  //             email: cred.user.email,
-  //             name: cred.user.displayName,
-  //             about: 'Available',
-  //           });
-  //         });
-  //         console.log(`Signup success: ${cred.user.email}`);
-  //       })
-  //       .catch((err) => Alert.alert('Signup error', err.message));
-  //   }
-  // };
-  
   const onHandleSignup = async (auth, username, email, password) => {
     if (email !== '' && password !== '') {
       try {

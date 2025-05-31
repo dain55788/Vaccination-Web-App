@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, Modal, Image, Alert, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import commonStyles, { COLORS, SPACING, FONT_SIZE, BORDER_RADIUS, SHADOW } from '../../styles/MyStyles';
@@ -9,6 +9,9 @@ import Animated, { useSharedValue, withTiming, Easing, runOnJS } from 'react-nat
 import Constants from 'expo-constants';
 const { GEMINI_API_KEY } = Constants.expoConfig.extra;
 import { Button, HelperText, TextInput } from "react-native-paper";
+import MapView, { Marker } from 'react-native-maps'
+import * as Location from 'expo-location'
+import CustomMarker from './CustomMarker'
 
 const LandingScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -18,6 +21,51 @@ const LandingScreen = () => {
   const [msg, setMsg] = useState('');
   const [messages, setMessages] = useState([]);
   const [chatOptionsVisible, setChatOptionsVisible] = useState(false);
+  const initialLocation = {
+    latitude: 10.7765588,
+    longitude: 106.6904755,
+  }
+
+  const [myFirstLocation, setMyFirstLocation] = useState(initialLocation)
+  const [mySecondLocation, setMySecondLocation] = useState(initialLocation)
+  const [myThirdLocation, setMyThirdLocation] = useState(initialLocation)
+  const [myFourthLocation, setMyFourthLocation] = useState(initialLocation)
+  const [myFifthLocation, setFifthMyLocation] = useState(initialLocation)
+
+  const [pin, setPin] = useState({})
+
+  const [region, setRegion] = useState({
+    latitude: initialLocation.latitude,
+    longitude: initialLocation.longitude,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
+
+  const mapRef = useRef(null)
+  const local = {
+    latitude: "10.6754047",
+    longitude: "106.6880892"
+  }
+
+  const _getLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync()
+      if (status !== 'granted') {
+        console.warn('Permission to access location was denied')
+        return
+      }
+      let location = await Location.getCurrentPositionAsync({})
+      setMyFirstLocation(location.coords)
+    }
+    catch (err) {
+      console.warn(err);
+    }
+  }
+
+  useEffect(() => {
+    setPin(local)
+    _getLocation()
+  }, [])
 
   const handleAppointmentNavigation = () => {
     if (user === null) {
@@ -349,7 +397,7 @@ const LandingScreen = () => {
         </View>
       </Modal>
 
-    <Modal
+      <Modal
         animationType="fade"
         transparent={true}
         visible={chatOptionsVisible}
@@ -363,7 +411,7 @@ const LandingScreen = () => {
                 <Text style={commonStyles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-            
+
             <TouchableOpacity
               style={commonStyles.chatOptionButton}
               onPress={() => handleChatOptionSelect('ai')}
@@ -598,6 +646,109 @@ const LandingScreen = () => {
             </View>
           </View>
 
+          <View style={styles.testimonialsContainer}>
+            <Text style={commonStyles.sectionTitle}>Find VaxServe</Text>
+            <MapView
+              style={commonStyles.map}
+              region={region}
+              onRegionChangeComplete={setRegion}
+              ref={mapRef}
+              provider='google'
+            >
+              {myFirstLocation.latitude && myFirstLocation.longitude &&
+                <Marker
+                  coordinate={{
+                    latitude: myFirstLocation.latitude,
+                    longitude: myFirstLocation.longitude
+                  }}
+                  title='My current location'
+                  description='I am here'
+                />
+              }
+              {mySecondLocation.latitude && mySecondLocation.longitude &&
+                <CustomMarker
+                  coordinate={{
+                    latitude: 10.7573726,
+                    longitude: 106.6820124
+                  }}
+                  title='VAXSERVE HERE'
+                  image={require('../../assets/images/VaxServe.png')}
+                />
+              }
+              {myThirdLocation.latitude && myThirdLocation.longitude &&
+                <CustomMarker
+                  coordinate={{
+                    latitude: 10.8171088,
+                    longitude: 106.6826627
+                  }}
+                  title='VAXSERVE HERE'
+                  image={require('../../assets/images/VaxServe.png')}
+                />
+              }
+              {myFourthLocation.latitude && myFourthLocation.longitude &&
+                <CustomMarker
+                  coordinate={{
+                    latitude: 10.7551551,
+                    longitude: 106.6764857
+                  }}
+                  title='VAXSERVE HERE'
+                  image={require('../../assets/images/VaxServe.png')}
+                />
+              }
+              {myFifthLocation.latitude && myFifthLocation.longitude &&
+                <CustomMarker
+                  coordinate={{
+                    latitude: 10.7670187,
+                    longitude: 106.6808416
+                  }}
+                  title='VAXSERVE HERE'
+                  image={require('../../assets/images/VaxServe.png')}
+                />
+              }
+              {myFifthLocation.latitude && myFifthLocation.longitude &&
+                <CustomMarker
+                  coordinate={{
+                    latitude: 10.7668044,
+                    longitude: 106.6858787
+                  }}
+                  title='VAXSERVE HERE'
+                  image={require('../../assets/images/VaxServe.png')}
+                />
+              }
+              {myFifthLocation.latitude && myFifthLocation.longitude &&
+                <CustomMarker
+                  coordinate={{
+                    latitude: 10.7902357,
+                    longitude: 106.65791
+                  }}
+                  title='VAXSERVE HERE'
+                  image={require('../../assets/images/VaxServe.png')}
+                />
+              }
+              {myFifthLocation.latitude && myFifthLocation.longitude &&
+                <CustomMarker
+                  coordinate={{
+                    latitude: 10.8073027,
+                    longitude: 106.711604
+                  }}
+                  title='VAXSERVE HERE'
+                  image={require('../../assets/images/VaxServe.png')}
+                />
+              }
+              
+              {pin.latitude && pin.longitude &&
+                <Marker
+                  coordinate={{
+                    latitude: parseFloat(pin.latitude),
+                    longitude: parseFloat(pin.longitude)
+                  }}
+                  title='Default location'
+                  description='I am here'
+                />
+              }
+            </MapView>
+          </View>
+
           <View style={commonStyles.footer}>
             <View style={commonStyles.footerSection}>
               <Text style={commonStyles.footerHeading}>About VaxServe</Text>
@@ -632,7 +783,6 @@ const LandingScreen = () => {
               <Text style={commonStyles.footerText}>97 Vo Van Tan, District 3, VaxServe Vaccination Hospital</Text>
             </View>
           </View>
-
           <View style={styles.copyright}>
             <Text style={styles.copyrightText}>© 2025 VaxServe. All rights reserved.</Text>
           </View>

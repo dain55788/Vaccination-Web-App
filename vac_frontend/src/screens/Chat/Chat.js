@@ -16,7 +16,8 @@ import {
   ActivityIndicator,
   SafeAreaView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 import commonStyles, { COLORS } from '../../styles/MyStyles';
@@ -221,59 +222,61 @@ function Chat({ route }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={commonStyles.keyboardAvoidingView}
       >
-        <>
-          {uploading && RenderLoadingUpload()}
-          <GiftedChat
-            messages={messages}
-            showAvatarForEveryMessage={false}
-            showUserAvatar={false}
-            onSend={(messagesArr) => onSend(messagesArr)}
-            imageStyle={{ height: 212, width: 212 }}
-            messagesContainerStyle={{ backgroundColor: '#fff' }}
-            textInputStyle={{ backgroundColor: '#fff', borderRadius: 20 }}
-            user={{
-              _id: auth?.currentUser?.email,
-              name: auth?.currentUser?.displayName,
-              avatar: loggedInUser.avatar,
-            }}
-            renderBubble={(props) => RenderBubble(props)}
-            renderSend={(props) => RenderAttach({ ...props, onPress: pickImage })}
-            renderUsernameOnMessage
-            renderAvatarOnTop
-            renderInputToolbar={(props) => RenderInputToolbar(props, handleEmojiPanel)}
-            minInputToolbarHeight={56}
-            scrollToBottom
-            onPressActionButton={handleEmojiPanel}
-            scrollToBottomStyle={styles.scrollToBottomStyle}
-            renderLoading={RenderLoading}
-          />
-
-          {modal && (
-            <EmojiModal
-              onPressOutside={handleEmojiPanel}
-              modalStyle={styles.emojiModal}
-              containerStyle={styles.emojiContainerModal}
-              backgroundStyle={styles.emojiBackgroundModal}
-              columns={5}
-              emojiSize={66}
-              activeShortcutColor={COLORS.primary}
-              onEmojiSelected={(emoji) => {
-                onSend([
-                  {
-                    _id: uuid.v4(),
-                    createdAt: new Date(),
-                    text: emoji,
-                    user: {
-                      _id: auth?.currentUser?.email,
-                      name: auth?.currentUser?.displayName,
-                      avatar: loggedInUser.avatar,
-                    },
-                  },
-                ]);
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <>
+            {uploading && RenderLoadingUpload()}
+            <GiftedChat
+              messages={messages}
+              showAvatarForEveryMessage={false}
+              showUserAvatar={false}
+              onSend={(messagesArr) => onSend(messagesArr)}
+              imageStyle={{ height: 212, width: 212 }}
+              messagesContainerStyle={{ backgroundColor: '#fff' }}
+              textInputStyle={{ backgroundColor: '#fff', borderRadius: 20 }}
+              user={{
+                _id: auth?.currentUser?.email,
+                name: auth?.currentUser?.displayName,
+                avatar: loggedInUser.avatar,
               }}
+              renderBubble={(props) => RenderBubble(props)}
+              renderSend={(props) => RenderAttach({ ...props, onPress: pickImage })}
+              renderUsernameOnMessage
+              renderAvatarOnTop
+              renderInputToolbar={(props) => RenderInputToolbar(props, handleEmojiPanel)}
+              minInputToolbarHeight={56}
+              scrollToBottom
+              onPressActionButton={handleEmojiPanel}
+              scrollToBottomStyle={styles.scrollToBottomStyle}
+              renderLoading={RenderLoading}
             />
-          )}
-        </>
+
+            {modal && (
+              <EmojiModal
+                onPressOutside={handleEmojiPanel}
+                modalStyle={styles.emojiModal}
+                containerStyle={styles.emojiContainerModal}
+                backgroundStyle={styles.emojiBackgroundModal}
+                columns={5}
+                emojiSize={66}
+                activeShortcutColor={COLORS.primary}
+                onEmojiSelected={(emoji) => {
+                  onSend([
+                    {
+                      _id: uuid.v4(),
+                      createdAt: new Date(),
+                      text: emoji,
+                      user: {
+                        _id: auth?.currentUser?.email,
+                        name: auth?.currentUser?.displayName,
+                        avatar: loggedInUser.avatar,
+                      },
+                    },
+                  ]);
+                }}
+              />
+            )}
+          </>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

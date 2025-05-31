@@ -92,6 +92,10 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  map: {
+    width: Dimensions.get('window').width/1.1,
+    height: Dimensions.get('window').height/1.5,
+  },
   keyboardAvoidingView: {
     flex: 1,
     zIndex: 1,
