@@ -17,7 +17,7 @@ export const endpoints = {
   'appointmentvaccine': '/appointmentvaccine/',
   'campaignvaccine': '/campaignvaccine/',
   'campaigncitizen': '/campaigncitizen/',
-  'vaccineusage': '/vaccineusages/vaccine-types-by-time/',
+  'vaccineusage': '/vaccineusage/vaccine-types-by-time/',
   'people-completed': '/appointments/people-completed/',
 };
 
