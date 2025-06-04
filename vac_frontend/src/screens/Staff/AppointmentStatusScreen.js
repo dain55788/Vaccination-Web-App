@@ -27,7 +27,6 @@ import { StripeProvider, usePaymentSheet } from '@stripe/stripe-react-native';
 const { STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, BASE_URL } = Constants.expoConfig.extra;
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const AppointmentStatusScreen = () => {
-  const appointmentVaccineEndpoint = endpoints['appointmentvaccine'];
   const nav = useNavigation();
   const user = useContext(MyUserContext);
 
@@ -46,22 +45,20 @@ const AppointmentStatusScreen = () => {
   const [selectedVacData, setSelectedVacData] = useState(null);
   const [vaccinePatch, setVaccinePatch] = useState({
     id: '',
+    quantity: '',
   });
 
   const { initPaymentSheet, presentPaymentSheet } = usePaymentSheet();
 
-  async function handlePayClick(data) {
-    const { error } = await presentPaymentSheet();
-    if (error) {
-      Alert.alert(`Error code:${error.code}`, error.message);
-      console.log(error.message);
-    } else {
-      Alert.alert('Success', 'The Payment was comfirmed successfully');
-    }
-    setSelectedVacData(data);
-    setMsg('');
+  const handlePayClick = async (data) => {
+    initializePaymentSheet(data.id);
+
+    setTimeout(() => {
+      openPaymentSheet(data.status, data.id);
+    }, 2500);
   };
-  const fetchPaymentSheetParams = async () => {
+
+  const fetchPaymentSheetParams = async (i) => {
     const token = await AsyncStorage.getItem('token');
     const response = await fetch(`${BASE_URL}/payment-sheet/`, {
       method: 'POST',
@@ -69,6 +66,9 @@ const AppointmentStatusScreen = () => {
         'Authorization': `Bearer ${STRIPE_SECRET_KEY}`,
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        vaccine_id: i,
+      })
     });
     const { paymentIntent, ephemeralKey, customer } = await response.json();
     return {
@@ -77,23 +77,42 @@ const AppointmentStatusScreen = () => {
       customer,
     };
   };
-  const openPaymentSheet = async () => {
-    const { error } = await presentPaymentSheet();
-    if (error) {
-      alert(`Pay Error: ${error.message}`);
-      console.log(error.message);
-    } else {
-      Alert.alert('Pay Successfully!', 'Hold this screen and show to Staff to proof that you paid');
+
+  const openPaymentSheet = async (status, id) => {
+    if (status === 'completed') {
+      Alert.alert('Paid!', `This bill is paid`);
+    }
+    else {
+      const { error } = await presentPaymentSheet();
+      if (error) {
+        alert(`Pay Error: ${error.message}`);
+        console.log(error.message);
+      } else {
+        Alert.alert('Pay Successfully!', 'Hold this screen and show to Staff to proof that you paid');
+        try {
+          const response = await Apis.patch(`${endpoints['appointmentvaccine']}${id}/`, {
+            status: 'completed',
+          });
+          const updateStatusandNotes = appointmentVaccines.map(v =>
+            v.id === id ? { ...v, ...response.data } : v
+          );
+          setAppointmentVaccines(updateStatusandNotes);
+        }
+        catch (error) {
+          console.error('Error Paying:', error);
+          setMsg('Failed to update status. Please try again.');
+        }
+      }
     }
   };
 
-  const initializePaymentSheet = async () => {
+  const initializePaymentSheet = async (i) => {
     try {
       const {
         paymentIntent,
         ephemeralKey,
         customer,
-      } = await fetchPaymentSheetParams();
+      } = await fetchPaymentSheetParams(i);
 
       const { error } = await initPaymentSheet({
         customerId: customer,
@@ -145,7 +164,6 @@ const AppointmentStatusScreen = () => {
 
   useEffect(() => {
     loadVaccines();
-    initializePaymentSheet();
   }, []);
 
   useEffect(() => {
@@ -160,10 +178,6 @@ const AppointmentStatusScreen = () => {
       }
     }, 300);
     return () => clearTimeout(timer);
-    // if (!loading && page > 0) {
-    //   setLoading(true);
-    //   setPage(page + 1);
-    // }
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -191,7 +205,9 @@ const AppointmentStatusScreen = () => {
   const handleEditVacClick = (data) => {
     setSelectedVacData(data);
     setVaccinePatch({
-      vaccine_name: data.vaccine_info?.vaccine_name || '',
+      id: data?.vaccine_info?.id,
+      vaccine_name: data?.vaccine_info?.vaccine_name || '',
+      quantity: data?.dose_quantity_used,
     });
     setMsg('');
     setIsEditVacModalVisible(true);
@@ -234,13 +250,19 @@ const AppointmentStatusScreen = () => {
   };
 
   const handleVacSave = async () => {
-    console.info("AppoimentVac ID: ", selectedVacData.id, "VaccineID: ", selectedVacData?.vaccine_info.id);
+    console.info("AppoimentVac ID: ", selectedVacData.id, "VaccineID: ", selectedVacData?.vaccine_info?.id);
     console.info("Change to: ", vaccinePatch.id);
+    console.info("vaccinePatch: ", vaccinePatch);
+    let unit_price = vaccines.find(v => v.id === vaccinePatch.id).unit_price || 0;
     if (!vaccinePatch.id) {
       setMsg('Please chose vaccine to update!');
       return;
     }
-    else if (selectedVacData?.vaccine_info.id === vaccinePatch.id) {
+    else if (!vaccinePatch.quantity) {
+      setMsg('Please enter quantity number!');
+      return;
+    }
+    else if (selectedVacData?.vaccine_info?.id === vaccinePatch.id && selectedVacData.dose_quantity_used === vaccinePatch.quantity) {
       setMsg('Nothing has to change!!');
       return;
     }
@@ -248,6 +270,8 @@ const AppointmentStatusScreen = () => {
     try {
       const response = await Apis.patch(`${endpoints['appointmentvaccine']}${selectedVacData.id}/`, {
         vaccine: vaccinePatch.id,
+        dose_quantity_used: vaccinePatch.quantity,
+        cost: (vaccinePatch.quantity * unit_price).toFixed(2),
       });
 
       const updateVac = appointmentVaccines.map(v =>
@@ -257,7 +281,7 @@ const AppointmentStatusScreen = () => {
       setAppointmentVaccines(updateVac);
       setIsEditVacModalVisible(false);
       setSelectedVacData(null);
-      setVaccinePatch({ vaccine_name: '' });
+      setVaccinePatch({ vaccine_name: '', quantity: '', id: '' });
       Alert.alert('Success', 'Successfully update vaccine')
     } catch (error) {
       console.error('Error updating vaccine:', error);
@@ -277,12 +301,9 @@ const AppointmentStatusScreen = () => {
   const renderItem = ({ item: i, index }) => (
     <View key={i.id ? `${i.id}-${index}` : `key-${index}`} style={commonStyles.card}>
       <Text style={[styles.textName]}>Appointment {i.id}</Text>
-      <Text style={[commonStyles.title, styles.marginBot]}>
-        Vaccine: {i.vaccine_info?.vaccine_name}
-      </Text>
-
-      <Text style={[styles.textDescription]}>
-        Doctor: {i.doctor_info?.first_name} {i.doctor_info?.last_name}
+      <Text style={[styles.marginBot]}>
+        <Text style={[styles.textDescription]}>Vaccine: </Text>
+        <Text style={commonStyles.title}>{i.vaccine_info?.vaccine_name || "No vaccine has been chosen"}</Text>
       </Text>
 
       <Text style={[styles.textDescription]}>
@@ -304,7 +325,10 @@ const AppointmentStatusScreen = () => {
           {i.status}
         </Text>
       </Text>
-
+      <Text style={{ marginBottom: SPACING.small }}>
+        <Text style={[styles.textDescription]}>Dose quantity: </Text>
+        <Text style={commonStyles.title}>{i?.dose_quantity_used}</Text>
+      </Text>
       <Text style={{ marginBottom: SPACING.small }}>
         <Text style={[styles.textDescription]}>Notes: </Text>
         <Text style={[styles.notesValue]}>{i.notes}</Text>
@@ -326,8 +350,7 @@ const AppointmentStatusScreen = () => {
           publishableKey={STRIPE_PUBLISHABLE_KEY}
           urlScheme="stripe-example">
           <TouchableOpacity
-            // onPress={() => handlePayClick(i)}
-            onPress={openPaymentSheet}
+            onPress={() => handlePayClick(i)}
             style={[styles.button, styles.rescheduleButton, { backgroundColor: COLORS.danger }]}>
             <Text style={styles.buttonText}>Pay</Text>
           </TouchableOpacity>
@@ -451,13 +474,21 @@ const AppointmentStatusScreen = () => {
                 <View>
                   <Picker
                     selectedValue={vaccinePatch.id}
-                    onValueChange={(value) => setVaccinePatch({ id: value })}
+                    onValueChange={(value) => setVaccinePatch({ ...vaccinePatch, ['id']: value })}
                     style={{ height: 200 }}>
                     <Picker.Item label="Select Vaccine" value="" />
                     {vaccines.map(vaccine => (
                       <Picker.Item key={vaccine.id} label={vaccine.vaccine_name} value={vaccine.id} />
                     ))}
                   </Picker>
+                  <TextInput
+                    keyboardType="numeric"
+                    style={commonStyles.input}
+                    label={'Quantity'}
+                    value={vaccinePatch['quantity']}
+                    right={<TextInput.Icon icon={'numeric'} />}
+                    onChangeText={(value) => setVaccinePatch({ ...vaccinePatch, ['quantity']: value })}
+                  />
                 </View>
 
                 <HelperText type="error" style={commonStyles.errorText} visible={msg}>

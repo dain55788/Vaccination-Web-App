@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { 
-  Text, 
-  View, 
-  TouchableOpacity, 
-  ScrollView, 
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  ScrollView,
   SafeAreaView,
   Alert,
   KeyboardAvoidingView,
@@ -14,9 +14,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { 
-  useSharedValue, 
-  withSpring, 
+import {
+  useSharedValue,
+  withSpring,
   withSequence,
   withDelay,
   withTiming,
@@ -60,7 +60,7 @@ const AppointmentScreen = () => {
   };
 
   const nav = useNavigation();
-  
+
   const info = [{
     label: 'Full Name',
     icon: "information",
@@ -123,7 +123,7 @@ const AppointmentScreen = () => {
     "Branch 4 - 321 Nguyen Thi Minh Khai",
     "Branch 5 - 654 Pham Ngu Lao",
   ];
-  
+
   function extractScheduledDates(apiResponse) {
     if (Array.isArray(apiResponse)) {
       const scheduledDates = apiResponse.map(item => item.scheduled_date);
@@ -136,14 +136,14 @@ const AppointmentScreen = () => {
 
   function isDateAlreadyRegistered(apiResponse, chosenDate) {
     const scheduledDates = extractScheduledDates(apiResponse.data);
-    
+
     const dateAlreadyRegistered = scheduledDates.includes(chosenDate);
-    
+
     return dateAlreadyRegistered;
   }
 
   const timeSlots = [
-    "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", 
+    "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
     "11:00 AM", "11:30 AM", "1:00 PM", "1:30 PM",
     "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM"
   ];
@@ -162,7 +162,7 @@ const AppointmentScreen = () => {
           let dateAlreadyRegistered = false;
 
           dateAlreadyRegistered = isDateAlreadyRegistered(resAppointment, formatDate(dateOfBirth));
-          
+
           if (dateAlreadyRegistered) {
             setErrMsg("You have registered this date, please select another date");
             Alert.alert('Error', 'Please select another date that suites you!');
@@ -175,6 +175,19 @@ const AppointmentScreen = () => {
         let res = await Apis.post(endpoints['appointment'], form, {
           headers: {
             'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.info("id appointment created:", res.data.id);
+        let resav = await Apis.post(endpoints['appointmentvaccine'], {
+          "appointment": res.data.id,
+          "doctor": 6, //cần id bác sĩ trời ơi
+          "dose_quantity_used": 1,
+          "status": "scheduled",
+          "notes": "",
+          "cost": 0
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
           }
         });
         if (res.status === 201) {
@@ -231,8 +244,8 @@ const AppointmentScreen = () => {
 
               {info.map(i => <View key={i.field}>
                 <Text style={commonStyles.label}> {i.label}</Text>
-                <TextInput 
-                  key={i.field} 
+                <TextInput
+                  key={i.field}
                   style={commonStyles.input}
                   label={i.label}
                   secureTextEntry={i.secureTextEntry}
@@ -281,29 +294,29 @@ const AppointmentScreen = () => {
                     </TouchableOpacity>
                   ))}
                 </View>
-                
+
                 <View style={commonStyles.inputContainer}>
-                <Text style={commonStyles.label}>Locations *</Text>
-                <View style={commonStyles.optionsContainer}>
-                  {locations.map((location, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        commonStyles.optionButton,
-                        loc === location && commonStyles.selectedOption
-                      ]}
-                      onPress={() => setLocation(location)}
-                    >
-                      <Text style={[
-                        commonStyles.vaccineText,
-                        loc === location && commonStyles.selectedOptionText,
-                      ]}>
-                        {location}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                  <Text style={commonStyles.label}>Locations *</Text>
+                  <View style={commonStyles.optionsContainer}>
+                    {locations.map((location, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          commonStyles.optionButton,
+                          loc === location && commonStyles.selectedOption
+                        ]}
+                        onPress={() => setLocation(location)}
+                      >
+                        <Text style={[
+                          commonStyles.vaccineText,
+                          loc === location && commonStyles.selectedOptionText,
+                        ]}>
+                          {location}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
                 </View>
-              </View>
               </View>
 
               <View style={commonStyles.inputContainer}>
@@ -322,11 +335,11 @@ const AppointmentScreen = () => {
               <View style={styles.divider} />
 
               <HelperText type="error" style={commonStyles.errorText} visible={!!errMsg}>
-                  {errMsg}
+                {errMsg}
               </HelperText>
 
               <HelperText type="success" style={commonStyles.successText} visible={!!scMsg}>
-                  {scMsg}
+                {scMsg}
               </HelperText>
 
               <TouchableOpacity style={commonStyles.registerButton} disabled={loading} loading={loading} onPress={handleSubmitAppointment}>

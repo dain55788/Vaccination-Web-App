@@ -70,7 +70,7 @@ class Doctor(BaseUser):
 
 
 class VaccineCategory(BaseModel):
-    category_name = models.CharField(max_length=100,  unique=True)
+    category_name = models.CharField(max_length=100, unique=True)
 
     class Meta:
         ordering = ['-id']
@@ -114,12 +114,12 @@ class AppointmentVaccine(BaseModel):
         ('cancelled', 'Cancelled'),
     )
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
-    vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
+    vaccine = models.ForeignKey(Vaccine, on_delete=models.SET_NULL, null=True)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     dose_quantity_used = models.IntegerField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='scheduled')
     notes = models.TextField(null=True, blank=True)
-    cost = models.FloatField()
+    cost = models.FloatField(null=True, blank=True)
 
     unique_together = ('appointment', 'vaccine', 'doctor')
 
@@ -162,4 +162,3 @@ class CampaignVaccine(BaseModel):
     vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     dose_quantity_used = models.IntegerField()
-
