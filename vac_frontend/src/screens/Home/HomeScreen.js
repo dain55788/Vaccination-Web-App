@@ -10,10 +10,12 @@ import {
   Platform,
   KeyboardAvoidingView,
   Keyboard,
+  Alert,
 } from 'react-native';
+import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import commonStyles, { COLORS, SPACING } from '../../styles/MyStyles';
+import commonStyles, { COLORS, FONT_SIZE, SPACING } from '../../styles/MyStyles';
 import { useNavigation } from "@react-navigation/native";
 import { MyDispatchContext, MyUserContext } from "../../utils/MyContexts";
 import { useContext } from "react";
@@ -25,6 +27,8 @@ import * as FileSystem from 'expo-file-system';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../../config/Firebase';
 import { Ionicons } from '@expo/vector-icons';
+import { StripeProvider, usePaymentSheet } from '@stripe/stripe-react-native';
+const { STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, BASE_URL } = Constants.expoConfig.extra;
 
 const HomeScreen = () => {
   const nav = useNavigation();
@@ -41,6 +45,117 @@ const HomeScreen = () => {
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [loadingDownload, setLoadingDownload] = useState(false);
+  const [finishData, setFinishData] = useState([]);
+
+  const { initPaymentSheet, presentPaymentSheet } = usePaymentSheet();
+
+  const handleCancelPress = async (data) => {
+    Alert.alert('Are you sure to cancel appointment?', '', [
+      {
+        text: 'No',
+        onPress: () => {
+          Alert.alert('Thank you!', 'God bless you!')
+        },
+        style: 'cancel',
+      },
+      {
+        text: 'SURE', onPress: async () => {
+          try {
+            const response = await Apis.patch(`${endpoints['appointmentvaccine']}${data.id}/`, {
+              status: 'cancelled',
+            });
+          }
+          catch (error) {
+            console.error('Cancel error:', error);
+          }
+
+        }
+      },
+    ]);
+  };
+
+  const handlePayPress = async (data) => {
+    initializePaymentSheet(data.id);
+
+    setTimeout(() => {
+      openPaymentSheet(data.id);
+    }, 2500);
+  };
+
+  const fetchPaymentSheetParams = async (i) => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await fetch(`${BASE_URL}/payment-sheet/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        vaccine_id: i,
+      })
+    });
+    const { paymentIntent, ephemeralKey, customer } = await response.json();
+    return {
+      paymentIntent,
+      ephemeralKey,
+      customer,
+    };
+  };
+
+  const openPaymentSheet = async (id) => {
+    const { error } = await presentPaymentSheet();
+    if (error) {
+      alert(`Pay Error: ${error.message}`);
+      console.log(error.message);
+      return;
+    }
+    Alert.alert('Pay Successfully!', 'Hold this screen and show to Staff to proof that you paid');
+    try {
+      const response = await Apis.patch(`${endpoints['appointmentvaccine']}${id}/`, {
+        status: 'completed',
+      });
+
+      const mergedData = finishData.map((ap) => {
+        if (ap.id === id) {
+          return {
+            ...ap,
+            status: 'completed',
+          };
+        }
+        return ap;
+      });
+      setFinishData(mergedData);
+    }
+    catch (error) {
+      console.error('Error Paying:', error);
+    }
+
+  };
+
+  const initializePaymentSheet = async (i) => {
+    try {
+      const {
+        paymentIntent,
+        ephemeralKey,
+        customer,
+      } = await fetchPaymentSheetParams(i);
+
+      const { error } = await initPaymentSheet({
+        customerId: customer,
+        customerEphemeralKeySecret: ephemeralKey,
+        paymentIntentClientSecret: paymentIntent,
+        returnURL: 'stripe-example://stripe-redirect',
+      });
+
+      if (!error) {
+        console.log('Payment sheet initialized');
+      } else {
+        console.log('Init error:', error.message);
+      }
+    } catch (e) {
+      console.log('Init failed:', e);
+    }
+  };
 
   const handleLogout = () => {
     try {
@@ -296,6 +411,25 @@ const HomeScreen = () => {
       setLoadingDownload(false);
     }
   };
+  
+  const fetchAllPaginatedData = async (endpoint) => {
+    let allData = [];
+    let nextUrl = endpoint;
+
+    try {
+      while (nextUrl) {
+        const response = await Apis.get(nextUrl);
+        const data = response.data;
+
+        allData = [...allData, ...(data.results || data)];
+        nextUrl = data.next; // null nếu hết trang
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+    return allData;
+  };
+
 
   useEffect(() => {
     const fetchAppointmentsVaccinesAndCampaigns = async () => {
@@ -304,17 +438,10 @@ const HomeScreen = () => {
         const appointmentResponse = await Apis.get(appointmentEndpoint);
         const appointments = appointmentResponse.data;
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const filteredAppointments = appointments.filter(appointment => {
-          const scheduledDate = new Date(appointment.scheduled_date);
-          return scheduledDate > today;
-        });
-        setUserUpcomingAppointments(filteredAppointments);
-
         // Fetch vaccination history
-        const vaccineResponse = await Apis.get(appointmentVaccineEndpoint);
-        const appointmentVaccines = vaccineResponse.data.results || vaccineResponse.data;
+        // const vaccineResponse = await Apis.get(appointmentVaccineEndpoint);
+        // const appointmentVaccines = vaccineResponse.data.results || vaccineResponse.data;
+        const appointmentVaccines= await fetchAllPaginatedData(appointmentVaccineEndpoint);
 
         const vaccinesResponse = await Apis.get(vaccineEndpoint);
         const vaccines = vaccinesResponse.data.results || vaccinesResponse.data;
@@ -356,7 +483,6 @@ const HomeScreen = () => {
 
         const campaignCitizenResponse = await Apis.get(endpoints['campaigncitizen']);
         const campaignCitizenData = campaignCitizenResponse.data.results || campaignCitizenResponse.data;
-        
         const userCampaignRegistrations = campaignCitizenData.filter(
           registration => registration.citizen_id === user.id
         );
@@ -369,11 +495,11 @@ const HomeScreen = () => {
             const campaign = allCampaigns.find(
               camp => camp.id === registration.campaign_id
             );
-            
+
             if (campaign) {
               const endDate = new Date(campaign.end_date);
               const currentDate = new Date();
-              
+
               if (endDate >= currentDate) {
                 return {
                   ...campaign,
@@ -389,6 +515,24 @@ const HomeScreen = () => {
 
         setUserRegisteredCampaigns(registeredCampaigns);
 
+        if (appointments.length > 0 && appointmentVaccines.length > 0) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          const mergedData = appointments.map((ap) => {
+            const vaccine = appointmentVaccines.find(av => av.appointment === ap.id);
+            return {
+              ...ap,
+              status: vaccine ? vaccine.status : "",
+            };
+          });
+          const filteredAppointments = mergedData.filter(appointment => {
+            const scheduledDate = new Date(appointment.scheduled_date);
+            return scheduledDate > today;
+          });
+          setFinishData(filteredAppointments);
+        }
+
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -397,7 +541,7 @@ const HomeScreen = () => {
     fetchAppointmentsVaccinesAndCampaigns();
   }, []);
 
-  const filteredAppointments = userUpcomingAppointments.filter(appointment => {
+  const filteredAppointments = finishData.filter(appointment => {
     const searchLower = searchQuery.toLowerCase();
     return (
       appointment.location?.toLowerCase().includes(searchLower) ||
@@ -511,14 +655,24 @@ const HomeScreen = () => {
                   <Text style={commonStyles.text}>Notes: {appointment.notes}</Text>
                   <Text style={commonStyles.text}>Location: {appointment.location}</Text>
                 </View>
-                <View style={commonStyles.appointmentActions}>
-                  <TouchableOpacity style={[commonStyles.button, styles.rescheduleButton]}>
-                    <Text style={commonStyles.buttonText}>Reschedule</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[commonStyles.button, styles.cancelButton]}>
-                    <Text style={commonStyles.buttonText}>Cancel</Text>
-                  </TouchableOpacity>
-                </View>
+                {appointment.status !== 'completed' ?
+                  <View style={commonStyles.appointmentActions}>
+                    <StripeProvider
+                      publishableKey={STRIPE_PUBLISHABLE_KEY}
+                      urlScheme="stripe-example">
+                      <TouchableOpacity
+                        onPress={() => handlePayPress(appointment)}
+                        style={[commonStyles.button, styles.rescheduleButton, { backgroundColor: COLORS.warning }]}>
+                        <Text style={commonStyles.buttonText}>PAY</Text>
+                      </TouchableOpacity>
+                    </StripeProvider>
+                    <TouchableOpacity
+                      onPress={() => handleCancelPress(appointment)}
+                      style={[commonStyles.button, styles.cancelButton]}>
+                      <Text style={commonStyles.buttonText}>Cancel</Text>
+                    </TouchableOpacity>
+                  </View> : <></>
+                }
               </View>
             ))
           ) : (

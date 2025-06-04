@@ -431,7 +431,7 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIVi
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-import stripe, os
+import stripe, os, json
 
 STRIPE_API_VERSION = f"{os.getenv('STRIPE_API_VERSION')}"
 STRIPE_SECRET_KEY = f"{os.getenv('STRIPE_SECRET_KEY')}"
@@ -445,6 +445,10 @@ def payment_sheet(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
     try:
+        data = json.loads(request.body)
+        av_id = data.get('vaccine_id')
+        av = AppointmentVaccine.objects.get(id=av_id)
+        amount = int(av.cost * 100)
         customer = stripe.Customer.create()
 
         ephemeral_key = stripe.EphemeralKey.create(
@@ -453,7 +457,7 @@ def payment_sheet(request):
         )
 
         payment_intent = stripe.PaymentIntent.create(
-            amount=2000,
+            amount=amount,
             currency='usd',
             customer=customer.id,
             automatic_payment_methods={"enabled": True},
