@@ -21,7 +21,7 @@ import { MenuProvider } from 'react-native-popup-menu';
 import HomeScreen from './src/screens/Home/HomeScreen';
 import LandingScreen from './src/screens/Home/LandingScreen';
 import AboutScreen from './src/screens/Home/AboutScreen';
-import WelcomeScreen from './src/screens//Home/Welcome';
+// import WelcomeScreen from './src/screens//Home/Welcome';
 
 import Chat from './src/screens/Chat/Chat';
 import Chats from './src/screens/Chat/Chats';
@@ -79,7 +79,7 @@ const TabNavigator = () => {
 const MainStack = () => (
   <NavigationContainer>
     <Stack.Navigator
-      initialRouteName="Welcome"
+      initialRouteName="Landing"
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: '#f8f9fa' },
@@ -116,7 +116,6 @@ const MainStack = () => (
       <Stack.Screen name="RegisterCampaign" component={RegisterCampaignScreen} />
 
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Landing" component={LandingScreen} />
       <Stack.Screen name="About" component={AboutScreen} />
 

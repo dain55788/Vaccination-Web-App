@@ -6,7 +6,7 @@ export default {
     "slug": "vac_frontend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/dirty-hand.png",
+    "icon": "./assets/khabanh.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -28,7 +28,7 @@ export default {
       // "googleServicesFile": "./google-services.json",
       // "package": "com.mycorp.myapp",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/dirty-hand.png",
+        "foregroundImage": "./assets/khabanh.png",
         "backgroundColor": "#ffffff"
       }
     },

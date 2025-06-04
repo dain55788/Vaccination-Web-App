@@ -92,6 +92,64 @@ const SHADOW = {
 };
 
 export const commonStyles = StyleSheet.create({
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    backgroundColor: COLORS.white,
+    padding: SPACING.lg,
+    borderRadius: BORDER_RADIUS.medium,
+    alignItems: 'center',
+    minWidth: 200,
+  },
+  loadingText: {
+    marginTop: SPACING.sm,
+    fontSize: FONT_SIZE.md,
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+  adminActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: SPACING.medium,
+  },
+  editButton: {
+    flex: 1,
+    backgroundColor: COLORS.info,
+  },
+  deleteButton: {
+    flex: 1,
+    backgroundColor: COLORS.danger,
+  },
+  editModal: {
+    maxHeight: '90%',
+    width: '95%',
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: SPACING.medium,
+    marginTop: SPACING.large,
+  },
+  cancelButton: {
+    flex: 1,
+  },
+  emptyText: {
+    fontSize: FONT_SIZE.medium,
+    color: COLORS.gray,
+    textAlign: 'center',
+    marginTop: SPACING.small,
+  },
+  emptyIcon: {
+    marginBottom: SPACING.small,
+  },
   map: {
     width: Dimensions.get('window').width/1.1,
     height: Dimensions.get('window').height/1.5,
