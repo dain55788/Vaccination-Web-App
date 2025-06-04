@@ -400,14 +400,21 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.UpdateAPIVi
     parser_classes = [parsers.MultiPartParser]
     pagination_class = paginators.UsersPaginator
 
-    def get_permissions(self):
+    def get_staff_permissions(self):
         if self.request.method in ['PUT', 'PATCH']:
             return [perms.OwnerPerms()]
         if self.action == 'get_users':
-            return [perms.IsStaffPermission()]
+            return [perms.IsSuperuserStaffPermission()]
         return [permissions.AllowAny()]
 
-    @action(methods=['get'], url_path='get-users', detail=False, permission_classes=[perms.IsStaffPermission])
+    def get_superuser_permissions(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return [perms.OwnerPerms()]
+        if self.action == 'get_users':
+            return [perms.IsSuperuserStaffPermission()]
+        return [permissions.AllowAny()]
+
+    @action(methods=['get'], url_path='get-users', detail=False, permission_classes=[perms.IsSuperuserStaffPermission])
     def get_users(self, request):
         queryset = self.queryset
         user_id = request.query_params.get('id')
